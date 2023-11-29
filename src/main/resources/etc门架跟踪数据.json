@@ -1,0 +1,82 @@
+[
+    {
+        "PASSID": "013201194623311046527620200628091227",
+        "TRANSTIME": "2020-06-28 09:48:30",
+        "COUNT": 0,
+        "SUMTIME": "(null)",
+        "SUMSTATUS": 1,
+        "PROVINCECOUNT": 1
+    },
+    {
+        "PASSID": "013201195123103003910420200628005236",
+        "TRANSTIME": "2020-06-28 09:41:01",
+        "COUNT": 0,
+        "SUMTIME": "(null)",
+        "SUMSTATUS": 1,
+        "PROVINCECOUNT": 2
+    },
+    {
+        "PASSID": "012101200123001060249120200628092720",
+        "TRANSTIME": "2020-06-28 09:40:15",
+        "COUNT": 0,
+        "SUMTIME": "(null)",
+        "SUMSTATUS": 1,
+        "PROVINCECOUNT": 1
+    },
+    {
+        "PASSID": "014501193923011741228720200628075033",
+        "TRANSTIME": "2020-06-28 09:40:34",
+        "COUNT": 0,
+        "SUMTIME": "(null)",
+        "SUMSTATUS": 1,
+        "PROVINCECOUNT": 2
+    },
+    {
+        "PASSID": "012101200123001014374120200628083322",
+        "TRANSTIME": "2020-06-28 08:51:18",
+        "COUNT": 0,
+        "SUMTIME": "(null)",
+        "SUMSTATUS": 1,
+        "PROVINCECOUNT": 1
+    },
+    {
+        "PASSID": "011301200123000507123620200628065406",
+        "TRANSTIME": "2020-06-28 09:41:08",
+        "COUNT": 0,
+        "SUMTIME": "(null)",
+        "SUMSTATUS": 1,
+        "PROVINCECOUNT": 2
+    },
+    {
+        "PASSID": "013701150222000140806620200625151232",
+        "TRANSTIME": "2020-06-25 15:44:51",
+        "COUNT": 1,
+        "SUMTIME": "2020-06-28 09:04:21",
+        "SUMSTATUS": 2,
+        "PROVINCECOUNT": 1
+    },
+    {
+        "PASSID": "013701190123020218395620200510090117",
+        "TRANSTIME": "2020-05-10 11:28:01",
+        "COUNT": 1,
+        "SUMTIME": "2020-05-14 18:14:22",
+        "SUMSTATUS": 2,
+        "PROVINCECOUNT": 2
+    },
+    {
+        "PASSID": "013701190123022145653720200628092908",
+        "TRANSTIME": "2020-06-28 09:41:16",
+        "COUNT": 0,
+        "SUMTIME": "(null)",
+        "SUMSTATUS": 1,
+        "PROVINCECOUNT": 2
+    },
+    {
+        "PASSID": "013701190123010754007920200505114237",
+        "TRANSTIME": "2020-05-05 12:50:42",
+        "COUNT": 0,
+        "SUMTIME": "(null)",
+        "SUMSTATUS": 1,
+        "PROVINCECOUNT": 1
+    }
+]
