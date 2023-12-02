@@ -1,6 +1,8 @@
 package info.nemoworks.highlink.source;
 
+import java.sql.Time;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 
@@ -31,6 +33,7 @@ public class TransactionSource implements SourceFunction<JsonNode> {
     public void run(SourceContext<JsonNode> ctx) throws Exception {
 
         while (isRunning) {
+            TimeUnit.SECONDS.sleep(random.nextInt(2));
             ctx.collect(transactions.get(random.nextInt(transactions.size() - 1)));
         }
     }
