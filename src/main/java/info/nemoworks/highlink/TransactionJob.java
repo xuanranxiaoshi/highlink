@@ -67,41 +67,40 @@ public class TransactionJob {
         final OutputTag<ObjectNode> gantryTrans = new OutputTag<ObjectNode>("gantryTrans") {
         };
 
-        SingleOutputStreamOperator<ObjectNode> mainDataStream = unionStream.process(new ProcessFunction<ObjectNode, ObjectNode>() {
+        SingleOutputStreamOperator<ObjectNode> mainDataStream = unionStream
+                .process(new ProcessFunction<ObjectNode, ObjectNode>() {
 
-            @Override
-            public void processElement(ObjectNode value, ProcessFunction<ObjectNode, ObjectNode>.Context ctx,
-                    org.apache.flink.util.Collector<ObjectNode> out) throws Exception {
+                    @Override
+                    public void processElement(ObjectNode value, ProcessFunction<ObjectNode, ObjectNode>.Context ctx,
+                            org.apache.flink.util.Collector<ObjectNode> out) throws Exception {
 
-                // emit data to regular output
-                out.collect(value);
+                        // emit data to regular output
+                        out.collect(value);
 
-                if (value.get("EXTOLLSTATION") != null) {
-                    ctx.output(exitTrans, value);
-                } else {
-                    if (value.get("GANTRYID") != null) {
-                        ctx.output(gantryTrans, value);
-                    }else{
-                        if (value.get("PARKOPERATORID")!=null){
-                            ctx.output(parkTrans, value);
+                        if (value.get("EXTOLLSTATION") != null) {
+                            ctx.output(exitTrans, value);
+                        } else {
+                            if (value.get("GANTRYID") != null) {
+                                ctx.output(gantryTrans, value);
+                            } else {
+                                if (value.get("PARKOPERATORID") != null) {
+                                    ctx.output(parkTrans, value);
+                                }
+                            }
                         }
+
                     }
-                }
+                });
 
-            }
-        });
-
-        
         DataStream<ObjectNode> gantryStream = mainDataStream.getSideOutput(gantryTrans);
-                DataStream<ObjectNode> exitStream = mainDataStream.getSideOutput(exitTrans);
-                DataStream<ObjectNode> parkStream = mainDataStream.getSideOutput(parkTrans);
+        DataStream<ObjectNode> exitStream = mainDataStream.getSideOutput(exitTrans);
+        DataStream<ObjectNode> parkStream = mainDataStream.getSideOutput(parkTrans);
 
         mainDataStream.print();
 
         gantryStream.addSink(new ObjectSink());
         exitStream.addSink(new ObjectSink());
         parkStream.addSink(new ObjectSink());
-
 
         env.execute("transaction processing");
     }
