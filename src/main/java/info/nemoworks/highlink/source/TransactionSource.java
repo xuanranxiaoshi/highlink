@@ -7,8 +7,9 @@ import org.apache.flink.streaming.api.functions.source.SourceFunction;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
-public class TransactionSource implements SourceFunction<JsonNode> {
+public class TransactionSource implements SourceFunction<ObjectNode> {
 
     private static final long serialVersionUID = 1L;
 
@@ -29,11 +30,11 @@ public class TransactionSource implements SourceFunction<JsonNode> {
     }
 
     @Override
-    public void run(SourceContext<JsonNode> ctx) throws Exception {
+    public void run(SourceContext<ObjectNode> ctx) throws Exception {
 
         while (isRunning) {
             TimeUnit.SECONDS.sleep(random.nextInt(2));
-            ctx.collect(transactions.get(random.nextInt(transactions.size() - 1)));
+            ctx.collect((ObjectNode) transactions.get(random.nextInt(transactions.size() - 1)));
         }
     }
 

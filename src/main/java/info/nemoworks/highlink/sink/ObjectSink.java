@@ -4,16 +4,16 @@ import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import info.nemoworks.highlink.Alert;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
-public class AlertSink implements SinkFunction<Alert> {
+public class ObjectSink implements SinkFunction<ObjectNode> {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(AlertSink.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ObjectSink.class);
 
     @Override
-    public void invoke(Alert value, Context context) {
+    public void invoke(ObjectNode value, Context context) {
         LOG.info(value.toString());
     }
 }
