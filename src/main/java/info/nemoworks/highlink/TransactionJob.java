@@ -339,6 +339,8 @@ public class TransactionJob {
                 true);
         JsonNode actualObj = mapper.readTree(localetc);
 
+        actualObj= mapper.readTree(TransactionJob.class.getResourceAsStream("/TBL_ENWASTEREC.json"));
+
         DataStream<JsonNode> transactions = env
                 .addSource(new TransactionSource(actualObj))
                 .name("transactions");

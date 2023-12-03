@@ -1,0 +1,12 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "TransactionJob",
+            "request": "launch",
+            "mainClass": "info.nemoworks.highlink.TransactionJob",
+            "projectName": "highlink",
+            "vmArgs": "--add-opens java.base/java.util=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED",
+        }
+    ],
+}
