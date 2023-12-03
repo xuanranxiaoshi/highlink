@@ -18,10 +18,13 @@ public class TransactionSource implements SourceFunction<ObjectNode> {
     private volatile boolean isRunning = true;
     Random random = new Random();
 
+    private int count;
+
     public TransactionSource(JsonNode transactions) throws Exception {
         if (!transactions.isArray())
             throw new Exception();
         this.transactions = (ArrayNode) transactions;
+        this.count = random.nextInt(30);
     }
 
     @Override
@@ -31,10 +34,10 @@ public class TransactionSource implements SourceFunction<ObjectNode> {
 
     @Override
     public void run(SourceContext<ObjectNode> ctx) throws Exception {
-
-        while (isRunning) {
+        while (isRunning && this.count >= 0) {
             TimeUnit.SECONDS.sleep(random.nextInt(2));
             ctx.collect((ObjectNode) transactions.get(random.nextInt(transactions.size() - 1)));
+            this.count--;
         }
     }
 

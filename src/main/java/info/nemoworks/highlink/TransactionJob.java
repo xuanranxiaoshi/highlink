@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import info.nemoworks.highlink.metric.LinkCounter;
 import info.nemoworks.highlink.sink.ObjectSink;
 import info.nemoworks.highlink.source.TransactionSource;
 
@@ -88,7 +89,6 @@ public class TransactionJob {
                                 }
                             }
                         }
-
                     }
                 });
 
@@ -96,11 +96,11 @@ public class TransactionJob {
         DataStream<ObjectNode> exitStream = mainDataStream.getSideOutput(exitTrans);
         DataStream<ObjectNode> parkStream = mainDataStream.getSideOutput(parkTrans);
 
-        mainDataStream.print();
+        mainDataStream.map(new LinkCounter("unionCounter")).addSink(new ObjectSink(ObjectSink.ANSI_YELLOW));
 
-        gantryStream.addSink(new ObjectSink());
-        exitStream.addSink(new ObjectSink());
-        parkStream.addSink(new ObjectSink());
+        gantryStream.map(new LinkCounter("gantryCounter")).addSink(new ObjectSink(ObjectSink.ANSI_BLUE));
+        exitStream.map(new LinkCounter("exitCounter")).addSink(new ObjectSink(ObjectSink.ANSI_RED));
+        parkStream.map(new LinkCounter("parkCounter")).addSink(new ObjectSink(ObjectSink.ANSI_GREEN));
 
         env.execute("transaction processing");
     }
