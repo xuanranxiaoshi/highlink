@@ -2,14 +2,12 @@ package info.nemoworks.highlink;
 
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.walkthrough.common.entity.Alert;
-import org.apache.flink.walkthrough.common.entity.Transaction;
-import org.apache.flink.walkthrough.common.sink.AlertSink;
 
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import info.nemoworks.highlink.sink.AlertSink;
 import info.nemoworks.highlink.source.TransactionSource;
 
 public class TransactionJob {
@@ -345,17 +343,16 @@ public class TransactionJob {
                 .addSource(new TransactionSource(actualObj))
                 .name("transactions");
 
-        transactions.print();
 
-        // DataStream<Alert> alerts = transactions
-        // .keyBy(Transaction::getAccountId)
-        // .process(new FraudDetector())
-        // .name("fraud-detector");
+        DataStream<Alert> alerts = transactions
+        .keyBy(t->t.get("ID"))
+        .process(new TransactionProcessor())
+        .name("tprocess");
 
-        // alerts
-        // .addSink(new AlertSink())
-        // .name("send-alerts");
+        alerts
+        .addSink(new AlertSink())
+        .name("send-alerts");
 
-        env.execute("Fraud Detection");
+        env.execute("transaction processing");
     }
 }

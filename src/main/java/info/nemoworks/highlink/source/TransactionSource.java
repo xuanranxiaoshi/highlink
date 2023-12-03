@@ -1,6 +1,5 @@
 package info.nemoworks.highlink.source;
 
-import java.sql.Time;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 

@@ -20,13 +20,13 @@ package info.nemoworks.highlink;
 
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 import org.apache.flink.util.Collector;
-import org.apache.flink.walkthrough.common.entity.Alert;
-import org.apache.flink.walkthrough.common.entity.Transaction;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * Skeleton code for implementing a fraud detector.
  */
-public class FraudDetector extends KeyedProcessFunction<Long, Transaction, Alert> {
+public class TransactionProcessor extends KeyedProcessFunction<JsonNode, JsonNode, Alert> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -36,12 +36,12 @@ public class FraudDetector extends KeyedProcessFunction<Long, Transaction, Alert
 
 	@Override
 	public void processElement(
-			Transaction transaction,
+			JsonNode transaction,
 			Context context,
 			Collector<Alert> collector) throws Exception {
 
 		Alert alert = new Alert();
-		alert.setId(transaction.getAccountId());
+		alert.setId(transaction.get("ID").asText());
 
 		collector.collect(alert);
 	}
