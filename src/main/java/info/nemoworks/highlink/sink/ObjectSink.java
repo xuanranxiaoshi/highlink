@@ -33,6 +33,6 @@ public class ObjectSink implements SinkFunction<ObjectNode> {
     @Override
     public void invoke(ObjectNode value, Context context) {
 
-        LOG.info(this.color + value.get("ID") + ANSI_RESET);
+        // LOG.info(this.color + value.get("ID") + ANSI_RESET);
     }
 }

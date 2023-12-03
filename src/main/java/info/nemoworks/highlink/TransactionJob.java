@@ -44,64 +44,66 @@ public class TransactionJob {
                 .readTree(TransactionJob.class.getResourceAsStream("/TBL_PARKTRANSWASTEREC.json"));
 
         DataStream<ObjectNode> enWaste = env
-                .addSource(new TransactionSource(enWasteRec))
+                .addSource(new TransactionSource(enWasteRec, "entry"))
                 .name("ENTRY_WASTE");
 
         DataStream<ObjectNode> exWaste = env
-                .addSource(new TransactionSource(exWasteRec))
+                .addSource(new TransactionSource(exWasteRec, "exit"))
                 .name("EXIT_WASTE");
 
         DataStream<ObjectNode> gantryWaste = env
-                .addSource(new TransactionSource(gantryWasteRec))
+                .addSource(new TransactionSource(gantryWasteRec, "gantry"))
                 .name("GANTRY_WASTE");
 
         DataStream<ObjectNode> parkWaste = env
-                .addSource(new TransactionSource(parkWasteRec))
+                .addSource(new TransactionSource(parkWasteRec, "park"))
                 .name("PARK_WASTE");
 
-        DataStream<ObjectNode> unionStream = enWaste.union(exWaste).union(gantryWaste).union(parkWaste);
+        parkWaste.map(new LinkCounter("park")).addSink(new ObjectSink("parksink"));
 
-        final OutputTag<ObjectNode> exitTrans = new OutputTag<ObjectNode>("exitTrans") {
-        };
-        final OutputTag<ObjectNode> parkTrans = new OutputTag<ObjectNode>("parkTrans") {
-        };
-        final OutputTag<ObjectNode> gantryTrans = new OutputTag<ObjectNode>("gantryTrans") {
-        };
+        // DataStream<ObjectNode> unionStream = enWaste.union(exWaste).union(gantryWaste).union(parkWaste);
 
-        SingleOutputStreamOperator<ObjectNode> mainDataStream = unionStream
-                .process(new ProcessFunction<ObjectNode, ObjectNode>() {
+        // final OutputTag<ObjectNode> exitTrans = new OutputTag<ObjectNode>("exitTrans") {
+        // };
+        // final OutputTag<ObjectNode> parkTrans = new OutputTag<ObjectNode>("parkTrans") {
+        // };
+        // final OutputTag<ObjectNode> gantryTrans = new OutputTag<ObjectNode>("gantryTrans") {
+        // };
 
-                    @Override
-                    public void processElement(ObjectNode value, ProcessFunction<ObjectNode, ObjectNode>.Context ctx,
-                            org.apache.flink.util.Collector<ObjectNode> out) throws Exception {
+        // SingleOutputStreamOperator<ObjectNode> mainDataStream = unionStream
+        //         .process(new ProcessFunction<ObjectNode, ObjectNode>() {
 
-                        // emit data to regular output
-                        out.collect(value);
+        //             @Override
+        //             public void processElement(ObjectNode value, ProcessFunction<ObjectNode, ObjectNode>.Context ctx,
+        //                     org.apache.flink.util.Collector<ObjectNode> out) throws Exception {
 
-                        if (value.get("EXTOLLSTATION") != null) {
-                            ctx.output(exitTrans, value);
-                        } else {
-                            if (value.get("GANTRYID") != null) {
-                                ctx.output(gantryTrans, value);
-                            } else {
-                                if (value.get("PARKOPERATORID") != null) {
-                                    ctx.output(parkTrans, value);
-                                }
-                            }
-                        }
-                    }
-                });
+        //                 // emit data to regular output
+        //                 out.collect(value);
 
-        DataStream<ObjectNode> gantryStream = mainDataStream.getSideOutput(gantryTrans);
-        DataStream<ObjectNode> exitStream = mainDataStream.getSideOutput(exitTrans);
-        DataStream<ObjectNode> parkStream = mainDataStream.getSideOutput(parkTrans);
+        //                 if (value.get("EXTOLLSTATION") != null) {
+        //                     ctx.output(exitTrans, value);
+        //                 } else {
+        //                     if (value.get("GANTRYID") != null) {
+        //                         ctx.output(gantryTrans, value);
+        //                     } else {
+        //                         if (value.get("PARKOPERATORID") != null) {
+        //                             ctx.output(parkTrans, value);
+        //                         }
+        //                     }
+        //                 }
+        //             }
+        //         });
 
-        mainDataStream.map(new LinkCounter("unionCounter")).addSink(new ObjectSink(ObjectSink.ANSI_YELLOW));
+        // DataStream<ObjectNode> gantryStream = mainDataStream.getSideOutput(gantryTrans);
+        // DataStream<ObjectNode> exitStream = mainDataStream.getSideOutput(exitTrans);
+        // DataStream<ObjectNode> parkStream = mainDataStream.getSideOutput(parkTrans);
 
-        gantryStream.map(new LinkCounter("gantryCounter")).addSink(new ObjectSink(ObjectSink.ANSI_BLUE));
-        exitStream.map(new LinkCounter("exitCounter")).addSink(new ObjectSink(ObjectSink.ANSI_RED));
-        parkStream.map(new LinkCounter("parkCounter")).addSink(new ObjectSink(ObjectSink.ANSI_GREEN));
+        // mainDataStream.map(new LinkCounter("main")).addSink(new ObjectSink(ObjectSink.ANSI_YELLOW));
 
-        env.execute("transaction processing");
+        // gantryStream.addSink(new ObjectSink(ObjectSink.ANSI_BLUE));
+        // exitStream.addSink(new ObjectSink(ObjectSink.ANSI_RED));
+        // parkStream.addSink(new ObjectSink(ObjectSink.ANSI_GREEN));
+
+        env.setParallelism(2).execute("transaction processing");
     }
 }
