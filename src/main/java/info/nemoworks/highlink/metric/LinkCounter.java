@@ -3,10 +3,11 @@ package info.nemoworks.highlink.metric;
 import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.metrics.Counter;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.node.ObjectNode;
+
+import info.nemoworks.highlink.model.Transaction;
 
 
-public class LinkCounter extends RichMapFunction<ObjectNode, ObjectNode> {
+public class LinkCounter extends RichMapFunction<Transaction, Transaction> {
     private transient Counter counter;
 
     private String name;
@@ -23,7 +24,7 @@ public class LinkCounter extends RichMapFunction<ObjectNode, ObjectNode> {
     }
 
     @Override
-    public ObjectNode map(ObjectNode value) throws Exception {
+    public Transaction map(Transaction value) throws Exception {
         this.counter.inc();
         // LoggerFactory.getLogger(LinkCounter.class)
         // .info(ObjectSink.ANSI_GREEN + this.name + ": " + this.counter.getCount() +

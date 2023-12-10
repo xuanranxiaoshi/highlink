@@ -13,6 +13,7 @@ import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.OutputTag;
 
 import info.nemoworks.highlink.metric.LinkCounter;
+import info.nemoworks.highlink.model.GantryTransaction;
 import info.nemoworks.highlink.sink.ObjectSink;
 import info.nemoworks.highlink.source.TransactionSource;
 
@@ -97,16 +98,18 @@ public class TransactionJob {
                                         }
                                 });
 
-                DataStream<ObjectNode> gantryStream = mainDataStream.getSideOutput(gantryTrans);
+                DataStream<GantryTransaction> gantryStream = mainDataStream.getSideOutput(gantryTrans);
                 DataStream<ObjectNode> exitStream = mainDataStream.getSideOutput(exitTrans);
                 DataStream<ObjectNode> parkStream = mainDataStream.getSideOutput(parkTrans);
 
-                mainDataStream.map(new LinkCounter("main")).addSink(new ObjectSink(ObjectSink.ANSI_YELLOW));
+                // mainDataStream.addSink(new ObjectSink(ObjectSink.ANSI_YELLOW));
 
-                gantryStream.map(new LinkCounter("gantry")).addSink(new ObjectSink(ObjectSink.ANSI_BLUE));
-                exitStream.map(new LinkCounter("exit")).addSink(new ObjectSink(ObjectSink.ANSI_RED));
-                parkStream.map(new LinkCounter("park")).addSink(new ObjectSink(ObjectSink.ANSI_GREEN));
+                gantryStream.map(GantryTransaction::fromJson).addSink(new ObjectSink(ObjectSink.ANSI_BLUE));
+                // exitStream.map(new LinkCounter("exit")).addSink(new ObjectSink(ObjectSink.ANSI_RED));
+                // parkStream.map(new LinkCounter("park")).addSink(new ObjectSink(ObjectSink.ANSI_GREEN));
 
                 env.execute("transaction processing");
         }
+
+        
 }

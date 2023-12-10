@@ -7,10 +7,6 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.node.ArrayNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
-import org.slf4j.LoggerFactory;
-
-
-import info.nemoworks.highlink.sink.ObjectSink;
 
 public class TransactionSource implements SourceFunction<ObjectNode> {
 
@@ -32,7 +28,8 @@ public class TransactionSource implements SourceFunction<ObjectNode> {
         this.name = name;
         this.count = random.nextInt(100);
         // LoggerFactory.getLogger(TransactionSource.class)
-                // .info(ObjectSink.ANSI_CYAN + "Source " + this.name + " has " + this.count + ObjectSink.ANSI_RESET);
+        // .info(ObjectSink.ANSI_CYAN + "Source " + this.name + " has " + this.count +
+        // ObjectSink.ANSI_RESET);
     }
 
     @Override

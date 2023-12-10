@@ -1,12 +1,13 @@
 package info.nemoworks.highlink.sink;
 
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import info.nemoworks.highlink.model.Transaction;
 
-public class ObjectSink implements SinkFunction<ObjectNode> {
+
+public class ObjectSink implements SinkFunction<Transaction> {
 
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_BLACK = "\u001B[30m";
@@ -29,8 +30,8 @@ public class ObjectSink implements SinkFunction<ObjectNode> {
     }
 
     @Override
-    public void invoke(ObjectNode value, Context context) {
+    public void invoke(Transaction value, Context context) {
 
-        LOG.info(this.color + value.get("ID") + ANSI_RESET);
+        LOG.info(this.color + value.getID() + ANSI_RESET);
     }
 }
