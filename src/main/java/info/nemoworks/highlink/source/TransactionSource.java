@@ -3,12 +3,12 @@ package info.nemoworks.highlink.source;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.node.ArrayNode;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import info.nemoworks.highlink.sink.ObjectSink;
 
@@ -30,9 +30,9 @@ public class TransactionSource implements SourceFunction<ObjectNode> {
             throw new Exception();
         this.transactions = (ArrayNode) transactions;
         this.name = name;
-        this.count = random.nextInt(20);
-        LoggerFactory.getLogger(TransactionSource.class)
-                .info(ObjectSink.ANSI_CYAN + "Source " + this.name + " has " + this.count + ObjectSink.ANSI_RESET);
+        this.count = random.nextInt(100);
+        // LoggerFactory.getLogger(TransactionSource.class)
+                // .info(ObjectSink.ANSI_CYAN + "Source " + this.name + " has " + this.count + ObjectSink.ANSI_RESET);
     }
 
     @Override

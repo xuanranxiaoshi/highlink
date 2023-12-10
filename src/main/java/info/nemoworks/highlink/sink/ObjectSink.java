@@ -1,12 +1,10 @@
 package info.nemoworks.highlink.sink;
 
-import java.util.Objects;
-
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class ObjectSink implements SinkFunction<ObjectNode> {
 
@@ -33,6 +31,6 @@ public class ObjectSink implements SinkFunction<ObjectNode> {
     @Override
     public void invoke(ObjectNode value, Context context) {
 
-        // LOG.info(this.color + value.get("ID") + ANSI_RESET);
+        LOG.info(this.color + value.get("ID") + ANSI_RESET);
     }
 }
