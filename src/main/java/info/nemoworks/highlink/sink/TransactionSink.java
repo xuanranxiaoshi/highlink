@@ -6,8 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import info.nemoworks.highlink.model.HighwayTransaction;
 
-
-public class ObjectSink implements SinkFunction<HighwayTransaction> {
+public class TransactionSink<T extends HighwayTransaction> implements SinkFunction<T> {
 
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_BLACK = "\u001B[30m";
@@ -21,16 +20,16 @@ public class ObjectSink implements SinkFunction<HighwayTransaction> {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(ObjectSink.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TransactionSink.class);
 
     private String color;
 
-    public ObjectSink(String color) {
+    public TransactionSink(String color) {
         this.color = color;
     }
 
     @Override
-    public void invoke(HighwayTransaction value, Context context) {
+    public void invoke(T value, Context context) {
 
         LOG.info(this.color + value.getID() + ANSI_RESET);
     }

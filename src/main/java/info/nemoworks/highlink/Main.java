@@ -18,7 +18,7 @@ import info.nemoworks.highlink.model.ExitTransaction;
 import info.nemoworks.highlink.model.GantryTransaction;
 import info.nemoworks.highlink.model.HighwayTransaction;
 import info.nemoworks.highlink.model.ParkTransaction;
-import info.nemoworks.highlink.sink.ObjectSink;
+import info.nemoworks.highlink.sink.TransactionSink;
 import info.nemoworks.highlink.source.TransactionSource;
 
 public class Main {
@@ -36,14 +36,6 @@ public class Main {
         JsonNode exWasteRec = mapper.readTree(Main.class.getResourceAsStream("/TBL_EXWASTEREC.json"));
         JsonNode gantryWasteRec = mapper.readTree(Main.class.getResourceAsStream("/TBL_GANTRYWASTEREC.json"));
         JsonNode parkWasteRec = mapper.readTree(Main.class.getResourceAsStream("/TBL_PARKTRANSWASTEREC.json"));
-        // Iterator<JsonNode> iterator = gantryWasteRec.iterator();
-        // if (gantryWasteRec.isArray()) {
-        // while (iterator.hasNext()) {
-        // ObjectNode node = (ObjectNode) iterator.next();
-        // node.set("ID", node.get("TRADEID"));
-        // node.remove("TRADEID");
-        // }
-        // }
 
         DataStream<HighwayTransaction> enWaste = env
                 .addSource(new TransactionSource(enWasteRec, "entry"))
@@ -60,8 +52,6 @@ public class Main {
         DataStream<HighwayTransaction> parkWaste = env
                 .addSource(new TransactionSource(parkWasteRec, "park"))
                 .name("PARK_WASTE");
-
-        parkWaste.map(new LinkCounter("park")).addSink(new ObjectSink("parksink"));
 
         DataStream<HighwayTransaction> unionStream = enWaste.union(exWaste).union(gantryWaste).union(parkWaste);
 
@@ -101,13 +91,16 @@ public class Main {
         DataStream<ExitTransaction> exitStream = mainDataStream.getSideOutput(exitTrans);
         DataStream<ParkTransaction> parkStream = mainDataStream.getSideOutput(parkTrans);
 
-        mainDataStream.map(new LinkCounter("main")).addSink(new ObjectSink(ObjectSink.ANSI_YELLOW));
+        mainDataStream.map(new LinkCounter<EntryTransaction>("main"))
+                .addSink(new TransactionSink<EntryTransaction>(TransactionSink.ANSI_YELLOW));
 
-        gantryStream.map(new LinkCounter("gantry")).addSink(new ObjectSink(ObjectSink.ANSI_BLUE));
-        exitStream.map(new LinkCounter("exit")).addSink(new ObjectSink(ObjectSink.ANSI_RED));
-        parkStream.map(new LinkCounter("park")).addSink(new ObjectSink(ObjectSink.ANSI_GREEN));
+        gantryStream.map(new LinkCounter<GantryTransaction>("gantry"))
+                .addSink(new TransactionSink<GantryTransaction>(TransactionSink.ANSI_BLUE));
+        exitStream.map(new LinkCounter<ExitTransaction>("exit"))
+                .addSink(new TransactionSink<ExitTransaction>(TransactionSink.ANSI_RED));
+        parkStream.map(new LinkCounter<ParkTransaction>("park"))
+                .addSink(new TransactionSink<ParkTransaction>(TransactionSink.ANSI_GREEN));
 
-        // env.execute("transaction processing");
 
         MiniClusterConfiguration clusterConfiguration = new MiniClusterConfiguration.Builder()
                 .setNumTaskManagers(2)

@@ -1,22 +1,5 @@
 package info.nemoworks.highlink;
 
-import java.util.Iterator;
-
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.json.JsonReadFeature;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.node.ObjectNode;
-import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.ProcessFunction;
-import org.apache.flink.util.OutputTag;
-
-import info.nemoworks.highlink.metric.LinkCounter;
-import info.nemoworks.highlink.model.GantryTransaction;
-import info.nemoworks.highlink.sink.ObjectSink;
-import info.nemoworks.highlink.source.TransactionSource;
-
 public class TransactionJob {
 
         public static void main(String[] args) throws Exception {
