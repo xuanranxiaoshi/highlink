@@ -5,7 +5,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonPro
 import lombok.Data;
 
 @Data
-public class GantryTransaction implements HighwayTransaction {
+public class GantryRawTransaction implements HighwayTransaction {
     @JsonProperty("TRADEID")
     private String tRADEID;
     @JsonProperty("GANTRYID")
@@ -283,9 +283,9 @@ public class GantryTransaction implements HighwayTransaction {
     @JsonProperty("FEEVEHICLETYPE")
     private int fEEVEHICLETYPE;
     @JsonProperty("OBULASTGANTRYHEX")
-    private int oBULASTGANTRYHEX;
+    private String oBULASTGANTRYHEX;
     @JsonProperty("OBULASTGANTRYTIME")
-    private int oBULASTGANTRYTIME;
+    private String oBULASTGANTRYTIME;
     @JsonProperty("RATECOMPUTE")
     private int rATECOMPUTE;
     @JsonProperty("RATEFITCOUNT")
@@ -305,7 +305,7 @@ public class GantryTransaction implements HighwayTransaction {
     @JsonProperty("OBUMILEAGEAFTER")
     private int oBUMILEAGEAFTER;
     @JsonProperty("PROVMINFEE")
-    private int pROVMINFEE;
+    private String pROVMINFEE;
     @JsonProperty("FEESPARE1")
     private int fEESPARE1;
     @JsonProperty("FEESPARE2")
@@ -337,7 +337,7 @@ public class GantryTransaction implements HighwayTransaction {
     @JsonProperty("PCRSUVERSION")
     private int pCRSUVERSION;
     @JsonProperty("GANTRYPASSINFOAFTER")
-    private int gANTRYPASSINFOAFTER;
+    private String gANTRYPASSINFOAFTER;
     @JsonProperty("UPDATERESULT")
     private int uPDATERESULT;
     @JsonProperty("CPCFEETRADERESULT")
@@ -351,7 +351,7 @@ public class GantryTransaction implements HighwayTransaction {
     @JsonProperty("FEEPROVBEGINHEXFIT")
     private String fEEPROVBEGINHEXFIT;
     @JsonProperty("FEEPROVBEGINTIMEFIT")
-    private int fEEPROVBEGINTIMEFIT;
+    private String fEEPROVBEGINTIMEFIT;
     @JsonProperty("TOLLINTERVALSIGN")
     private int tOLLINTERVALSIGN;
     @JsonProperty("PROVMINFEECALCMODE")
@@ -422,4 +422,7 @@ public class GantryTransaction implements HighwayTransaction {
         return this.getTRADEID();
     }
 
+    public boolean isEtc() {
+        return this.getMEDIATYPE() != 1;
+    }
 }

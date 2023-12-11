@@ -3,7 +3,7 @@ package info.nemoworks.highlink.model;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 
-public class TransactionFactory {
+public class RawTransactionFactory {
 
     public static HighwayTransaction fromJson(JsonNode json) throws Exception {
         if (json.isArray())
@@ -11,11 +11,11 @@ public class TransactionFactory {
         ObjectMapper mapper = new ObjectMapper();
 
         if (json.get("EXTOLLSTATION") != null)
-            return mapper.treeToValue(json, ExitTransaction.class);
+            return mapper.treeToValue(json, ExitRawTransaction.class);
         if (json.get("GANTRYID") != null)
-            return mapper.treeToValue(json, GantryTransaction.class);
+            return mapper.treeToValue(json, GantryRawTransaction.class);
         if (json.get("PARKOPERATORID") != null)
-            return mapper.treeToValue(json, ParkTransaction.class);
-        return mapper.treeToValue(json, EntryTransaction.class);
+            return mapper.treeToValue(json, ParkRawTransaction.class);
+        return mapper.treeToValue(json, EntryRawTransaction.class);
     }
 }

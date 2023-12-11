@@ -5,7 +5,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonPro
 import lombok.Data;
 
 @Data
-public class ParkTransaction implements HighwayTransaction {
+public class ParkRawTransaction implements HighwayTransaction {
     @JsonProperty("ID")
     private double iD;
     @JsonProperty("PARKOPERATORID")

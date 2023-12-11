@@ -8,9 +8,9 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.node.Arra
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 
 import info.nemoworks.highlink.model.HighwayTransaction;
-import info.nemoworks.highlink.model.TransactionFactory;
+import info.nemoworks.highlink.model.RawTransactionFactory;
 
-public class TransactionSource implements SourceFunction<HighwayTransaction> {
+public class RawTransactionSource implements SourceFunction<HighwayTransaction> {
 
     private static final long serialVersionUID = 1L;
 
@@ -23,7 +23,7 @@ public class TransactionSource implements SourceFunction<HighwayTransaction> {
 
     private String name;
 
-    public TransactionSource(JsonNode transactions, String name) throws Exception {
+    public RawTransactionSource(JsonNode transactions, String name) throws Exception {
         if (!transactions.isArray())
             throw new Exception();
         this.transactions = (ArrayNode) transactions;
@@ -40,7 +40,7 @@ public class TransactionSource implements SourceFunction<HighwayTransaction> {
     public void run(SourceContext<HighwayTransaction> ctx) throws Exception {
         while (isRunning && this.count > 0) {
             TimeUnit.SECONDS.sleep(random.nextInt(2));
-            ctx.collect((TransactionFactory.fromJson(transactions.get(random.nextInt(transactions.size() - 1)))));
+            ctx.collect((RawTransactionFactory.fromJson(transactions.get(random.nextInt(transactions.size() - 1)))));
             this.count--;
         }
     }

@@ -5,7 +5,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonPro
 import lombok.Data;
 
 @Data
-public class ExitTransaction implements HighwayTransaction {
+public class ExitRawTransaction implements HighwayTransaction {
 
     @JsonProperty("ID")
     private String iD;
