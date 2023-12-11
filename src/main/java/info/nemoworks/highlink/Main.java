@@ -100,7 +100,7 @@ public class Main {
                 //将门架流水再进行拆分：etc/cpc
                 final OutputTag<GantryCpcTransaction> ganCpcTag = new OutputTag<GantryCpcTransaction>("gantryCpcTrans") {
                 };
-                
+
                 SingleOutputStreamOperator<GantryEtcTransaction> gantryAllStream = gantryStream
                                 .process(new ProcessFunction<GantryRawTransaction, GantryEtcTransaction>() {
 
@@ -122,18 +122,15 @@ public class Main {
                 DataStream<GantryEtcTransaction> gantryEtcStream = gantryAllStream;
 
                 // 得到四个不同类型的数据流
-                entryStream.map(new LinkCounter<EntryRawTransaction>("entry"))
-                                .addSink(new TransactionSink<EntryRawTransaction>(TransactionSink.ANSI_BLUE));
-                exitStream.map(new LinkCounter<ExitRawTransaction>("exit"))
-                                .addSink(new TransactionSink<ExitRawTransaction>(TransactionSink.ANSI_YELLOW));
-                parkStream.map(new LinkCounter<ParkRawTransaction>("park"))
-                                .addSink(new TransactionSink<ParkRawTransaction>(TransactionSink.ANSI_PURPLE));
+                entryStream.addSink(new TransactionSink<EntryRawTransaction>(TransactionSink.ANSI_BLUE));
+                exitStream.addSink(new TransactionSink<ExitRawTransaction>(TransactionSink.ANSI_YELLOW));
+                parkStream.addSink(new TransactionSink<ParkRawTransaction>(TransactionSink.ANSI_PURPLE));
 
-                gantryCpcStream.map(new LinkCounter<GantryCpcTransaction>("gantryCpc"))
-                                .addSink(new TransactionSink<GantryCpcTransaction>(TransactionSink.ANSI_RED));
+                gantryCpcStream.map(new LinkCounter<GantryCpcTransaction>("gantryCpc"));
 
-                gantryEtcStream.map(new LinkCounter<GantryEtcTransaction>("gantryEtc"))
-                                .addSink(new TransactionSink<GantryEtcTransaction>(TransactionSink.ANSI_GREEN));
+
+                gantryEtcStream.addSink(new TransactionSink<GantryEtcTransaction>(TransactionSink.ANSI_GREEN));
+
 
                 // 配置flink集群，启动任务
                 MiniClusterConfiguration clusterConfiguration = new MiniClusterConfiguration.Builder()
