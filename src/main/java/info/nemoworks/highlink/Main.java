@@ -1,20 +1,23 @@
 package info.nemoworks.highlink;
 
-import java.util.Iterator;
-
 import org.apache.flink.runtime.minicluster.MiniCluster;
 import org.apache.flink.runtime.minicluster.MiniClusterConfiguration;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.json.JsonReadFeature;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
+import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
 
 import info.nemoworks.highlink.metric.LinkCounter;
+import info.nemoworks.highlink.model.EntryTransaction;
+import info.nemoworks.highlink.model.ExitTransaction;
+import info.nemoworks.highlink.model.GantryTransaction;
+import info.nemoworks.highlink.model.HighwayTransaction;
+import info.nemoworks.highlink.model.ParkTransaction;
 import info.nemoworks.highlink.sink.ObjectSink;
 import info.nemoworks.highlink.source.TransactionSource;
 
@@ -29,79 +32,74 @@ public class Main {
                 JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS.mappedFeature(),
                 true);
 
-        JsonNode enWasteRec = mapper.readTree(TransactionJob.class.getResourceAsStream("/TBL_ENWASTEREC.json"));
-        JsonNode exWasteRec = mapper.readTree(TransactionJob.class.getResourceAsStream("/TBL_EXWASTEREC.json"));
-        JsonNode gantryWasteRec = mapper
-                .readTree(TransactionJob.class.getResourceAsStream("/TBL_GANTRYWASTEREC.json"));
+        JsonNode enWasteRec = mapper.readTree(Main.class.getResourceAsStream("/TBL_ENWASTEREC.json"));
+        JsonNode exWasteRec = mapper.readTree(Main.class.getResourceAsStream("/TBL_EXWASTEREC.json"));
+        JsonNode gantryWasteRec = mapper.readTree(Main.class.getResourceAsStream("/TBL_GANTRYWASTEREC.json"));
+        JsonNode parkWasteRec = mapper.readTree(Main.class.getResourceAsStream("/TBL_PARKTRANSWASTEREC.json"));
+        // Iterator<JsonNode> iterator = gantryWasteRec.iterator();
+        // if (gantryWasteRec.isArray()) {
+        // while (iterator.hasNext()) {
+        // ObjectNode node = (ObjectNode) iterator.next();
+        // node.set("ID", node.get("TRADEID"));
+        // node.remove("TRADEID");
+        // }
+        // }
 
-        Iterator<JsonNode> iterator = gantryWasteRec.iterator();
-        if (gantryWasteRec.isArray()) {
-            while (iterator.hasNext()) {
-                ObjectNode node = (ObjectNode) iterator.next();
-                node.set("ID", node.get("TRADEID"));
-                node.remove("TRADEID");
-            }
-        }
-
-        JsonNode parkWasteRec = mapper
-                .readTree(TransactionJob.class.getResourceAsStream("/TBL_PARKTRANSWASTEREC.json"));
-
-        DataStream<ObjectNode> enWaste = env
+        DataStream<HighwayTransaction> enWaste = env
                 .addSource(new TransactionSource(enWasteRec, "entry"))
                 .name("ENTRY_WASTE");
 
-        DataStream<ObjectNode> exWaste = env
+        DataStream<HighwayTransaction> exWaste = env
                 .addSource(new TransactionSource(exWasteRec, "exit"))
                 .name("EXIT_WASTE");
 
-        DataStream<ObjectNode> gantryWaste = env
+        DataStream<HighwayTransaction> gantryWaste = env
                 .addSource(new TransactionSource(gantryWasteRec, "gantry"))
                 .name("GANTRY_WASTE");
 
-        DataStream<ObjectNode> parkWaste = env
+        DataStream<HighwayTransaction> parkWaste = env
                 .addSource(new TransactionSource(parkWasteRec, "park"))
                 .name("PARK_WASTE");
 
         parkWaste.map(new LinkCounter("park")).addSink(new ObjectSink("parksink"));
 
-        DataStream<ObjectNode> unionStream = enWaste.union(exWaste).union(gantryWaste).union(parkWaste);
+        DataStream<HighwayTransaction> unionStream = enWaste.union(exWaste).union(gantryWaste).union(parkWaste);
 
-        final OutputTag<ObjectNode> exitTrans = new OutputTag<ObjectNode>("exitTrans") {
+        final OutputTag<ExitTransaction> exitTrans = new OutputTag<ExitTransaction>("exitTrans") {
         };
-        final OutputTag<ObjectNode> parkTrans = new OutputTag<ObjectNode>("parkTrans") {
+        final OutputTag<ParkTransaction> parkTrans = new OutputTag<ParkTransaction>("parkTrans") {
         };
-        final OutputTag<ObjectNode> gantryTrans = new OutputTag<ObjectNode>("gantryTrans") {
+        final OutputTag<GantryTransaction> gantryTrans = new OutputTag<GantryTransaction>("gantryTrans") {
         };
 
-        SingleOutputStreamOperator<ObjectNode> mainDataStream = unionStream
-                .process(new ProcessFunction<ObjectNode, ObjectNode>() {
+        SingleOutputStreamOperator<EntryTransaction> mainDataStream = unionStream
+                .process(new ProcessFunction<HighwayTransaction, EntryTransaction>() {
 
                     @Override
-                    public void processElement(ObjectNode value,
-                            ProcessFunction<ObjectNode, ObjectNode>.Context ctx,
-                            org.apache.flink.util.Collector<ObjectNode> out)
-                            throws Exception {
+                    public void processElement(HighwayTransaction value,
+                            ProcessFunction<HighwayTransaction, EntryTransaction>.Context ctx,
+                            Collector<EntryTransaction> out) throws Exception {
 
-                        // emit data to regular output
-                        out.collect(value);
-
-                        if (value.get("EXTOLLSTATION") != null) {
-                            ctx.output(exitTrans, value);
+                        if (value instanceof ExitTransaction) {
+                            ctx.output(exitTrans, (ExitTransaction) value);
                         } else {
-                            if (value.get("GANTRYID") != null) {
-                                ctx.output(gantryTrans, value);
+                            if (value instanceof GantryTransaction) {
+                                ctx.output(gantryTrans, (GantryTransaction) value);
                             } else {
-                                if (value.get("PARKOPERATORID") != null) {
-                                    ctx.output(parkTrans, value);
+                                if (value instanceof ParkTransaction) {
+                                    ctx.output(parkTrans, (ParkTransaction) value);
+                                } else {
+                                    out.collect((EntryTransaction) value);
                                 }
                             }
                         }
                     }
+
                 });
 
-        DataStream<ObjectNode> gantryStream = mainDataStream.getSideOutput(gantryTrans);
-        DataStream<ObjectNode> exitStream = mainDataStream.getSideOutput(exitTrans);
-        DataStream<ObjectNode> parkStream = mainDataStream.getSideOutput(parkTrans);
+        DataStream<GantryTransaction> gantryStream = mainDataStream.getSideOutput(gantryTrans);
+        DataStream<ExitTransaction> exitStream = mainDataStream.getSideOutput(exitTrans);
+        DataStream<ParkTransaction> parkStream = mainDataStream.getSideOutput(parkTrans);
 
         mainDataStream.map(new LinkCounter("main")).addSink(new ObjectSink(ObjectSink.ANSI_YELLOW));
 

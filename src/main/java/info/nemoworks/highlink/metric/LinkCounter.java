@@ -4,10 +4,9 @@ import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.metrics.Counter;
 
-import info.nemoworks.highlink.model.Transaction;
+import info.nemoworks.highlink.model.HighwayTransaction;
 
-
-public class LinkCounter extends RichMapFunction<Transaction, Transaction> {
+public class LinkCounter<T extends HighwayTransaction> extends RichMapFunction<T, T> {
     private transient Counter counter;
 
     private String name;
@@ -24,11 +23,8 @@ public class LinkCounter extends RichMapFunction<Transaction, Transaction> {
     }
 
     @Override
-    public Transaction map(Transaction value) throws Exception {
+    public T map(T value) throws Exception {
         this.counter.inc();
-        // LoggerFactory.getLogger(LinkCounter.class)
-        // .info(ObjectSink.ANSI_GREEN + this.name + ": " + this.counter.getCount() +
-        // ObjectSink.ANSI_RESET);
         return value;
     }
 

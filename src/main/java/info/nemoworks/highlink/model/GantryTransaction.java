@@ -1,430 +1,425 @@
 package info.nemoworks.highlink.model;
 
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.node.ObjectNode;
 
-import com.esotericsoftware.kryo.util.ObjectMap;
+import lombok.Data;
 
-public class GantryTransaction implements Transaction {
+@Data
+public class GantryTransaction implements HighwayTransaction {
     @JsonProperty("TRADEID")
-    public String tRADEID;
+    private String tRADEID;
     @JsonProperty("GANTRYID")
-    public String gANTRYID;
+    private String gANTRYID;
     @JsonProperty("ORIGINALFLAG")
-    public int oRIGINALFLAG;
+    private int oRIGINALFLAG;
     @JsonProperty("COMPUTERORDER")
-    public int cOMPUTERORDER;
+    private int cOMPUTERORDER;
     @JsonProperty("HOURBATCHNO")
-    public String hOURBATCHNO;
+    private String hOURBATCHNO;
     @JsonProperty("GANTRYORDERNUM")
-    public int gANTRYORDERNUM;
+    private int gANTRYORDERNUM;
     @JsonProperty("GANTRYHEX")
-    public String gANTRYHEX;
+    private String gANTRYHEX;
     @JsonProperty("GANTRYHEXOPPOSITE")
-    public String gANTRYHEXOPPOSITE;
+    private String gANTRYHEXOPPOSITE;
     @JsonProperty("TRANSTIME")
-    public String tRANSTIME;
+    private String tRANSTIME;
     @JsonProperty("PAYFEE")
-    public int pAYFEE;
+    private int pAYFEE;
     @JsonProperty("FEE")
-    public int fEE;
+    private int fEE;
     @JsonProperty("DISCOUNTFEE")
-    public int dISCOUNTFEE;
+    private int dISCOUNTFEE;
     @JsonProperty("TRANSFEE")
-    public int tRANSFEE;
+    private int tRANSFEE;
     @JsonProperty("MEDIATYPE")
-    public int mEDIATYPE;
+    private int mEDIATYPE;
     @JsonProperty("OBUSIGN")
-    public int oBUSIGN;
+    private String oBUSIGN;
     @JsonProperty("TOLLINTERVALID")
-    public String tOLLINTERVALID;
+    private String tOLLINTERVALID;
     @JsonProperty("PAYFEEGROUP")
-    public int pAYFEEGROUP;
+    private String pAYFEEGROUP;
     @JsonProperty("FEEGROUP")
-    public int fEEGROUP;
+    private String fEEGROUP;
     @JsonProperty("DISCOUNTFEEGROUP")
-    public int dISCOUNTFEEGROUP;
+    private String dISCOUNTFEEGROUP;
     @JsonProperty("ENWEIGHT")
-    public int eNWEIGHT;
+    private String eNWEIGHT;
     @JsonProperty("ENAXLECOUNT")
-    public int eNAXLECOUNT;
+    private String eNAXLECOUNT;
     @JsonProperty("VLP")
-    public String vLP;
+    private String vLP;
     @JsonProperty("VLPC")
-    public int vLPC;
+    private int vLPC;
     @JsonProperty("VEHICLETYPE")
-    public int vEHICLETYPE;
+    private int vEHICLETYPE;
     @JsonProperty("IDENTIFYVEHICLETYPE")
-    public String iDENTIFYVEHICLETYPE;
+    private String iDENTIFYVEHICLETYPE;
     @JsonProperty("VEHICLECLASS")
-    public int vEHICLECLASS;
+    private int vEHICLECLASS;
     @JsonProperty("TAC")
-    public String tAC;
+    private String tAC;
     @JsonProperty("TRANSTYPE")
-    public String tRANSTYPE;
+    private String tRANSTYPE;
     @JsonProperty("TERMINALNO")
-    public String tERMINALNO;
+    private String tERMINALNO;
     @JsonProperty("TERMINALTRANSNO")
-    public String tERMINALTRANSNO;
+    private String tERMINALTRANSNO;
     @JsonProperty("TRANSNO")
-    public int tRANSNO;
+    private String tRANSNO;
     @JsonProperty("SERVICETYPE")
-    public int sERVICETYPE;
+    private int sERVICETYPE;
     @JsonProperty("ALGORITHMIDENTIFIER")
-    public int aLGORITHMIDENTIFIER;
+    private int aLGORITHMIDENTIFIER;
     @JsonProperty("KEYVERSION")
-    public int kEYVERSION;
+    private int kEYVERSION;
     @JsonProperty("ANTENNAID")
-    public int aNTENNAID;
+    private int aNTENNAID;
     @JsonProperty("TOLLMODEVER")
-    public long tOLLMODEVER;
+    private long tOLLMODEVER;
     @JsonProperty("TOLLPARAVER")
-    public long tOLLPARAVER;
+    private long tOLLPARAVER;
     @JsonProperty("CONSUMETIME")
-    public int cONSUMETIME;
+    private int cONSUMETIME;
     @JsonProperty("PASSSTATE")
-    public int pASSSTATE;
+    private int pASSSTATE;
     @JsonProperty("ENTOLLLANEID")
-    public String eNTOLLLANEID;
+    private String eNTOLLLANEID;
     @JsonProperty("ENTOLLSTATIONHEX")
-    public int eNTOLLSTATIONHEX;
+    private String eNTOLLSTATIONHEX;
     @JsonProperty("ENTIME")
-    public String eNTIME;
+    private String eNTIME;
     @JsonProperty("ENLANETYPE")
-    public int eNLANETYPE;
+    private int eNLANETYPE;
     @JsonProperty("PASSID")
-    public String pASSID;
+    private String pASSID;
     @JsonProperty("LASTGANTRYHEX")
-    public String lASTGANTRYHEX;
+    private String lASTGANTRYHEX;
     @JsonProperty("LASTGANTRYTIME")
-    public String lASTGANTRYTIME;
+    private String lASTGANTRYTIME;
     @JsonProperty("OBUMAC")
-    public String oBUMAC;
+    private String oBUMAC;
     @JsonProperty("OBUISSUEID")
-    public String oBUISSUEID;
+    private String oBUISSUEID;
     @JsonProperty("OBUSN")
-    public long oBUSN;
+    private long oBUSN;
     @JsonProperty("OBUVERSION")
-    public int oBUVERSION;
+    private int oBUVERSION;
     @JsonProperty("OBUSTARTDATE")
-    public int oBUSTARTDATE;
+    private int oBUSTARTDATE;
     @JsonProperty("OBUENDDATE")
-    public int oBUENDDATE;
+    private int oBUENDDATE;
     @JsonProperty("OBUELECTRICAL")
-    public int oBUELECTRICAL;
+    private int oBUELECTRICAL;
     @JsonProperty("OBUSTATE")
-    public String oBUSTATE;
+    private String oBUSTATE;
     @JsonProperty("OBUVLP")
-    public String oBUVLP;
+    private String oBUVLP;
     @JsonProperty("OBUVLPC")
-    public int oBUVLPC;
+    private String oBUVLPC;
     @JsonProperty("OBUVEHICLETYPE")
-    public int oBUVEHICLETYPE;
+    private String oBUVEHICLETYPE;
     @JsonProperty("VEHICLEUSERTYPE")
-    public int vEHICLEUSERTYPE;
+    private String vEHICLEUSERTYPE;
     @JsonProperty("VEHICLESEAT")
-    public int vEHICLESEAT;
+    private String vEHICLESEAT;
     @JsonProperty("AXLECOUNT")
-    public int aXLECOUNT;
+    private int aXLECOUNT;
     @JsonProperty("TOTALWEIGHT")
-    public int tOTALWEIGHT;
+    private int tOTALWEIGHT;
     @JsonProperty("VEHICLELENGTH")
-    public int vEHICLELENGTH;
+    private int vEHICLELENGTH;
     @JsonProperty("VEHICLEWIDTH")
-    public int vEHICLEWIDTH;
+    private int vEHICLEWIDTH;
     @JsonProperty("VEHICLEHIGHT")
-    public int vEHICLEHIGHT;
+    private int vEHICLEHIGHT;
     @JsonProperty("CPUNETID")
-    public int cPUNETID;
+    private String cPUNETID;
     @JsonProperty("CPUISSUEID")
-    public String cPUISSUEID;
+    private String cPUISSUEID;
     @JsonProperty("CPUVLP")
-    public String cPUVLP;
+    private String cPUVLP;
     @JsonProperty("CPUVLPC")
-    public int cPUVLPC;
+    private String cPUVLPC;
     @JsonProperty("CPUVEHICLETYPE")
-    public int cPUVEHICLETYPE;
+    private String cPUVEHICLETYPE;
     @JsonProperty("CPUSTARTDATE")
-    public int cPUSTARTDATE;
+    private String cPUSTARTDATE;
     @JsonProperty("CPUENDDATE")
-    public int cPUENDDATE;
+    private String cPUENDDATE;
     @JsonProperty("CPUVERSION")
-    public int cPUVERSION;
+    private String cPUVERSION;
     @JsonProperty("CPUCARDTYPE")
-    public int cPUCARDTYPE;
+    private String cPUCARDTYPE;
     @JsonProperty("CPUCARDID")
-    public long cPUCARDID;
+    private String cPUCARDID;
     @JsonProperty("BALANCEBEFORE")
-    public int bALANCEBEFORE;
+    private String bALANCEBEFORE;
     @JsonProperty("BALANCEAFTER")
-    public int bALANCEAFTER;
+    private String bALANCEAFTER;
     @JsonProperty("GANTRYPASSCOUNT")
-    public int gANTRYPASSCOUNT;
+    private String gANTRYPASSCOUNT;
     @JsonProperty("GANTRYPASSINFO")
-    public String gANTRYPASSINFO;
+    private String gANTRYPASSINFO;
     @JsonProperty("FEEPROVINFO")
-    public String fEEPROVINFO;
+    private String fEEPROVINFO;
     @JsonProperty("FEESUMLOCALBEFORE")
-    public int fEESUMLOCALBEFORE;
+    private String fEESUMLOCALBEFORE;
     @JsonProperty("FEESUMLOCALAFTER")
-    public int fEESUMLOCALAFTER;
+    private String fEESUMLOCALAFTER;
     @JsonProperty("FEECALCRESULT")
-    public int fEECALCRESULT;
+    private int fEECALCRESULT;
     @JsonProperty("FEEINFO1")
-    public String fEEINFO1;
+    private String fEEINFO1;
     @JsonProperty("FEEINFO2")
-    public int fEEINFO2;
+    private String fEEINFO2;
     @JsonProperty("FEEINFO3")
-    public String fEEINFO3;
+    private String fEEINFO3;
     @JsonProperty("HOLIDAYSTATE")
-    public String hOLIDAYSTATE;
+    private String hOLIDAYSTATE;
     @JsonProperty("TRADERESULT")
-    public int tRADERESULT;
+    private String tRADERESULT;
     @JsonProperty("SPECIALTYPE")
-    public String sPECIALTYPE;
+    private String sPECIALTYPE;
     @JsonProperty("VERIFYCODE")
-    public int vERIFYCODE;
+    private String vERIFYCODE;
     @JsonProperty("INTERRUPTSIGNAL")
-    public int iNTERRUPTSIGNAL;
+    private String iNTERRUPTSIGNAL;
     @JsonProperty("VEHICLEPICID")
-    public String vEHICLEPICID;
+    private String vEHICLEPICID;
     @JsonProperty("VEHICLETAILPICID")
-    public int vEHICLETAILPICID;
+    private String vEHICLETAILPICID;
     @JsonProperty("MATCHSTATUS")
-    public int mATCHSTATUS;
+    private String mATCHSTATUS;
     @JsonProperty("VALIDSTATUS")
-    public String vALIDSTATUS;
+    private String vALIDSTATUS;
     @JsonProperty("DEALSTATUS")
-    public String dEALSTATUS;
+    private String dEALSTATUS;
     @JsonProperty("RELATEDTRADEID")
-    public int rELATEDTRADEID;
+    private String rELATEDTRADEID;
     @JsonProperty("ALLRELATEDTRADEID")
-    public int aLLRELATEDTRADEID;
+    private String aLLRELATEDTRADEID;
     @JsonProperty("STATIONDBTIME")
-    public int sTATIONDBTIME;
+    private String sTATIONDBTIME;
     @JsonProperty("STATIONDEALTIME")
-    public String sTATIONDEALTIME;
+    private String sTATIONDEALTIME;
     @JsonProperty("STATIONVALIDTIME")
-    public String sTATIONVALIDTIME;
+    private String sTATIONVALIDTIME;
     @JsonProperty("STATIONMATCHTIME")
-    public String sTATIONMATCHTIME;
+    private String sTATIONMATCHTIME;
     @JsonProperty("DESCRIPTION")
-    public String dESCRIPTION;
+    private String dESCRIPTION;
     @JsonProperty("REQUESTNAME")
-    public String rEQUESTNAME;
+    private String rEQUESTNAME;
     @JsonProperty("RESPONSENAME")
-    public String rESPONSENAME;
+    private String rESPONSENAME;
     @JsonProperty("RECEIVETIME")
-    public int rECEIVETIME;
+    private String rECEIVETIME;
     @JsonProperty("MSGID")
-    public String mSGID;
+    private String mSGID;
     @JsonProperty("SPARE1")
-    public String sPARE1;
+    private String sPARE1;
     @JsonProperty("SPARE2")
-    public String sPARE2;
+    private String sPARE2;
     @JsonProperty("SPARE3")
-    public String sPARE3;
+    private String sPARE3;
     @JsonProperty("SPARE4")
-    public String sPARE4;
+    private String sPARE4;
     @JsonProperty("RECORDGENTIME")
-    public String rECORDGENTIME;
+    private String rECORDGENTIME;
     @JsonProperty("VERIFYPASSTIME")
-    public String vERIFYPASSTIME;
+    private String vERIFYPASSTIME;
     @JsonProperty("REMARKS")
-    public int rEMARKS;
+    private String rEMARKS;
     @JsonProperty("VEHICLESIGN")
-    public String vEHICLESIGN;
+    private String vEHICLESIGN;
     @JsonProperty("LASTGANTRYHEXFEE")
-    public String lASTGANTRYHEXFEE;
+    private String lASTGANTRYHEXFEE;
     @JsonProperty("LASTGANTRYHEXPASS")
-    public String lASTGANTRYHEXPASS;
+    private String lASTGANTRYHEXPASS;
     @JsonProperty("FEECALCSPECIAL")
-    public String fEECALCSPECIAL;
+    private String fEECALCSPECIAL;
     @JsonProperty("CHARGESSPECIALTYPE")
-    public String cHARGESSPECIALTYPE;
+    private String cHARGESSPECIALTYPE;
     @JsonProperty("ISFIXDATA")
-    public String iSFIXDATA;
+    private String iSFIXDATA;
     @JsonProperty("GANTRYTYPE")
-    public int gANTRYTYPE;
+    private int gANTRYTYPE;
     @JsonProperty("OBUPROVFEESUMBEFORE")
-    public String oBUPROVFEESUMBEFORE;
+    private String oBUPROVFEESUMBEFORE;
     @JsonProperty("OBUPROVFEESUMAFTER")
-    public int oBUPROVFEESUMAFTER;
+    private int oBUPROVFEESUMAFTER;
     @JsonProperty("CARDFEESUMBEFORE")
-    public int cARDFEESUMBEFORE;
+    private int cARDFEESUMBEFORE;
     @JsonProperty("CARDFEESUMAFTER")
-    public int cARDFEESUMAFTER;
+    private int cARDFEESUMAFTER;
     @JsonProperty("NOCARDTIMESBEFORE")
-    public int nOCARDTIMESBEFORE;
+    private int nOCARDTIMESBEFORE;
     @JsonProperty("NOCARDTIMESAFTER")
-    public int nOCARDTIMESAFTER;
+    private int nOCARDTIMESAFTER;
     @JsonProperty("PROVINCENUMBEFORE")
-    public int pROVINCENUMBEFORE;
+    private int pROVINCENUMBEFORE;
     @JsonProperty("PROVINCENUMAFTER")
-    public int pROVINCENUMAFTER;
+    private int pROVINCENUMAFTER;
     @JsonProperty("OBUTOTALTRADESUCCNUMBEFORE")
-    public int oBUTOTALTRADESUCCNUMBEFORE;
+    private int oBUTOTALTRADESUCCNUMBEFORE;
     @JsonProperty("OBUTOTALTRADESUCCNUMAFTER")
-    public int oBUTOTALTRADESUCCNUMAFTER;
+    private int oBUTOTALTRADESUCCNUMAFTER;
     @JsonProperty("OBUPROVTRADESUCCNUMBEFORE")
-    public int oBUPROVTRADESUCCNUMBEFORE;
+    private int oBUPROVTRADESUCCNUMBEFORE;
     @JsonProperty("OBUPROVTRADESUCCNUMAFTER")
-    public int oBUPROVTRADESUCCNUMAFTER;
+    private int oBUPROVTRADESUCCNUMAFTER;
     @JsonProperty("OBUTRADERESULT")
-    public int oBUTRADERESULT;
+    private String oBUTRADERESULT;
     @JsonProperty("TRADETYPE")
-    public int tRADETYPE;
+    private int tRADETYPE;
     @JsonProperty("OBUINFOTYPEREAD")
-    public int oBUINFOTYPEREAD;
+    private int oBUINFOTYPEREAD;
     @JsonProperty("OBUINFOTYPEWRITE")
-    public int oBUINFOTYPEWRITE;
+    private int oBUINFOTYPEWRITE;
     @JsonProperty("OBUPASSSTATE")
-    public int oBUPASSSTATE;
+    private int oBUPASSSTATE;
     @JsonProperty("FEEVEHICLETYPE")
-    public int fEEVEHICLETYPE;
+    private int fEEVEHICLETYPE;
     @JsonProperty("OBULASTGANTRYHEX")
-    public int oBULASTGANTRYHEX;
+    private int oBULASTGANTRYHEX;
     @JsonProperty("OBULASTGANTRYTIME")
-    public int oBULASTGANTRYTIME;
+    private int oBULASTGANTRYTIME;
     @JsonProperty("RATECOMPUTE")
-    public int rATECOMPUTE;
+    private int rATECOMPUTE;
     @JsonProperty("RATEFITCOUNT")
-    public String rATEFITCOUNT;
+    private String rATEFITCOUNT;
     @JsonProperty("OBUPAYFEESUMBEFORE")
-    public String oBUPAYFEESUMBEFORE;
+    private String oBUPAYFEESUMBEFORE;
     @JsonProperty("OBUPAYFEESUMAFTER")
-    public int oBUPAYFEESUMAFTER;
+    private int oBUPAYFEESUMAFTER;
     @JsonProperty("OBUDISCOUNTFEESUMBEFORE")
-    public int oBUDISCOUNTFEESUMBEFORE;
+    private int oBUDISCOUNTFEESUMBEFORE;
     @JsonProperty("OBUDISCOUNTFEESUMAFTER")
-    public int oBUDISCOUNTFEESUMAFTER;
+    private int oBUDISCOUNTFEESUMAFTER;
     @JsonProperty("FEEMILEAGE")
-    public int fEEMILEAGE;
+    private int fEEMILEAGE;
     @JsonProperty("OBUMILEAGEBEFORE")
-    public int oBUMILEAGEBEFORE;
+    private int oBUMILEAGEBEFORE;
     @JsonProperty("OBUMILEAGEAFTER")
-    public int oBUMILEAGEAFTER;
+    private int oBUMILEAGEAFTER;
     @JsonProperty("PROVMINFEE")
-    public int pROVMINFEE;
+    private int pROVMINFEE;
     @JsonProperty("FEESPARE1")
-    public int fEESPARE1;
+    private int fEESPARE1;
     @JsonProperty("FEESPARE2")
-    public int fEESPARE2;
+    private int fEESPARE2;
     @JsonProperty("FEESPARE3BAK")
-    public String fEESPARE3BAK;
+    private String fEESPARE3BAK;
     @JsonProperty("FEEPROVBEGINHEX")
-    public String fEEPROVBEGINHEX;
+    private String fEEPROVBEGINHEX;
     @JsonProperty("TRADEREADCIPHERTEXT")
-    public String tRADEREADCIPHERTEXT;
+    private String tRADEREADCIPHERTEXT;
     @JsonProperty("READCIPHERTEXTVERIFY")
-    public String rEADCIPHERTEXTVERIFY;
+    private String rEADCIPHERTEXTVERIFY;
     @JsonProperty("TRADEWRITECIPHERTEXT")
-    public String tRADEWRITECIPHERTEXT;
+    private String tRADEWRITECIPHERTEXT;
     @JsonProperty("OBUFEESUMBEFORE")
-    public String oBUFEESUMBEFORE;
+    private String oBUFEESUMBEFORE;
     @JsonProperty("OBUFEESUMAFTER")
-    public int oBUFEESUMAFTER;
+    private int oBUFEESUMAFTER;
     @JsonProperty("OBUPROVPAYFEESUMBEFORE")
-    public String oBUPROVPAYFEESUMBEFORE;
+    private String oBUPROVPAYFEESUMBEFORE;
     @JsonProperty("OBUPROVPAYFEESUMAFTER")
-    public int oBUPROVPAYFEESUMAFTER;
+    private int oBUPROVPAYFEESUMAFTER;
     @JsonProperty("PATHFITFLAG")
-    public int pATHFITFLAG;
+    private int pATHFITFLAG;
     @JsonProperty("FEECALCSPECIALS")
-    public int fEECALCSPECIALS;
+    private int fEECALCSPECIALS;
     @JsonProperty("PAYFEEPROVSUMLOCAL")
-    public int pAYFEEPROVSUMLOCAL;
+    private int pAYFEEPROVSUMLOCAL;
     @JsonProperty("PCRSUVERSION")
-    public int pCRSUVERSION;
+    private int pCRSUVERSION;
     @JsonProperty("GANTRYPASSINFOAFTER")
-    public int gANTRYPASSINFOAFTER;
+    private int gANTRYPASSINFOAFTER;
     @JsonProperty("UPDATERESULT")
-    public int uPDATERESULT;
+    private int uPDATERESULT;
     @JsonProperty("CPCFEETRADERESULT")
-    public int cPCFEETRADERESULT;
+    private int cPCFEETRADERESULT;
     @JsonProperty("FEEPROVEF04")
-    public String fEEPROVEF04;
+    private String fEEPROVEF04;
     @JsonProperty("FITPROVFLAG")
-    public int fITPROVFLAG;
+    private int fITPROVFLAG;
     @JsonProperty("GANTRYPASSCOUNTBEFORE")
-    public int gANTRYPASSCOUNTBEFORE;
+    private int gANTRYPASSCOUNTBEFORE;
     @JsonProperty("FEEPROVBEGINHEXFIT")
-    public int fEEPROVBEGINHEXFIT;
+    private String fEEPROVBEGINHEXFIT;
     @JsonProperty("FEEPROVBEGINTIMEFIT")
-    public int fEEPROVBEGINTIMEFIT;
+    private int fEEPROVBEGINTIMEFIT;
     @JsonProperty("TOLLINTERVALSIGN")
-    public int tOLLINTERVALSIGN;
+    private int tOLLINTERVALSIGN;
     @JsonProperty("PROVMINFEECALCMODE")
-    public String pROVMINFEECALCMODE;
+    private String pROVMINFEECALCMODE;
     @JsonProperty("FEEPROVBEGINTIME")
-    public String fEEPROVBEGINTIME;
+    private String fEEPROVBEGINTIME;
     @JsonProperty("FEESUMLOCALAFTEREF04")
-    public int fEESUMLOCALAFTEREF04;
+    private String fEESUMLOCALAFTEREF04;
     @JsonProperty("LASTGANTRYFEEPASS")
-    public String lASTGANTRYFEEPASS;
+    private String lASTGANTRYFEEPASS;
     @JsonProperty("LASTGANTRYMILEPASS")
-    public String lASTGANTRYMILEPASS;
+    private String lASTGANTRYMILEPASS;
     @JsonProperty("RSUMANUID")
-    public String rSUMANUID;
+    private String rSUMANUID;
     @JsonProperty("FEEDATAVERSION")
-    public String fEEDATAVERSION;
+    private String fEEDATAVERSION;
     @JsonProperty("GANTRYHEXOPPOTIME")
-    public String gANTRYHEXOPPOTIME;
+    private String gANTRYHEXOPPOTIME;
     @JsonProperty("OBUPAYFEESUMAFTERNOFIT")
-    public String oBUPAYFEESUMAFTERNOFIT;
+    private String oBUPAYFEESUMAFTERNOFIT;
     @JsonProperty("OBUFEESUMAFTERNOFIT")
-    public String oBUFEESUMAFTERNOFIT;
+    private String oBUFEESUMAFTERNOFIT;
     @JsonProperty("OBUMILEAGEAFTERNOFIT")
-    public String oBUMILEAGEAFTERNOFIT;
+    private String oBUMILEAGEAFTERNOFIT;
     @JsonProperty("OBUVEHICLEUSERTYPE")
-    public String oBUVEHICLEUSERTYPE;
+    private String oBUVEHICLEUSERTYPE;
     @JsonProperty("FEEPROVBEGINHEXBEFORE")
-    public String fEEPROVBEGINHEXBEFORE;
+    private String fEEPROVBEGINHEXBEFORE;
     @JsonProperty("GANTRYFITRESULT")
-    public String gANTRYFITRESULT;
+    private String gANTRYFITRESULT;
     @JsonProperty("GANTRYFITVERSION")
-    public String gANTRYFITVERSION;
+    private String gANTRYFITVERSION;
     @JsonProperty("GANTRYFITHEXS")
-    public String gANTRYFITHEXS;
+    private String gANTRYFITHEXS;
     @JsonProperty("GANTRYFITTOLLS")
-    public String gANTRYFITTOLLS;
+    private String gANTRYFITTOLLS;
     @JsonProperty("GANTRYFITNPROVPAYFEE")
-    public String gANTRYFITNPROVPAYFEE;
+    private String gANTRYFITNPROVPAYFEE;
     @JsonProperty("GANTRYFITNPROVDISCONTFEE")
-    public String gANTRYFITNPROVDISCONTFEE;
+    private String gANTRYFITNPROVDISCONTFEE;
     @JsonProperty("GANTRYFITNPROVREALFEE")
-    public String gANTRYFITNPROVREALFEE;
+    private String gANTRYFITNPROVREALFEE;
     @JsonProperty("GANTRYFITNPROVMILES")
-    public String gANTRYFITNPROVMILES;
+    private String gANTRYFITNPROVMILES;
     @JsonProperty("GANTRYFITNPROVPAYFEEGROUP")
-    public String gANTRYFITNPROVPAYFEEGROUP;
+    private String gANTRYFITNPROVPAYFEEGROUP;
     @JsonProperty("GANTRYFITNPROVDISCONTFEEGROUP")
-    public String gANTRYFITNPROVDISCONTFEEGROUP;
+    private String gANTRYFITNPROVDISCONTFEEGROUP;
     @JsonProperty("GANTRYFITNPROVREALFEEGROUP")
-    public String gANTRYFITNPROVREALFEEGROUP;
+    private String gANTRYFITNPROVREALFEEGROUP;
     @JsonProperty("GANTRYFITNPROVPAYFEESUM")
-    public String gANTRYFITNPROVPAYFEESUM;
+    private String gANTRYFITNPROVPAYFEESUM;
     @JsonProperty("GANTRYFITNPROVREALFEESUM")
-    public String gANTRYFITNPROVREALFEESUM;
+    private String gANTRYFITNPROVREALFEESUM;
     @JsonProperty("GANTRYFITNPROVMILESUM")
-    public String gANTRYFITNPROVMILESUM;
+    private String gANTRYFITNPROVMILESUM;
     @JsonProperty("GANTRYFITNPROVPREREALFEE")
-    public String gANTRYFITNPROVPREREALFEE;
+    private String gANTRYFITNPROVPREREALFEE;
     @JsonProperty("PATHFITDESC")
-    public String pATHFITDESC;
+    private String pATHFITDESC;
     @JsonProperty("GANTRYFITNEIGHBORPROVCODE")
-    public String gANTRYFITNEIGHBORPROVCODE;
+    private String gANTRYFITNEIGHBORPROVCODE;
     @JsonProperty("FEESPARE3")
-    public String fEESPARE3;
+    private String fEESPARE3;
 
     @Override
     public String getID() {
-        return this.tRADEID;
+        return this.getTRADEID();
     }
 
-    public static GantryTransaction fromJson(ObjectNode json) throws Exception{
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.treeToValue(json, GantryTransaction.class);
-    }
 }

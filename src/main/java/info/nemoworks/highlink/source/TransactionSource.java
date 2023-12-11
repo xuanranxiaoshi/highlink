@@ -5,10 +5,12 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.node.ArrayNode;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 
-public class TransactionSource implements SourceFunction<ObjectNode> {
+import info.nemoworks.highlink.model.HighwayTransaction;
+import info.nemoworks.highlink.model.TransactionFactory;
+
+public class TransactionSource implements SourceFunction<HighwayTransaction> {
 
     private static final long serialVersionUID = 1L;
 
@@ -27,9 +29,6 @@ public class TransactionSource implements SourceFunction<ObjectNode> {
         this.transactions = (ArrayNode) transactions;
         this.name = name;
         this.count = random.nextInt(100);
-        // LoggerFactory.getLogger(TransactionSource.class)
-        // .info(ObjectSink.ANSI_CYAN + "Source " + this.name + " has " + this.count +
-        // ObjectSink.ANSI_RESET);
     }
 
     @Override
@@ -38,10 +37,10 @@ public class TransactionSource implements SourceFunction<ObjectNode> {
     }
 
     @Override
-    public void run(SourceContext<ObjectNode> ctx) throws Exception {
+    public void run(SourceContext<HighwayTransaction> ctx) throws Exception {
         while (isRunning && this.count > 0) {
             TimeUnit.SECONDS.sleep(random.nextInt(2));
-            ctx.collect((ObjectNode) transactions.get(random.nextInt(transactions.size() - 1)));
+            ctx.collect((TransactionFactory.fromJson(transactions.get(random.nextInt(transactions.size() - 1)))));
             this.count--;
         }
     }

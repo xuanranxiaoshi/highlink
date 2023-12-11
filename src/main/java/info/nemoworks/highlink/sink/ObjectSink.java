@@ -4,10 +4,10 @@ import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import info.nemoworks.highlink.model.Transaction;
+import info.nemoworks.highlink.model.HighwayTransaction;
 
 
-public class ObjectSink implements SinkFunction<Transaction> {
+public class ObjectSink implements SinkFunction<HighwayTransaction> {
 
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_BLACK = "\u001B[30m";
@@ -30,7 +30,7 @@ public class ObjectSink implements SinkFunction<Transaction> {
     }
 
     @Override
-    public void invoke(Transaction value, Context context) {
+    public void invoke(HighwayTransaction value, Context context) {
 
         LOG.info(this.color + value.getID() + ANSI_RESET);
     }

@@ -5,7 +5,8 @@
             "name": "Main",
             "request": "launch",
             "mainClass": "info.nemoworks.highlink.Main",
-            "projectName": "highlink"
+            "projectName": "highlink",
+            "vmArgs": "--add-opens java.base/java.util=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED"
         },
         {
             "type": "java",
