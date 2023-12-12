@@ -1,98 +1,57 @@
 package info.nemoworks.highlink;
 
+import org.apache.flink.connector.jdbc.JdbcConnectionOptions;
+import org.apache.flink.connector.jdbc.JdbcExecutionOptions;
+import org.apache.flink.connector.jdbc.JdbcSink;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+
 public class TransactionJob {
+        static class Book {
+                public Book(Long id, String title, String authors, Integer year) {
+                        this.id = id;
+                        this.title = title;
+                        this.authors = authors;
+                        this.year = year;
+                }
 
-        public static void main(String[] args) throws Exception {
-                // StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-
-
-                // ObjectMapper mapper = new ObjectMapper();
-                // mapper.configure(
-                //                 JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS.mappedFeature(),
-                //                 true);
-
-                // JsonNode enWasteRec = mapper.readTree(TransactionJob.class.getResourceAsStream("/TBL_ENWASTEREC.json"));
-                // JsonNode exWasteRec = mapper.readTree(TransactionJob.class.getResourceAsStream("/TBL_EXWASTEREC.json"));
-                // JsonNode gantryWasteRec = mapper
-                //                 .readTree(TransactionJob.class.getResourceAsStream("/TBL_GANTRYWASTEREC.json"));
-
-                // Iterator<JsonNode> iterator = gantryWasteRec.iterator();
-                // if (gantryWasteRec.isArray()) {
-                //         while (iterator.hasNext()) {
-                //                 ObjectNode node = (ObjectNode) iterator.next();
-                //                 node.set("ID", node.get("TRADEID"));
-                //                 node.remove("TRADEID");
-                //         }
-                // }
-
-                // JsonNode parkWasteRec = mapper
-                //                 .readTree(TransactionJob.class.getResourceAsStream("/TBL_PARKTRANSWASTEREC.json"));
-
-                // DataStream<ObjectNode> enWaste = env
-                //                 .addSource(new TransactionSource(enWasteRec, "entry"))
-                //                 .name("ENTRY_WASTE");
-
-                // DataStream<ObjectNode> exWaste = env
-                //                 .addSource(new TransactionSource(exWasteRec, "exit"))
-                //                 .name("EXIT_WASTE");
-
-                // DataStream<ObjectNode> gantryWaste = env
-                //                 .addSource(new TransactionSource(gantryWasteRec, "gantry"))
-                //                 .name("GANTRY_WASTE");
-
-                // DataStream<ObjectNode> parkWaste = env
-                //                 .addSource(new TransactionSource(parkWasteRec, "park"))
-                //                 .name("PARK_WASTE");
-
-                // parkWaste.map(new LinkCounter("park")).addSink(new ObjectSink("parksink"));
-
-                // DataStream<ObjectNode> unionStream = enWaste.union(exWaste).union(gantryWaste).union(parkWaste);
-
-                // final OutputTag<ObjectNode> exitTrans = new OutputTag<ObjectNode>("exitTrans") {
-                // };
-                // final OutputTag<ObjectNode> parkTrans = new OutputTag<ObjectNode>("parkTrans") {
-                // };
-                // final OutputTag<ObjectNode> gantryTrans = new OutputTag<ObjectNode>("gantryTrans") {
-                // };
-
-                // SingleOutputStreamOperator<ObjectNode> mainDataStream = unionStream
-                //                 .process(new ProcessFunction<ObjectNode, ObjectNode>() {
-
-                //                         @Override
-                //                         public void processElement(ObjectNode value,
-                //                                         ProcessFunction<ObjectNode, ObjectNode>.Context ctx,
-                //                                         org.apache.flink.util.Collector<ObjectNode> out)
-                //                                         throws Exception {
-
-                //                                 // emit data to regular output
-                //                                 out.collect(value);
-
-                //                                 if (value.get("EXTOLLSTATION") != null) {
-                //                                         ctx.output(exitTrans, value);
-                //                                 } else {
-                //                                         if (value.get("GANTRYID") != null) {
-                //                                                 ctx.output(gantryTrans, value);
-                //                                         } else {
-                //                                                 if (value.get("PARKOPERATORID") != null) {
-                //                                                         ctx.output(parkTrans, value);
-                //                                                 }
-                //                                         }
-                //                                 }
-                //                         }
-                //                 });
-
-                // DataStream<GantryTransaction> gantryStream = mainDataStream.getSideOutput(gantryTrans);
-                // DataStream<ObjectNode> exitStream = mainDataStream.getSideOutput(exitTrans);
-                // DataStream<ObjectNode> parkStream = mainDataStream.getSideOutput(parkTrans);
-
-                // // mainDataStream.addSink(new ObjectSink(ObjectSink.ANSI_YELLOW));
-
-                // gantryStream.map(GantryTransaction::fromJson).addSink(new ObjectSink(ObjectSink.ANSI_BLUE));
-                // // exitStream.map(new LinkCounter("exit")).addSink(new ObjectSink(ObjectSink.ANSI_RED));
-                // // parkStream.map(new LinkCounter("park")).addSink(new ObjectSink(ObjectSink.ANSI_GREEN));
-
-                // env.execute("transaction processing");
+                final Long id;
+                final String title;
+                final String authors;
+                final Integer year;
         }
 
-        
+        public static void main(String[] args) throws Exception {
+                var env = StreamExecutionEnvironment.getExecutionEnvironment();
+
+                env.fromElements(
+                                new Book(101L, "Stream Processing with Apache Flink", "Fabian Hueske, Vasiliki Kalavri",
+                                                2019),
+                                new Book(102L, "Streaming Systems", "Tyler Akidau, Slava Chernyak, Reuven Lax", 2018),
+                                new Book(103L, "Designing Data-Intensive Applications", "Martin Kleppmann", 2017),
+                                new Book(104L, "Kafka: The Definitive Guide",
+                                                "Gwen Shapira, Neha Narkhede, Todd Palino", 2017))
+                                .addSink(
+                                                JdbcSink.sink(
+                                                                "insert into books (id, title, authors) values (?, ?, ?)",
+                                                                (statement, book) -> {
+                                                                        statement.setLong(1, book.id);
+                                                                        statement.setString(2, book.title);
+                                                                        statement.setString(3, book.authors);
+                                                                        // statement.setInt(4, book.year);
+                                                                },
+                                                                JdbcExecutionOptions.builder()
+                                                                                .withBatchSize(1000)
+                                                                                .withBatchIntervalMs(200)
+                                                                                .withMaxRetries(5)
+                                                                                .build(),
+                                                                new JdbcConnectionOptions.JdbcConnectionOptionsBuilder()
+                                                                                .withUrl("jdbc:h2:~/test")
+                                                                                .withDriverName("org.h2.Driver")
+                                                                                .withUsername("sa")
+                                                                                .withPassword("")
+                                                                                .build()));
+
+                env.execute();
+        }
+
 }
