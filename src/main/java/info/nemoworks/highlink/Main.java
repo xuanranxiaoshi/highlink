@@ -1,5 +1,6 @@
 package info.nemoworks.highlink;
 
+import org.apache.flink.connector.jdbc.JdbcSink;
 import org.apache.flink.runtime.minicluster.MiniCluster;
 import org.apache.flink.runtime.minicluster.MiniClusterConfiguration;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.json.JsonReadFeature;
@@ -12,7 +13,7 @@ import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
 
-import info.nemoworks.highlink.metric.LinkCounter;
+import info.nemoworks.highlink.connector.JdbcConnectorHelper;
 import info.nemoworks.highlink.model.EntryRawTransaction;
 import info.nemoworks.highlink.model.ExitRawTransaction;
 import info.nemoworks.highlink.model.GantryCpcTransaction;
@@ -21,12 +22,15 @@ import info.nemoworks.highlink.model.GantryRawTransaction;
 import info.nemoworks.highlink.model.HighwayTransaction;
 import info.nemoworks.highlink.model.ParkRawTransaction;
 import info.nemoworks.highlink.model.mapper.GantryMapper;
-import info.nemoworks.highlink.sink.TransactionSink;
+import info.nemoworks.highlink.sink.TransactionSinks;
 import info.nemoworks.highlink.source.RawTransactionSource;
 
 public class Main {
 
         public static void main(String[] args) throws Exception {
+
+                JdbcConnectorHelper.getCreateTableString(GantryEtcTransaction.class);
+                JdbcConnectorHelper.getCreateTableString(GantryCpcTransaction.class);
 
                 StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
@@ -97,8 +101,9 @@ public class Main {
                 DataStream<ParkRawTransaction> parkStream = mainDataStream.getSideOutput(parkTrans);
                 DataStream<EntryRawTransaction> entryStream = mainDataStream;
 
-                //将门架流水再进行拆分：etc/cpc
-                final OutputTag<GantryCpcTransaction> ganCpcTag = new OutputTag<GantryCpcTransaction>("gantryCpcTrans") {
+                // 将门架流水再进行拆分：etc/cpc
+                final OutputTag<GantryCpcTransaction> ganCpcTag = new OutputTag<GantryCpcTransaction>(
+                                "gantryCpcTrans") {
                 };
 
                 SingleOutputStreamOperator<GantryEtcTransaction> gantryAllStream = gantryStream
@@ -122,15 +127,21 @@ public class Main {
                 DataStream<GantryEtcTransaction> gantryEtcStream = gantryAllStream;
 
                 // 得到四个不同类型的数据流
-                entryStream.addSink(new TransactionSink<EntryRawTransaction>(TransactionSink.ANSI_BLUE));
-                exitStream.addSink(new TransactionSink<ExitRawTransaction>(TransactionSink.ANSI_YELLOW));
-                parkStream.addSink(new TransactionSink<ParkRawTransaction>(TransactionSink.ANSI_PURPLE));
+                entryStream.addSink(new TransactionSinks.LogSink<>());
+                exitStream.addSink(new TransactionSinks.LogSink<>());
+                parkStream.addSink(new TransactionSinks.LogSink<>());
 
-                gantryCpcStream.map(new LinkCounter<GantryCpcTransaction>("gantryCpc"));
+                gantryCpcStream.addSink(JdbcSink.sink(
+                                JdbcConnectorHelper.getInsertTemplateString(GantryCpcTransaction.class),
+                                JdbcConnectorHelper.getStatementBuilder(),
+                                JdbcConnectorHelper.getJdbcExecutionOptions(),
+                                JdbcConnectorHelper.getJdbcConnectionOptions()));
 
-
-                gantryEtcStream.addSink(new TransactionSink<GantryEtcTransaction>(TransactionSink.ANSI_GREEN));
-
+                gantryEtcStream.addSink(JdbcSink.sink(
+                                JdbcConnectorHelper.getInsertTemplateString(GantryEtcTransaction.class),
+                                JdbcConnectorHelper.getStatementBuilder(),
+                                JdbcConnectorHelper.getJdbcExecutionOptions(),
+                                JdbcConnectorHelper.getJdbcConnectionOptions()));
 
                 // 配置flink集群，启动任务
                 MiniClusterConfiguration clusterConfiguration = new MiniClusterConfiguration.Builder()

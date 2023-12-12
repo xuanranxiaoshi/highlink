@@ -8,155 +8,155 @@ import lombok.Data;
 public class GantryEtcTransaction implements HighwayTransaction {
 
     @JsonProperty("ALGORITHMIDENTIFIER")
-    private int aLGORITHMIDENTIFIER;
+    public int aLGORITHMIDENTIFIER;
     @JsonProperty("CARDTOTALAMOUNT")
-    private int cARDTOTALAMOUNT;
+    public int cARDTOTALAMOUNT;
     @JsonProperty("DESCRIPTION")
-    private String dESCRIPTION;
+    public String dESCRIPTION;
     @JsonProperty("DIRECTION")
-    private int dIRECTION;
+    public int dIRECTION;
     @JsonProperty("DISCOUNTFEE")
-    private int dISCOUNTFEE;
+    public int dISCOUNTFEE;
     @JsonProperty("DISCOUNTTYPE")
-    private String dISCOUNTTYPE;
+    public String dISCOUNTTYPE;
     @JsonProperty("ELECTRICALPERCENTAGE")
-    private String eLECTRICALPERCENTAGE;
+    public String eLECTRICALPERCENTAGE;
     @JsonProperty("ENAXLECOUNT")
-    private String eNAXLECOUNT;
+    public String eNAXLECOUNT;
     @JsonProperty("ENTIME")
-    private String eNTIME;
+    public String eNTIME;
     @JsonProperty("ENTOLLLANEID")
-    private String eNTOLLLANEID;
+    public String eNTOLLLANEID;
     @JsonProperty("ENWEIGHT")
-    private String eNWEIGHT;
+    public String eNWEIGHT;
     @JsonProperty("ETCCARDID")
-    private long eTCCARDID;
+    public long eTCCARDID;
     @JsonProperty("ETCCARDNET")
-    private int eTCCARDNET;
+    public int eTCCARDNET;
     @JsonProperty("ETCCARDTYPE")
-    private int eTCCARDTYPE;
+    public int eTCCARDTYPE;
     @JsonProperty("FEE")
-    private int fEE;
+    public int fEE;
     @JsonProperty("FEECALCSPECIALS")
-    private int fEECALCSPECIALS;
+    public int fEECALCSPECIALS;
     @JsonProperty("GANTRYHEX")
-    private String gANTRYHEX;
+    public String gANTRYHEX;
     @JsonProperty("GANTRYKEY")
-    private String gANTRYKEY;
+    public String gANTRYKEY;
     @JsonProperty("GANTRYTYPE")
-    private int gANTRYTYPE;
+    public int gANTRYTYPE;
     @JsonProperty("GANTRYVERIFY")
-    private int gANTRYVERIFY;
+    public int gANTRYVERIFY;
     @JsonProperty("GENTIME")
-    private String gENTIME;
+    public String gENTIME;
     @JsonProperty("ID")
-    private String iD;
+    public String iD;
     @JsonProperty("IDENTIFYVEHICLETYPE")
-    private String iDENTIFYVEHICLETYPE;
+    public String iDENTIFYVEHICLETYPE;
     @JsonProperty("IDENTIFYVLP")
-    private String iDENTIFYVLP;
+    public String iDENTIFYVLP;
     @JsonProperty("IDENTIFYVLPC")
-    private String iDENTIFYVLPC;
+    public String iDENTIFYVLPC;
     @JsonProperty("INSPLITFLAG")
-    private int iNSPLITFLAG;
+    public int iNSPLITFLAG;
     @JsonProperty("KEYVERSION")
-    private int kEYVERSION;
+    public int kEYVERSION;
     @JsonProperty("NOCARDCOUNT")
-    private int nOCARDCOUNT;
+    public int nOCARDCOUNT;
     @JsonProperty("OBUID")
-    private long oBUID;
+    public long oBUID;
     @JsonProperty("OBUMAC")
-    private String oBUMAC;
+    public String oBUMAC;
     @JsonProperty("OBUPROVINCEFEE")
-    private int oBUPROVINCEFEE;
+    public int oBUPROVINCEFEE;
     @JsonProperty("OBUSIGN")
-    private String oBUSIGN;
+    public String oBUSIGN;
     @JsonProperty("OBUSN")
-    private long oBUSN;
+    public long oBUSN;
     @JsonProperty("OBUTOTALAMOUNT")
-    private int oBUTOTALAMOUNT;
+    public int oBUTOTALAMOUNT;
     @JsonProperty("ORIGINALFLAG")
-    private int oRIGINALFLAG;
+    public int oRIGINALFLAG;
     @JsonProperty("ORIGINFEE")
-    private String oRIGINFEE;
+    public String oRIGINFEE;
     @JsonProperty("PASSID")
-    private String pASSID;
+    public String pASSID;
     @JsonProperty("PAYFEE")
-    private int pAYFEE;
+    public int pAYFEE;
     @JsonProperty("PROVINCECOUNT")
-    private int pROVINCECOUNT;
+    public int pROVINCECOUNT;
     @JsonProperty("PROVINCEDISCOUNTFEE")
-    private String pROVINCEDISCOUNTFEE;
+    public String pROVINCEDISCOUNTFEE;
     @JsonProperty("PROVTRANSCOUNT")
-    private int pROVTRANSCOUNT;
+    public int pROVTRANSCOUNT;
     @JsonProperty("RATEVERSION")
-    private String rATEVERSION;
+    public String rATEVERSION;
     @JsonProperty("REMARKS")
-    private String rEMARKS;
+    public String rEMARKS;
     @JsonProperty("SECTIONID")
-    private String sECTIONID;
+    public String sECTIONID;
     @JsonProperty("SECTIONNAME")
-    private String sECTIONNAME;
+    public String sECTIONNAME;
     @JsonProperty("SPARE1")
-    private String sPARE1;
+    public String sPARE1;
     @JsonProperty("SPARE2")
-    private String sPARE2;
+    public String sPARE2;
     @JsonProperty("SPARE3")
-    private String sPARE3;
+    public String sPARE3;
     @JsonProperty("STATUS")
-    private int sTATUS;
+    public int sTATUS;
     @JsonProperty("SUMTIME")
-    private String sUMTIME;
+    public String sUMTIME;
     @JsonProperty("TAC")
-    private String tAC;
+    public String tAC;
     @JsonProperty("TERMINALNO")
-    private String tERMINALNO;
+    public String tERMINALNO;
     @JsonProperty("TERMINALTRANSNO")
-    private String tERMINALTRANSNO;
+    public String tERMINALTRANSNO;
     @JsonProperty("TOLLGANTRYID")
-    private String tOLLGANTRYID;
+    public String tOLLGANTRYID;
     @JsonProperty("TOLLINTERVALDISCOUNTFEE")
-    private int tOLLINTERVALDISCOUNTFEE;
+    public int tOLLINTERVALDISCOUNTFEE;
     @JsonProperty("TOLLINTERVALFEE")
-    private int tOLLINTERVALFEE;
+    public int tOLLINTERVALFEE;
     @JsonProperty("TOLLINTERVALID")
-    private String tOLLINTERVALID;
+    public String tOLLINTERVALID;
     @JsonProperty("TOLLINTERVALNAME")
-    private String tOLLINTERVALNAME;
+    public String tOLLINTERVALNAME;
     @JsonProperty("TOLLINTERVALPAYFEE")
-    private int tOLLINTERVALPAYFEE;
+    public int tOLLINTERVALPAYFEE;
     @JsonProperty("TOLLINTERVALSIGN")
-    private int tOLLINTERVALSIGN;
+    public int tOLLINTERVALSIGN;
     @JsonProperty("TOTALCOUNT")
-    private int tOTALCOUNT;
+    public int tOTALCOUNT;
     @JsonProperty("TRANSFEE")
-    private int tRANSFEE;
+    public int tRANSFEE;
     @JsonProperty("TRANSNUM")
-    private int tRANSNUM;
+    public int tRANSNUM;
     @JsonProperty("TRANSTIME")
-    private String tRANSTIME;
+    public String tRANSTIME;
     @JsonProperty("TRANSTYPE")
-    private String tRANSTYPE;
+    public String tRANSTYPE;
     @JsonProperty("TYPE")
-    private int tYPE;
+    public int tYPE;
     @JsonProperty("UNIONPAYFLAG")
-    private int uNIONPAYFLAG;
+    public int uNIONPAYFLAG;
     @JsonProperty("UNIONPAYTYPEGROUP")
-    private String uNIONPAYTYPEGROUP;
+    public String uNIONPAYTYPEGROUP;
     @JsonProperty("VEHICLECLASS")
-    private int vEHICLECLASS;
+    public int vEHICLECLASS;
     @JsonProperty("VEHICLESEAT")
-    private int vEHICLESEAT;
+    public int vEHICLESEAT;
     @JsonProperty("VEHICLESIGN")
-    private String vEHICLESIGN;
+    public String vEHICLESIGN;
     @JsonProperty("VEHICLESIGNID")
-    private String vEHICLESIGNID;
+    public String vEHICLESIGNID;
     @JsonProperty("VEHICLETYPE")
-    private int vEHICLETYPE;
+    public int vEHICLETYPE;
     @JsonProperty("VLP")
-    private String vLP;
+    public String vLP;
     @JsonProperty("VLPC")
-    private int vLPC;
+    public int vLPC;
 
     @Override
     public String getID() {
