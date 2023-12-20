@@ -75,10 +75,10 @@ public class JdbcConnectorHelper {
 
     public static JdbcConnectionOptions getJdbcConnectionOptions() {
         return new JdbcConnectionOptions.JdbcConnectionOptionsBuilder()
-                .withUrl("jdbc:h2:E:\\develop\\h2Database\\data")
+                .withUrl("jdbc:h2:~/test")
                 .withDriverName("org.h2.Driver")
-                .withUsername("root")
-                .withPassword("root")
+                .withUsername("sa")
+                .withPassword("sa")
                 .build();
     }
 

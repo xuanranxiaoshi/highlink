@@ -17,11 +17,11 @@ import org.apache.flink.util.OutputTag;
 import info.nemoworks.highlink.connector.JdbcConnectorHelper;
 import info.nemoworks.highlink.model.EntryRawTransaction;
 import info.nemoworks.highlink.model.ExitRawTransaction;
-import info.nemoworks.highlink.model.GantryCpcTransaction;
-import info.nemoworks.highlink.model.GantryEtcTransaction;
-import info.nemoworks.highlink.model.GantryRawTransaction;
+import info.nemoworks.highlink.model.gantryTransaction.GantryCpcTransaction;
+import info.nemoworks.highlink.model.gantryTransaction.GantryEtcTransaction;
+import info.nemoworks.highlink.model.gantryTransaction.GantryRawTransaction;
 import info.nemoworks.highlink.model.HighwayTransaction;
-import info.nemoworks.highlink.model.ParkRawTransaction;
+import info.nemoworks.highlink.model.extendTransaction.ExtendRawTransaction;
 import info.nemoworks.highlink.model.mapper.GantryMapper;
 import info.nemoworks.highlink.sink.TransactionSinks;
 import info.nemoworks.highlink.source.RawTransactionSource;
@@ -67,7 +67,7 @@ public class Main {
         // 将数据流按规则进行拆分
         final OutputTag<ExitRawTransaction> exitTrans = new OutputTag<ExitRawTransaction>("exitTrans") {
         };
-        final OutputTag<ParkRawTransaction> parkTrans = new OutputTag<ParkRawTransaction>("parkTrans") {
+        final OutputTag<ExtendRawTransaction> parkTrans = new OutputTag<ExtendRawTransaction>("parkTrans") {
         };
         final OutputTag<GantryRawTransaction> gantryTrans = new OutputTag<GantryRawTransaction>("gantryTrans") {
         };
@@ -86,9 +86,9 @@ public class Main {
                             if (value instanceof GantryRawTransaction) {
                                 ctx.output(gantryTrans, (GantryRawTransaction) value);
                             } else {
-                                if (value instanceof ParkRawTransaction) {
+                                if (value instanceof ExtendRawTransaction) {
                                     ctx.output(parkTrans,
-                                            (ParkRawTransaction) value);
+                                            (ExtendRawTransaction) value);
                                 } else {
                                     out.collect((EntryRawTransaction) value);
                                 }
@@ -100,7 +100,7 @@ public class Main {
 
         DataStream<GantryRawTransaction> gantryStream = mainDataStream.getSideOutput(gantryTrans);
         DataStream<ExitRawTransaction> exitStream = mainDataStream.getSideOutput(exitTrans);
-        DataStream<ParkRawTransaction> parkStream = mainDataStream.getSideOutput(parkTrans);
+        DataStream<ExtendRawTransaction> parkStream = mainDataStream.getSideOutput(parkTrans);
         DataStream<EntryRawTransaction> entryStream = mainDataStream;
 
         // 将门架流水再进行拆分：etc/cpc
@@ -152,12 +152,12 @@ public class Main {
                 .setNumSlotsPerTaskManager(2).build();
 
 
-        try (var cluster = new MiniCluster(clusterConfiguration)) {
-            cluster.start();
-            cluster.executeJobBlocking(env.getStreamGraph().getJobGraph());
-            cluster.close();
-        }
-
+//        try (var cluster = new MiniCluster(clusterConfiguration)) {
+//            cluster.start();
+//            cluster.executeJobBlocking(env.getStreamGraph().getJobGraph());
+//            cluster.close();
+//        }
+        env.execute();
 
     }
 }

@@ -1,5 +1,7 @@
 package info.nemoworks.highlink.model;
 
+import info.nemoworks.highlink.model.extendTransaction.ExtendRawTransaction;
+import info.nemoworks.highlink.model.gantryTransaction.GantryRawTransaction;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -18,7 +20,7 @@ public class RawTransactionFactory {
             return mapper.treeToValue(json, GantryRawTransaction.class);
         }
         if (json.get("PARKOPERATORID") != null) {
-            return mapper.treeToValue(json, ParkRawTransaction.class);
+            return mapper.treeToValue(json, ExtendRawTransaction.class);
         }
         return mapper.treeToValue(json, EntryRawTransaction.class);
     }

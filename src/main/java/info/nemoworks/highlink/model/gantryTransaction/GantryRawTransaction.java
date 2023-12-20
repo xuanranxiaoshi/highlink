@@ -1,5 +1,6 @@
-package info.nemoworks.highlink.model;
+package info.nemoworks.highlink.model.gantryTransaction;
 
+import info.nemoworks.highlink.model.HighwayTransaction;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
