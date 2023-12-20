@@ -20,7 +20,6 @@ public class GantryMapperTest {
 
         GantryRawTransaction rawTransaction = (GantryRawTransaction) RawTransactionFactory.fromJson(rawGantry);
 
-        rawTransaction.setFEE(1000);
         // when
         GantryEtcTransaction etcTransaction = GantryMapper.INSTANCE.gantryRawToEtcTransaction(rawTransaction);
 
