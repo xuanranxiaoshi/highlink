@@ -19,7 +19,6 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.json.JsonRead
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.datastream.SideOutputDataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
@@ -188,18 +187,18 @@ public class PrepareData {
             @Override
             public void processElement(ExtendRawTransaction rawTrans, ProcessFunction<ExtendRawTransaction, ExdLocalTransaction>.Context ctx, Collector<ExdLocalTransaction> collector) throws Exception {
                 if (!rawTrans.isPrimaryTrans()) {
-                    ctx.output(exdChangeTag, ExtensionMapper.INSTANCE.extRawToTollChangeTrans(rawTrans));
+                    ctx.output(exdChangeTag, ExtensionMapper.INSTANCE.exdRawToTollChangeTrans(rawTrans));
                 } else {
                     if (rawTrans.isLocal()) {
-                        collector.collect(ExtensionMapper.INSTANCE.extRawToExtLocalTrans(rawTrans));
+                        collector.collect(ExtensionMapper.INSTANCE.exdRawToExtLocalTrans(rawTrans));
                     } else if (rawTrans.isGasTrans()) {
-                        ctx.output(extForeignGasTag, ExtensionMapper.INSTANCE.extRawToExtForeignGasTrans(rawTrans));
+                        ctx.output(extForeignGasTag, ExtensionMapper.INSTANCE.exdRawToExtForeignGasTrans(rawTrans));
                     } else if (rawTrans.isParkTrans()) {
-                        ctx.output(extForeignParkTag, ExtensionMapper.INSTANCE.extRawToExtForeignParkTrans(rawTrans));
+                        ctx.output(extForeignParkTag, ExtensionMapper.INSTANCE.exdRawToExtForeignParkTrans(rawTrans));
                     } else if (rawTrans.isMunicipalTrans()) {
-                        ctx.output(extForeignMunicipalTag, ExtensionMapper.INSTANCE.extRawToExtForeignMunicipalTrans(rawTrans));
+                        ctx.output(extForeignMunicipalTag, ExtensionMapper.INSTANCE.exdRawToExtForeignMunicipalTrans(rawTrans));
                     } else {
-                        collector.collect(ExtensionMapper.INSTANCE.extRawToExtLocalTrans(rawTrans));
+                        collector.collect(ExtensionMapper.INSTANCE.exdRawToExtLocalTrans(rawTrans));
                     }
                 }
             }

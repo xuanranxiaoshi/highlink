@@ -1,9 +1,7 @@
 package info.nemoworks.highlink.model.mapper;
 
 import info.nemoworks.highlink.model.RawTransactionFactory;
-import info.nemoworks.highlink.model.extendTransaction.ExdForeignGasTransaction;
-import info.nemoworks.highlink.model.extendTransaction.ExdLocalTransaction;
-import info.nemoworks.highlink.model.extendTransaction.ExtendRawTransaction;
+import info.nemoworks.highlink.model.extendTransaction.*;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -17,15 +15,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @Copyright：
  */
 public class ExtensionMapperTest {
+    // given
+    JsonNode extendRaw = new ObjectMapper().readTree(ExtensionMapperTest.class.getResourceAsStream("/extendraw.json"));
+
+    ExtendRawTransaction rawTransaction = (ExtendRawTransaction) RawTransactionFactory.fromJson(extendRaw);
+
+    public ExtensionMapperTest() throws Exception {
+    }
+
     @Test
     public void shouldMapRawToLocalTrans() throws Exception {
-        // given
-        JsonNode extendRaw = new ObjectMapper().readTree(ExtensionMapperTest.class.getResourceAsStream("/extendraw.json"));
-
-        ExtendRawTransaction rawTransaction = (ExtendRawTransaction) RawTransactionFactory.fromJson(extendRaw);
-
         // when
-        ExdLocalTransaction localTransaction = ExtensionMapper.INSTANCE.extRawToExtLocalTrans(rawTransaction);
+        ExdLocalTransaction localTransaction = ExtensionMapper.INSTANCE.exdRawToExtLocalTrans(rawTransaction);
 
         // then
         assertEquals(localTransaction.getID(), rawTransaction.getID());
@@ -33,16 +34,30 @@ public class ExtensionMapperTest {
 
     @Test
     public void shouldMapRawToForeignGasTrans() throws Exception {
-        // given
-        JsonNode extendRaw = new ObjectMapper().readTree(ExtensionMapperTest.class.getResourceAsStream("/extendraw.json"));
-
-        ExtendRawTransaction rawTransaction = (ExtendRawTransaction) RawTransactionFactory.fromJson(extendRaw);
-
         // when
-        ExdForeignGasTransaction gasTransaction = ExtensionMapper.INSTANCE.extRawToExtForeignGasTrans(rawTransaction);
+        ExdForeignGasTransaction gasTransaction = ExtensionMapper.INSTANCE.exdRawToExtForeignGasTrans(rawTransaction);
 
         // then
         assertEquals(gasTransaction.getID(), rawTransaction.getID());
     }
+
+    @Test
+    public void shouldMapRawToForeignParkTrans() throws Exception {
+        // when
+        ExdForeignParkTransaction parkTransaction = ExtensionMapper.INSTANCE.exdRawToExtForeignParkTrans(rawTransaction);
+
+        // then
+        assertEquals(parkTransaction.getID(), rawTransaction.getID());
+    }
+
+    @Test
+    public void shouldMapRawToForeignMunicipalTrans() throws Exception {
+        // when
+        ExdForeignMunicipalTransaction parkTransaction = ExtensionMapper.INSTANCE.exdRawToExtForeignMunicipalTrans(rawTransaction);
+
+        // then
+        assertEquals(parkTransaction.getID(), rawTransaction.getID());
+    }
+
 
 }

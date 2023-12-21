@@ -15,13 +15,13 @@ import org.mapstruct.factory.Mappers;
 public interface ExtensionMapper {
     ExtensionMapper INSTANCE = Mappers.getMapper(ExtensionMapper.class);
 
-    TollChangeTransactions extRawToTollChangeTrans(ExtendRawTransaction extendRawTransaction);
+    TollChangeTransactions exdRawToTollChangeTrans(ExtendRawTransaction extendRawTransaction);
 
-    ExdLocalTransaction extRawToExtLocalTrans(ExtendRawTransaction extendRawTransaction);
+    ExdLocalTransaction exdRawToExtLocalTrans(ExtendRawTransaction extendRawTransaction);
 
-    ExdForeignGasTransaction extRawToExtForeignGasTrans(ExtendRawTransaction extendRawTransaction);
+    ExdForeignGasTransaction exdRawToExtForeignGasTrans(ExtendRawTransaction extendRawTransaction);
 
-    ExdForeignParkTransaction extRawToExtForeignParkTrans(ExtendRawTransaction extendRawTransaction);
+    ExdForeignParkTransaction exdRawToExtForeignParkTrans(ExtendRawTransaction extendRawTransaction);
 
-   ExdForeignMunicipalTransaction extRawToExtForeignMunicipalTrans(ExtendRawTransaction extendRawTransaction);
+   ExdForeignMunicipalTransaction exdRawToExtForeignMunicipalTrans(ExtendRawTransaction extendRawTransaction);
 }

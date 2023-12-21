@@ -108,7 +108,7 @@ public class TollChangeTransactions implements HighwayTransaction {
     @JsonProperty("CHARGERESULT")
     public int cHARGERESULT;
     @JsonProperty("EXTOLLLANEID")
-    public int eXTOLLLANEID;
+    public String eXTOLLLANEID;
     @JsonProperty("ETCCARDTYPE")
     public int eTCCARDTYPE;
     @JsonProperty("EXVEHICLETYPE")
