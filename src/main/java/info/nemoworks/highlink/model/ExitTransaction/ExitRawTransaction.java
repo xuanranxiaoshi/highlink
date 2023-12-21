@@ -1,5 +1,6 @@
-package info.nemoworks.highlink.model;
+package info.nemoworks.highlink.model.ExitTransaction;
 
+import info.nemoworks.highlink.model.HighwayTransaction;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
@@ -383,4 +384,27 @@ public class ExitRawTransaction implements HighwayTransaction {
         return this.iD;
     }
 
+    public boolean isPrimaryTrans() {
+        return "09".equals(this.getTRANSTYPE());
+    }
+
+    public boolean isEtc() {
+        return this.getMEDIATYPE() != 1;
+    }
+
+    public boolean isPayWithEtc() {
+        return this.getPAYTYPE() == 3;
+    }
+
+    public boolean isLocal() {
+        return this.getIDENTIFYVLP().contains("鲁");
+    }
+
+    public boolean isGreenCar() {
+        return this.getSPECIALTYPE().contains("5");
+    }
+
+    public boolean isTruck() {
+        return this.getEXVEHICLETYPE() == 12;
+    }
 }

@@ -31,6 +31,11 @@
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
+            <artifactId>flink-runtime-web</artifactId>
+            <version>1.18.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
             <artifactId>flink-connector-jdbc</artifactId>
             <version>3.1.1-1.17</version>
         </dependency>
@@ -80,6 +85,11 @@
                     <source>21</source>
                     <target>21</target>
                     <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>1.18.30</version>
+                        </path>
                         <path>
                             <groupId>org.mapstruct</groupId>
                             <artifactId>mapstruct-processor</artifactId>

@@ -1,5 +1,6 @@
-package info.nemoworks.highlink.model;
+package info.nemoworks.highlink.model.gantryTransaction;
 
+import info.nemoworks.highlink.model.HighwayTransaction;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
@@ -416,6 +417,7 @@ public class GantryRawTransaction implements HighwayTransaction {
     private String gANTRYFITNEIGHBORPROVCODE;
     @JsonProperty("FEESPARE3")
     private String fEESPARE3;
+
 
     @Override
     public String getID() {

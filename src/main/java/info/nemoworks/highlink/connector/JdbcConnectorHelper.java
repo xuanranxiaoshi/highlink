@@ -23,8 +23,9 @@ public class JdbcConnectorHelper {
             } else if (fields[i].getType().getSimpleName().toLowerCase().contains("string")) {
                 query += fields[i].getName().toUpperCase() + " text";
             }
-            if (i != fields.length - 1)
+            if (i != fields.length - 1) {
                 query += ",";
+            }
         }
         query += ")";
         System.out.println(query);
@@ -77,7 +78,7 @@ public class JdbcConnectorHelper {
                 .withUrl("jdbc:h2:~/test")
                 .withDriverName("org.h2.Driver")
                 .withUsername("sa")
-                .withPassword("")
+                .withPassword("sa")
                 .build();
     }
 

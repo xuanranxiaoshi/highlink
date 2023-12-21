@@ -1,11 +1,12 @@
-package info.nemoworks.highlink.model;
+package info.nemoworks.highlink.model.extendTransaction;
 
+import info.nemoworks.highlink.model.HighwayTransaction;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
 
 @Data
-public class ParkRawTransaction implements HighwayTransaction {
+public class ExtendRawTransaction implements HighwayTransaction {
     @JsonProperty("ID")
     private double iD;
     @JsonProperty("PARKOPERATORID")
@@ -85,4 +86,25 @@ public class ParkRawTransaction implements HighwayTransaction {
     public String getID() {
         return String.valueOf(this.iD);
     }
+
+    public boolean isPrimaryTrans() {
+        return "09".equals(this.getTRANSTYPE());
+    }
+
+    public boolean isLocal() {
+        return this.getVLP().contains("鲁");
+    }
+
+    public boolean isMunicipalTrans() {
+        return this.getSERVICETYPE() == 1;
+    }
+
+    public boolean isParkTrans() {
+        return this.getSERVICETYPE() == 2;
+    }
+
+    public boolean isGasTrans() {
+        return this.getSERVICETYPE() == 3;
+    }
+
 }

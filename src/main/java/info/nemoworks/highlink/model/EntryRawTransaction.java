@@ -190,4 +190,8 @@ public class EntryRawTransaction implements HighwayTransaction {
     @JsonProperty("WASTESPARE3")
     private String wASTESPARE3;
 
+    @Override
+    public String getID() {
+        return this.iD;
+    }
 }

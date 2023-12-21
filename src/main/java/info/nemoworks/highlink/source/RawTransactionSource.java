@@ -24,8 +24,9 @@ public class RawTransactionSource implements SourceFunction<HighwayTransaction> 
     private String name;
 
     public RawTransactionSource(JsonNode transactions, String name) throws Exception {
-        if (!transactions.isArray())
+        if (!transactions.isArray()) {
             throw new Exception();
+        }
         this.transactions = (ArrayNode) transactions;
         this.name = name;
         this.count = random.nextInt(100);

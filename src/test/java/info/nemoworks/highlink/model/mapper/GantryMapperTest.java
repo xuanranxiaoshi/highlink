@@ -6,9 +6,9 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
-import info.nemoworks.highlink.model.GantryCpcTransaction;
-import info.nemoworks.highlink.model.GantryEtcTransaction;
-import info.nemoworks.highlink.model.GantryRawTransaction;
+import info.nemoworks.highlink.model.gantryTransaction.GantryCpcTransaction;
+import info.nemoworks.highlink.model.gantryTransaction.GantryEtcTransaction;
+import info.nemoworks.highlink.model.gantryTransaction.GantryRawTransaction;
 import info.nemoworks.highlink.model.RawTransactionFactory;
 
 public class GantryMapperTest {
@@ -19,6 +19,7 @@ public class GantryMapperTest {
         JsonNode rawGantry = new ObjectMapper().readTree(GantryMapperTest.class.getResourceAsStream("/gantryraw.json"));
 
         GantryRawTransaction rawTransaction = (GantryRawTransaction) RawTransactionFactory.fromJson(rawGantry);
+
         // when
         GantryEtcTransaction etcTransaction = GantryMapper.INSTANCE.gantryRawToEtcTransaction(rawTransaction);
 

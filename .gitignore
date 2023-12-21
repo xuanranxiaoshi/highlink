@@ -142,4 +142,12 @@ buildNumber.properties
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
 
+<<<<<<< HEAD
+# 忽略以.db结尾的文件
+*.db
+
+.vscode/
+
+=======
+>>>>>>> 0f13a86debee9b1517ea73d343df79c90a8d15e6
 # End of https://www.toptal.com/developers/gitignore/api/intellij+all,maven,macos

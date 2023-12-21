@@ -6,8 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import info.nemoworks.highlink.connector.JdbcConnectorHelper;
-import info.nemoworks.highlink.model.GantryCpcTransaction;
-import info.nemoworks.highlink.model.GantryEtcTransaction;
+import info.nemoworks.highlink.model.gantryTransaction.GantryCpcTransaction;
+import info.nemoworks.highlink.model.gantryTransaction.GantryEtcTransaction;
 import info.nemoworks.highlink.model.HighwayTransaction;
 
 public class TransactionSinks {

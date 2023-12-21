@@ -1,12 +1,11 @@
 package info.nemoworks.highlink.model.mapper;
 
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-import info.nemoworks.highlink.model.GantryCpcTransaction;
-import info.nemoworks.highlink.model.GantryEtcTransaction;
-import info.nemoworks.highlink.model.GantryRawTransaction;
+import info.nemoworks.highlink.model.gantryTransaction.GantryCpcTransaction;
+import info.nemoworks.highlink.model.gantryTransaction.GantryEtcTransaction;
+import info.nemoworks.highlink.model.gantryTransaction.GantryRawTransaction;
 
 @Mapper
 public interface GantryMapper {
