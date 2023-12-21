@@ -86,9 +86,9 @@ public class ExitLocalETCTrans implements HighwayTransaction{
     @JsonProperty("ENTOLLLANEID")
     public String eNTOLLLANEID;
     @JsonProperty("ENTOLLSTATIONHEX")
-    public int eNTOLLSTATIONHEX;
+    public String eNTOLLSTATIONHEX;
     @JsonProperty("ENTOLLLANEHEX")
-    public long eNTOLLLANEHEX;
+    public String eNTOLLLANEHEX;
     @JsonProperty("ENVLP")
     public String eNVLP;
     @JsonProperty("ENVLPC")

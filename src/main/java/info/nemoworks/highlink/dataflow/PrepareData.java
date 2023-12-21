@@ -14,6 +14,7 @@ import info.nemoworks.highlink.sink.TransactionSinks;
 import info.nemoworks.highlink.source.RawTransactionSource;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.connector.jdbc.JdbcSink;
+import org.apache.flink.runtime.minicluster.MiniCluster;
 import org.apache.flink.runtime.minicluster.MiniClusterConfiguration;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.json.JsonReadFeature;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
@@ -106,7 +107,7 @@ public class PrepareData {
         processGantryTrans(gantryStream);
 
         // 2. 拓展数据预处理
-        processExtTrans(parkStream);
+        processExdTrans(parkStream);
 
         // 3. 出口数据预备处理
         processExitTrans(exitStream);
@@ -120,8 +121,8 @@ public class PrepareData {
 
         // 配置flink集群，启动任务
         MiniClusterConfiguration clusterConfiguration = new MiniClusterConfiguration.Builder()
-                .setNumTaskManagers(1)
-                .setNumSlotsPerTaskManager(2).build();
+                .setNumTaskManagers(2)
+                .setNumSlotsPerTaskManager(4).build();
 
 
 //        try (var cluster = new MiniCluster(clusterConfiguration)) {
@@ -174,7 +175,7 @@ public class PrepareData {
                 JdbcConnectorHelper.getJdbcConnectionOptions()));
     }
 
-    private static void processExtTrans(DataStream<ExtendRawTransaction> parkStream) {
+    private static void processExdTrans(DataStream<ExtendRawTransaction> parkStream) {
         final OutputTag<TollChangeTransactions> exdChangeTag = new OutputTag<>("extChangeTrans") {
         };
         final OutputTag<ExdForeignGasTransaction> extForeignGasTag = new OutputTag<>("extForeignGasTrans") {
@@ -216,31 +217,6 @@ public class PrepareData {
         addSinkToStream(extForeignMunicipalStream, ExdForeignMunicipalTransaction.class);
         addSinkToStream(extLocalTransStream, ExdLocalTransaction.class);
 
-//        exchangeStream.addSink(JdbcSink.sink(
-//                JdbcConnectorHelper.getInsertTemplateString(TollChangeTransactions.class),
-//                JdbcConnectorHelper.getStatementBuilder(),
-//                JdbcConnectorHelper.getJdbcExecutionOptions(),
-//                JdbcConnectorHelper.getJdbcConnectionOptions()));
-//        extForeignGasStream.addSink(JdbcSink.sink(
-//                JdbcConnectorHelper.getInsertTemplateString(ExtForeignGasTransaction.class),
-//                JdbcConnectorHelper.getStatementBuilder(),
-//                JdbcConnectorHelper.getJdbcExecutionOptions(),
-//                JdbcConnectorHelper.getJdbcConnectionOptions()));
-//        extForeignParkStream.addSink(JdbcSink.sink(
-//                JdbcConnectorHelper.getInsertTemplateString(ExtForeignParkTransaction.class),
-//                JdbcConnectorHelper.getStatementBuilder(),
-//                JdbcConnectorHelper.getJdbcExecutionOptions(),
-//                JdbcConnectorHelper.getJdbcConnectionOptions()));
-//        extForeignMunicipalStream.addSink(JdbcSink.sink(
-//                JdbcConnectorHelper.getInsertTemplateString(ExtForeignMunicipalTransaction.class),
-//                JdbcConnectorHelper.getStatementBuilder(),
-//                JdbcConnectorHelper.getJdbcExecutionOptions(),
-//                JdbcConnectorHelper.getJdbcConnectionOptions()));
-//        extLocalTransStream.addSink(JdbcSink.sink(
-//                JdbcConnectorHelper.getInsertTemplateString(ExtLocalTransaction.class),
-//                JdbcConnectorHelper.getStatementBuilder(),
-//                JdbcConnectorHelper.getJdbcExecutionOptions(),
-//                JdbcConnectorHelper.getJdbcConnectionOptions()));
     }
 
     private static void processExitTrans(DataStream<ExitRawTransaction> exitStream){
