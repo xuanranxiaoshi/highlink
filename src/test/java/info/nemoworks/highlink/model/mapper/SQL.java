@@ -2,10 +2,6 @@ package info.nemoworks.highlink.model.mapper;
 
 import info.nemoworks.highlink.connector.JdbcConnectorHelper;
 import info.nemoworks.highlink.model.TollChangeTransactions;
-import info.nemoworks.highlink.model.extendTransaction.ExtForeignGasTransaction;
-import info.nemoworks.highlink.model.extendTransaction.ExtForeignMunicipalTransaction;
-import info.nemoworks.highlink.model.extendTransaction.ExtForeignParkTransaction;
-import info.nemoworks.highlink.model.extendTransaction.ExtLocalTransaction;
 
 /**
  * @description:

@@ -11,41 +11,27 @@ import lombok.Data;
  * @Copyright：
  */
 @Data
-public class ExtLocalTransaction implements HighwayTransaction{
+public class ExdForeignParkTransaction implements HighwayTransaction{
     @JsonProperty("ID")
     public double iD;
-    @JsonProperty("WASTETYPE")
-    public int wASTETYPE;
-    @JsonProperty("OPERATORID")
-    public int oPERATORID;
+    @JsonProperty("PARKOPERATORID")
+    public int pARKOPERATORID;
     @JsonProperty("ISSUERID")
     public int iSSUERID;
+    @JsonProperty("MESSAGEID")
+    public long mESSAGEID;
     @JsonProperty("TRANSDATE")
     public String tRANSDATE;
     @JsonProperty("TRANSTIME")
     public String tRANSTIME;
     @JsonProperty("PARKTIME")
     public int pARKTIME;
-    @JsonProperty("FUELTYPE")
-    public String fUELTYPE;
-    @JsonProperty("FUELPRICE")
-    public String fUELPRICE;
-    @JsonProperty("FUELVOLUME")
-    public String fUELVOLUME;
-    @JsonProperty("DESCRIBE")
-    public String dESCRIBE;
     @JsonProperty("FEE")
     public int fEE;
-    @JsonProperty("ETCCARDTYPE")
-    public int eTCCARDTYPE;
-    @JsonProperty("ETCCARDNET")
-    public int eTCCARDNET;
-    @JsonProperty("ETCCARDID")
-    public long eTCCARDID;
     @JsonProperty("TERMINALTRANSNO")
     public String tERMINALTRANSNO;
     @JsonProperty("OBUID")
-    public long oBUID;
+    public String oBUID;
     @JsonProperty("VEHICLEID")
     public String vEHICLEID;
     @JsonProperty("VEHICLETYPE")
@@ -80,30 +66,40 @@ public class ExtLocalTransaction implements HighwayTransaction{
     public int cHARGERESULT;
     @JsonProperty("DISPUTEDRESULT")
     public String dISPUTEDRESULT;
+    @JsonProperty("DISPUTEDID")
+    public String dISPUTEDID;
     @JsonProperty("DISPUTEDPROTIME")
     public String dISPUTEDPROTIME;
-    @JsonProperty("CLEARBATCHSTATUS")
-    public int cLEARBATCHSTATUS;
-    @JsonProperty("CLEARBATCH")
-    public String cLEARBATCH;
+    @JsonProperty("NATIONCLEARDATE")
+    public String nATIONCLEARDATE;
     @JsonProperty("CLEARDATE")
     public String cLEARDATE;
-    @JsonProperty("BATCHNUM")
-    public String bATCHNUM;
-    @JsonProperty("CHARGEBATCH")
-    public String cHARGEBATCH;
+    @JsonProperty("ETCCARDTYPE")
+    public int eTCCARDTYPE;
+    @JsonProperty("ETCCARDNET")
+    public int eTCCARDNET;
+    @JsonProperty("ETCCARDID")
+    public long eTCCARDID;
+    @JsonProperty("CLEARBATCH")
+    public String cLEARBATCH;
+    @JsonProperty("STATUS")
+    public int sTATUS;
     @JsonProperty("ORGCODE")
     public long oRGCODE;
+    @JsonProperty("CLEARBATCHSTATUS")
+    public int cLEARBATCHSTATUS;
     @JsonProperty("SPLITFLAG")
     public int sPLITFLAG;
+    @JsonProperty("NATIONCLEARFLAG")
+    public int nATIONCLEARFLAG;
+    @JsonProperty("NATIONCLEARTIME")
+    public String nATIONCLEARTIME;
     @JsonProperty("CLEARREMARK")
     public String cLEARREMARK;
     @JsonProperty("NAME")
     public String nAME;
     @JsonProperty("MANAGEID")
     public String mANAGEID;
-    @JsonProperty("MODIFYFLAG")
-    public int mODIFYFLAG;
 
     public String getID(){
         return String.valueOf(this.iD);

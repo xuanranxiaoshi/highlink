@@ -4,6 +4,7 @@ import info.nemoworks.highlink.model.HighwayTransaction;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
+
 /**
  * @description:
  * @author：jimi
@@ -11,31 +12,31 @@ import lombok.Data;
  * @Copyright：
  */
 @Data
-public class ExtForeignMunicipalTransaction implements HighwayTransaction{
+public class ExdForeignGasTransaction implements HighwayTransaction {
     @JsonProperty("ID")
     public double iD;
-    @JsonProperty("MESSAGEID")
-    public long mESSAGEID;
+    @JsonProperty("GASSTATIONOPERATORID")
+    public int gASSTATIONOPERATORID;
     @JsonProperty("ISSUERID")
     public int iSSUERID;
-    @JsonProperty("ORGCODE")
-    public int oRGCODE;
-    @JsonProperty("NAME")
-    public String nAME;
+    @JsonProperty("MESSAGEID")
+    public long mESSAGEID;
+    @JsonProperty("FUELTYPE")
+    public int fUELTYPE;
+    @JsonProperty("FUELPRICE")
+    public int fUELPRICE;
+    @JsonProperty("FUELVOLUME")
+    public int fUELVOLUME;
     @JsonProperty("TRANSDATE")
     public String tRANSDATE;
     @JsonProperty("TRANSTIME")
     public String tRANSTIME;
-    @JsonProperty("DESCRIBE")
-    public String dESCRIBE;
     @JsonProperty("FEE")
     public int fEE;
-    @JsonProperty("ETCCARDTYPE")
-    public int eTCCARDTYPE;
-    @JsonProperty("ETCCARDNET")
-    public int eTCCARDNET;
-    @JsonProperty("ETCCARDID")
-    public long eTCCARDID;
+    @JsonProperty("TERMINALTRANSNO")
+    public String tERMINALTRANSNO;
+    @JsonProperty("OBUID")
+    public String oBUID;
     @JsonProperty("VEHICLEID")
     public String vEHICLEID;
     @JsonProperty("TAC")
@@ -60,8 +61,6 @@ public class ExtForeignMunicipalTransaction implements HighwayTransaction{
     public String rECEIVETIME;
     @JsonProperty("GENTIME")
     public String gENTIME;
-    @JsonProperty("STATUS")
-    public int sTATUS;
     @JsonProperty("REMARKS")
     public String rEMARKS;
     @JsonProperty("ISSUECHARGETIME")
@@ -74,30 +73,36 @@ public class ExtForeignMunicipalTransaction implements HighwayTransaction{
     public String dISPUTEDID;
     @JsonProperty("DISPUTEDPROTIME")
     public String dISPUTEDPROTIME;
+    @JsonProperty("CLEARDATE")
+    public String cLEARDATE;
+    @JsonProperty("ETCCARDTYPE")
+    public int eTCCARDTYPE;
+    @JsonProperty("ETCCARDNET")
+    public int eTCCARDNET;
+    @JsonProperty("ETCCARDID")
+    public long eTCCARDID;
     @JsonProperty("NATIONCLEARDATE")
     public String nATIONCLEARDATE;
+    @JsonProperty("CLEARBATCH")
+    public String cLEARBATCH;
+    @JsonProperty("STATUS")
+    public int sTATUS;
+    @JsonProperty("ORGCODE")
+    public long oRGCODE;
+    @JsonProperty("CLEARBATCHSTATUS")
+    public int cLEARBATCHSTATUS;
+    @JsonProperty("SPLITFLAG")
+    public int sPLITFLAG;
     @JsonProperty("NATIONCLEARFLAG")
     public int nATIONCLEARFLAG;
     @JsonProperty("NATIONCLEARTIME")
     public String nATIONCLEARTIME;
-    @JsonProperty("CLEARDATE")
-    public String cLEARDATE;
-    @JsonProperty("CLEARBATCHSTATUS")
-    public int cLEARBATCHSTATUS;
-    @JsonProperty("CLEARBATCH")
-    public String cLEARBATCH;
+    @JsonProperty("NAME")
+    public String nAME;
     @JsonProperty("CLEARREMARK")
     public String cLEARREMARK;
-    @JsonProperty("SERVICEAREAOPERATORID")
-    public int sERVICEAREAOPERATORID;
-    @JsonProperty("MUNICIPALID")
-    public int mUNICIPALID;
-    @JsonProperty("TERMINALTRANSNO")
-    public String tERMINALTRANSNO;
     @JsonProperty("MANAGEID")
     public String mANAGEID;
-    @JsonProperty("VEHICLETYPE")
-    public int vEHICLETYPE;
 
     public String getID(){
         return String.valueOf(this.iD);

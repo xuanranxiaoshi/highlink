@@ -11,31 +11,33 @@ import lombok.Data;
  * @Copyright：
  */
 @Data
-public class ExtForeignParkTransaction implements HighwayTransaction{
+public class ExdForeignMunicipalTransaction implements HighwayTransaction{
     @JsonProperty("ID")
     public double iD;
-    @JsonProperty("PARKOPERATORID")
-    public int pARKOPERATORID;
-    @JsonProperty("ISSUERID")
-    public int iSSUERID;
     @JsonProperty("MESSAGEID")
     public long mESSAGEID;
+    @JsonProperty("ISSUERID")
+    public int iSSUERID;
+    @JsonProperty("ORGCODE")
+    public int oRGCODE;
+    @JsonProperty("NAME")
+    public String nAME;
     @JsonProperty("TRANSDATE")
     public String tRANSDATE;
     @JsonProperty("TRANSTIME")
     public String tRANSTIME;
-    @JsonProperty("PARKTIME")
-    public int pARKTIME;
+    @JsonProperty("DESCRIBE")
+    public String dESCRIBE;
     @JsonProperty("FEE")
     public int fEE;
-    @JsonProperty("TERMINALTRANSNO")
-    public String tERMINALTRANSNO;
-    @JsonProperty("OBUID")
-    public String oBUID;
+    @JsonProperty("ETCCARDTYPE")
+    public int eTCCARDTYPE;
+    @JsonProperty("ETCCARDNET")
+    public int eTCCARDNET;
+    @JsonProperty("ETCCARDID")
+    public long eTCCARDID;
     @JsonProperty("VEHICLEID")
     public String vEHICLEID;
-    @JsonProperty("VEHICLETYPE")
-    public int vEHICLETYPE;
     @JsonProperty("TAC")
     public String tAC;
     @JsonProperty("TRANSNO")
@@ -58,6 +60,8 @@ public class ExtForeignParkTransaction implements HighwayTransaction{
     public String rECEIVETIME;
     @JsonProperty("GENTIME")
     public String gENTIME;
+    @JsonProperty("STATUS")
+    public int sTATUS;
     @JsonProperty("REMARKS")
     public String rEMARKS;
     @JsonProperty("ISSUECHARGETIME")
@@ -72,34 +76,28 @@ public class ExtForeignParkTransaction implements HighwayTransaction{
     public String dISPUTEDPROTIME;
     @JsonProperty("NATIONCLEARDATE")
     public String nATIONCLEARDATE;
-    @JsonProperty("CLEARDATE")
-    public String cLEARDATE;
-    @JsonProperty("ETCCARDTYPE")
-    public int eTCCARDTYPE;
-    @JsonProperty("ETCCARDNET")
-    public int eTCCARDNET;
-    @JsonProperty("ETCCARDID")
-    public long eTCCARDID;
-    @JsonProperty("CLEARBATCH")
-    public String cLEARBATCH;
-    @JsonProperty("STATUS")
-    public int sTATUS;
-    @JsonProperty("ORGCODE")
-    public long oRGCODE;
-    @JsonProperty("CLEARBATCHSTATUS")
-    public int cLEARBATCHSTATUS;
-    @JsonProperty("SPLITFLAG")
-    public int sPLITFLAG;
     @JsonProperty("NATIONCLEARFLAG")
     public int nATIONCLEARFLAG;
     @JsonProperty("NATIONCLEARTIME")
     public String nATIONCLEARTIME;
+    @JsonProperty("CLEARDATE")
+    public String cLEARDATE;
+    @JsonProperty("CLEARBATCHSTATUS")
+    public int cLEARBATCHSTATUS;
+    @JsonProperty("CLEARBATCH")
+    public String cLEARBATCH;
     @JsonProperty("CLEARREMARK")
     public String cLEARREMARK;
-    @JsonProperty("NAME")
-    public String nAME;
+    @JsonProperty("SERVICEAREAOPERATORID")
+    public int sERVICEAREAOPERATORID;
+    @JsonProperty("MUNICIPALID")
+    public int mUNICIPALID;
+    @JsonProperty("TERMINALTRANSNO")
+    public String tERMINALTRANSNO;
     @JsonProperty("MANAGEID")
     public String mANAGEID;
+    @JsonProperty("VEHICLETYPE")
+    public int vEHICLETYPE;
 
     public String getID(){
         return String.valueOf(this.iD);

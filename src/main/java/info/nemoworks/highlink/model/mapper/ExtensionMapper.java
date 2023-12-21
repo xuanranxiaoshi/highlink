@@ -17,11 +17,11 @@ public interface ExtensionMapper {
 
     TollChangeTransactions extRawToTollChangeTrans(ExtendRawTransaction extendRawTransaction);
 
-    ExtLocalTransaction extRawToExtLocalTrans(ExtendRawTransaction extendRawTransaction);
+    ExdLocalTransaction extRawToExtLocalTrans(ExtendRawTransaction extendRawTransaction);
 
-    ExtForeignGasTransaction extRawToExtForeignGasTrans(ExtendRawTransaction extendRawTransaction);
+    ExdForeignGasTransaction extRawToExtForeignGasTrans(ExtendRawTransaction extendRawTransaction);
 
-    ExtForeignParkTransaction extRawToExtForeignParkTrans(ExtendRawTransaction extendRawTransaction);
+    ExdForeignParkTransaction extRawToExtForeignParkTrans(ExtendRawTransaction extendRawTransaction);
 
-   ExtForeignMunicipalTransaction extRawToExtForeignMunicipalTrans(ExtendRawTransaction extendRawTransaction);
+   ExdForeignMunicipalTransaction extRawToExtForeignMunicipalTrans(ExtendRawTransaction extendRawTransaction);
 }

@@ -1,5 +1,6 @@
 package info.nemoworks.highlink.model;
 
+import info.nemoworks.highlink.model.ExitTransaction.ExitRawTransaction;
 import info.nemoworks.highlink.model.extendTransaction.ExtendRawTransaction;
 import info.nemoworks.highlink.model.gantryTransaction.GantryRawTransaction;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;

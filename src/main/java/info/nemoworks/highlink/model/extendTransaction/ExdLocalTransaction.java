@@ -4,7 +4,6 @@ import info.nemoworks.highlink.model.HighwayTransaction;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
-
 /**
  * @description:
  * @author：jimi
@@ -12,33 +11,45 @@ import lombok.Data;
  * @Copyright：
  */
 @Data
-public class ExtForeignGasTransaction implements HighwayTransaction {
+public class ExdLocalTransaction implements HighwayTransaction{
     @JsonProperty("ID")
     public double iD;
-    @JsonProperty("GASSTATIONOPERATORID")
-    public int gASSTATIONOPERATORID;
+    @JsonProperty("WASTETYPE")
+    public int wASTETYPE;
+    @JsonProperty("OPERATORID")
+    public int oPERATORID;
     @JsonProperty("ISSUERID")
     public int iSSUERID;
-    @JsonProperty("MESSAGEID")
-    public long mESSAGEID;
-    @JsonProperty("FUELTYPE")
-    public int fUELTYPE;
-    @JsonProperty("FUELPRICE")
-    public int fUELPRICE;
-    @JsonProperty("FUELVOLUME")
-    public int fUELVOLUME;
     @JsonProperty("TRANSDATE")
     public String tRANSDATE;
     @JsonProperty("TRANSTIME")
     public String tRANSTIME;
+    @JsonProperty("PARKTIME")
+    public int pARKTIME;
+    @JsonProperty("FUELTYPE")
+    public String fUELTYPE;
+    @JsonProperty("FUELPRICE")
+    public String fUELPRICE;
+    @JsonProperty("FUELVOLUME")
+    public String fUELVOLUME;
+    @JsonProperty("DESCRIBE")
+    public String dESCRIBE;
     @JsonProperty("FEE")
     public int fEE;
+    @JsonProperty("ETCCARDTYPE")
+    public int eTCCARDTYPE;
+    @JsonProperty("ETCCARDNET")
+    public int eTCCARDNET;
+    @JsonProperty("ETCCARDID")
+    public long eTCCARDID;
     @JsonProperty("TERMINALTRANSNO")
     public String tERMINALTRANSNO;
     @JsonProperty("OBUID")
-    public String oBUID;
+    public long oBUID;
     @JsonProperty("VEHICLEID")
     public String vEHICLEID;
+    @JsonProperty("VEHICLETYPE")
+    public int vEHICLETYPE;
     @JsonProperty("TAC")
     public String tAC;
     @JsonProperty("TRANSNO")
@@ -69,40 +80,30 @@ public class ExtForeignGasTransaction implements HighwayTransaction {
     public int cHARGERESULT;
     @JsonProperty("DISPUTEDRESULT")
     public String dISPUTEDRESULT;
-    @JsonProperty("DISPUTEDID")
-    public String dISPUTEDID;
     @JsonProperty("DISPUTEDPROTIME")
     public String dISPUTEDPROTIME;
-    @JsonProperty("CLEARDATE")
-    public String cLEARDATE;
-    @JsonProperty("ETCCARDTYPE")
-    public int eTCCARDTYPE;
-    @JsonProperty("ETCCARDNET")
-    public int eTCCARDNET;
-    @JsonProperty("ETCCARDID")
-    public long eTCCARDID;
-    @JsonProperty("NATIONCLEARDATE")
-    public String nATIONCLEARDATE;
-    @JsonProperty("CLEARBATCH")
-    public String cLEARBATCH;
-    @JsonProperty("STATUS")
-    public int sTATUS;
-    @JsonProperty("ORGCODE")
-    public long oRGCODE;
     @JsonProperty("CLEARBATCHSTATUS")
     public int cLEARBATCHSTATUS;
+    @JsonProperty("CLEARBATCH")
+    public String cLEARBATCH;
+    @JsonProperty("CLEARDATE")
+    public String cLEARDATE;
+    @JsonProperty("BATCHNUM")
+    public String bATCHNUM;
+    @JsonProperty("CHARGEBATCH")
+    public String cHARGEBATCH;
+    @JsonProperty("ORGCODE")
+    public long oRGCODE;
     @JsonProperty("SPLITFLAG")
     public int sPLITFLAG;
-    @JsonProperty("NATIONCLEARFLAG")
-    public int nATIONCLEARFLAG;
-    @JsonProperty("NATIONCLEARTIME")
-    public String nATIONCLEARTIME;
-    @JsonProperty("NAME")
-    public String nAME;
     @JsonProperty("CLEARREMARK")
     public String cLEARREMARK;
+    @JsonProperty("NAME")
+    public String nAME;
     @JsonProperty("MANAGEID")
     public String mANAGEID;
+    @JsonProperty("MODIFYFLAG")
+    public int mODIFYFLAG;
 
     public String getID(){
         return String.valueOf(this.iD);

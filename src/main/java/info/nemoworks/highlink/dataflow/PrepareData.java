@@ -2,17 +2,18 @@ package info.nemoworks.highlink.dataflow;
 
 import info.nemoworks.highlink.connector.JdbcConnectorHelper;
 import info.nemoworks.highlink.model.*;
+import info.nemoworks.highlink.model.ExitTransaction.*;
 import info.nemoworks.highlink.model.extendTransaction.*;
 import info.nemoworks.highlink.model.gantryTransaction.GantryCpcTransaction;
 import info.nemoworks.highlink.model.gantryTransaction.GantryEtcTransaction;
 import info.nemoworks.highlink.model.gantryTransaction.GantryRawTransaction;
+import info.nemoworks.highlink.model.mapper.ExitMapper;
 import info.nemoworks.highlink.model.mapper.ExtensionMapper;
 import info.nemoworks.highlink.model.mapper.GantryMapper;
 import info.nemoworks.highlink.sink.TransactionSinks;
 import info.nemoworks.highlink.source.RawTransactionSource;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.connector.jdbc.JdbcSink;
-import org.apache.flink.runtime.minicluster.MiniCluster;
 import org.apache.flink.runtime.minicluster.MiniClusterConfiguration;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.json.JsonReadFeature;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
@@ -103,17 +104,19 @@ public class PrepareData {
         DataStream<EntryRawTransaction> entryStream = mainDataStream;
 
         // 1. 门架数据预处理
-//        processGantryTrans(gantryStream);
+        processGantryTrans(gantryStream);
 
         // 2. 拓展数据预处理
         processExtTrans(parkStream);
 
         // 3. 出口数据预备处理
+        processExitTrans(exitStream);
+
 
         // 得到四个不同类型的数据流
         entryStream.addSink(new TransactionSinks.LogSink<>());
-        exitStream.addSink(new TransactionSinks.LogSink<>());
-        parkStream.addSink(new TransactionSinks.LogSink<>());
+//        exitStream.addSink(new TransactionSinks.LogSink<>());
+//        parkStream.addSink(new TransactionSinks.LogSink<>());
 
 
         // 配置flink集群，启动任务
@@ -128,6 +131,10 @@ public class PrepareData {
 //            cluster.close();
 //        }
         env.execute();
+    }
+
+    private static ExitRawTransaction reCompute(ExitRawTransaction value) {
+        return value;
     }
 
 
@@ -171,15 +178,15 @@ public class PrepareData {
     private static void processExtTrans(DataStream<ExtendRawTransaction> parkStream) {
         final OutputTag<TollChangeTransactions> exdChangeTag = new OutputTag<>("extChangeTrans") {
         };
-        final OutputTag<ExtForeignGasTransaction> extForeignGasTag = new OutputTag<>("extForeignGasTrans") {
+        final OutputTag<ExdForeignGasTransaction> extForeignGasTag = new OutputTag<>("extForeignGasTrans") {
         };
-        final OutputTag<ExtForeignMunicipalTransaction> extForeignMunicipalTag = new OutputTag<>("extForeignMunicipalTrans") {
+        final OutputTag<ExdForeignMunicipalTransaction> extForeignMunicipalTag = new OutputTag<>("extForeignMunicipalTrans") {
         };
-        final OutputTag<ExtForeignParkTransaction> extForeignParkTag = new OutputTag<>("extForeignParkTrans") {
+        final OutputTag<ExdForeignParkTransaction> extForeignParkTag = new OutputTag<>("extForeignParkTrans") {
         };
-        SingleOutputStreamOperator<ExtLocalTransaction> allTransStream = parkStream.process(new ProcessFunction<ExtendRawTransaction, ExtLocalTransaction>() {
+        SingleOutputStreamOperator<ExdLocalTransaction> allTransStream = parkStream.process(new ProcessFunction<ExtendRawTransaction, ExdLocalTransaction>() {
             @Override
-            public void processElement(ExtendRawTransaction rawTrans, ProcessFunction<ExtendRawTransaction, ExtLocalTransaction>.Context ctx, Collector<ExtLocalTransaction> collector) throws Exception {
+            public void processElement(ExtendRawTransaction rawTrans, ProcessFunction<ExtendRawTransaction, ExdLocalTransaction>.Context ctx, Collector<ExdLocalTransaction> collector) throws Exception {
                 if (!rawTrans.isPrimaryTrans()) {
                     ctx.output(exdChangeTag, ExtensionMapper.INSTANCE.extRawToTollChangeTrans(rawTrans));
                 } else {
@@ -199,33 +206,105 @@ public class PrepareData {
         });
 
         DataStream<TollChangeTransactions> exchangeStream = allTransStream.getSideOutput(exdChangeTag);
-        DataStream<ExtForeignGasTransaction> extForeignGasStream = allTransStream.getSideOutput(extForeignGasTag);
-        DataStream<ExtForeignParkTransaction> extForeignParkStream = allTransStream.getSideOutput(extForeignParkTag);
-        DataStream<ExtForeignMunicipalTransaction> extForeignMunicipalStream = allTransStream.getSideOutput(extForeignMunicipalTag);
-        DataStream<ExtLocalTransaction> extLocalTransStream = allTransStream;
+        DataStream<ExdForeignGasTransaction> extForeignGasStream = allTransStream.getSideOutput(extForeignGasTag);
+        DataStream<ExdForeignParkTransaction> extForeignParkStream = allTransStream.getSideOutput(extForeignParkTag);
+        DataStream<ExdForeignMunicipalTransaction> extForeignMunicipalStream = allTransStream.getSideOutput(extForeignMunicipalTag);
+        DataStream<ExdLocalTransaction> extLocalTransStream = allTransStream;
 
-        exchangeStream.addSink(JdbcSink.sink(
-                JdbcConnectorHelper.getInsertTemplateString(TollChangeTransactions.class),
-                JdbcConnectorHelper.getStatementBuilder(),
-                JdbcConnectorHelper.getJdbcExecutionOptions(),
-                JdbcConnectorHelper.getJdbcConnectionOptions()));
-        extForeignGasStream.addSink(JdbcSink.sink(
-                JdbcConnectorHelper.getInsertTemplateString(ExtForeignGasTransaction.class),
-                JdbcConnectorHelper.getStatementBuilder(),
-                JdbcConnectorHelper.getJdbcExecutionOptions(),
-                JdbcConnectorHelper.getJdbcConnectionOptions()));
-        extForeignParkStream.addSink(JdbcSink.sink(
-                JdbcConnectorHelper.getInsertTemplateString(ExtForeignParkTransaction.class),
-                JdbcConnectorHelper.getStatementBuilder(),
-                JdbcConnectorHelper.getJdbcExecutionOptions(),
-                JdbcConnectorHelper.getJdbcConnectionOptions()));
-        extForeignMunicipalStream.addSink(JdbcSink.sink(
-                JdbcConnectorHelper.getInsertTemplateString(ExtForeignMunicipalTransaction.class),
-                JdbcConnectorHelper.getStatementBuilder(),
-                JdbcConnectorHelper.getJdbcExecutionOptions(),
-                JdbcConnectorHelper.getJdbcConnectionOptions()));
-        extLocalTransStream.addSink(JdbcSink.sink(
-                JdbcConnectorHelper.getInsertTemplateString(ExtLocalTransaction.class),
+        addSinkToStream(exchangeStream, TollChangeTransactions.class);
+        addSinkToStream(extForeignGasStream, ExdForeignGasTransaction.class);
+        addSinkToStream(extForeignParkStream, ExdForeignParkTransaction.class);
+        addSinkToStream(extForeignMunicipalStream, ExdForeignMunicipalTransaction.class);
+        addSinkToStream(extLocalTransStream, ExdLocalTransaction.class);
+
+//        exchangeStream.addSink(JdbcSink.sink(
+//                JdbcConnectorHelper.getInsertTemplateString(TollChangeTransactions.class),
+//                JdbcConnectorHelper.getStatementBuilder(),
+//                JdbcConnectorHelper.getJdbcExecutionOptions(),
+//                JdbcConnectorHelper.getJdbcConnectionOptions()));
+//        extForeignGasStream.addSink(JdbcSink.sink(
+//                JdbcConnectorHelper.getInsertTemplateString(ExtForeignGasTransaction.class),
+//                JdbcConnectorHelper.getStatementBuilder(),
+//                JdbcConnectorHelper.getJdbcExecutionOptions(),
+//                JdbcConnectorHelper.getJdbcConnectionOptions()));
+//        extForeignParkStream.addSink(JdbcSink.sink(
+//                JdbcConnectorHelper.getInsertTemplateString(ExtForeignParkTransaction.class),
+//                JdbcConnectorHelper.getStatementBuilder(),
+//                JdbcConnectorHelper.getJdbcExecutionOptions(),
+//                JdbcConnectorHelper.getJdbcConnectionOptions()));
+//        extForeignMunicipalStream.addSink(JdbcSink.sink(
+//                JdbcConnectorHelper.getInsertTemplateString(ExtForeignMunicipalTransaction.class),
+//                JdbcConnectorHelper.getStatementBuilder(),
+//                JdbcConnectorHelper.getJdbcExecutionOptions(),
+//                JdbcConnectorHelper.getJdbcConnectionOptions()));
+//        extLocalTransStream.addSink(JdbcSink.sink(
+//                JdbcConnectorHelper.getInsertTemplateString(ExtLocalTransaction.class),
+//                JdbcConnectorHelper.getStatementBuilder(),
+//                JdbcConnectorHelper.getJdbcExecutionOptions(),
+//                JdbcConnectorHelper.getJdbcConnectionOptions()));
+    }
+
+    private static void processExitTrans(DataStream<ExitRawTransaction> exitStream){
+        final OutputTag<TollChangeTransactions> etcTollChange = new OutputTag<TollChangeTransactions>("etcTollChangeTrans") {
+        };
+        final OutputTag<TollChangeTransactions> otherTollChange = new OutputTag<TollChangeTransactions>("otherTollChangeTrans") {
+        };
+        final OutputTag<ExitForeignOtherTrans> foreignOther = new OutputTag<ExitForeignOtherTrans>("foreignOtherTrans") {
+        };
+        final OutputTag<ExitLocalOtherTrans> localOther = new OutputTag<ExitLocalOtherTrans>("localOtherTrans") {
+        };
+        final OutputTag<ExitForeignETCTrans> foreignETC = new OutputTag<ExitForeignETCTrans>("foreignETCTrans") {
+        };
+
+        SingleOutputStreamOperator<ExitLocalETCTrans> exitAllSream = exitStream.process(new ProcessFunction<ExitRawTransaction, ExitLocalETCTrans>() {
+            @Override
+            public void processElement(ExitRawTransaction value, ProcessFunction<ExitRawTransaction, ExitLocalETCTrans>.Context ctx, Collector<ExitLocalETCTrans> collector) throws Exception {
+                if (!value.isPrimaryTrans()) {    // 非原始类交易
+                    if (value.isPayWithEtc()) {
+                        ctx.output(etcTollChange, ExitMapper.INSTANCE.exitRawToTollChangeTrans(value));
+                    } else {
+                        ctx.output(otherTollChange, ExitMapper.INSTANCE.exitRawToTollChangeTrans(value));
+                    }
+                } else {    // 原始类交易
+                    if (!value.isPayWithEtc()) {    // 非 ETC 支付
+                        if (value.isLocal()) {
+                            ctx.output(localOther, ExitMapper.INSTANCE.exitRawToExitLocalOther(value));
+                        } else {
+                            ctx.output(foreignOther, ExitMapper.INSTANCE.exitRawToExitForeignOther(value));
+                        }
+                    } else {    // ETC 支付
+                        if (!value.isTruck() || !value.isEtc() || !value.isGreenCar()){ // 触发二次计算
+                            value = reCompute(value);
+                        }
+                        if(!value.isLocal()){
+                            ctx.output(foreignETC, ExitMapper.INSTANCE.exitRawToExitForeignETC(value));
+                        }else{
+                            collector.collect(ExitMapper.INSTANCE.exitRawToExitLocalETC(value));
+                        }
+                    }
+                }
+            }
+        });
+
+
+        DataStream<TollChangeTransactions> etcTollChangeTrans = exitAllSream.getSideOutput(etcTollChange);
+        DataStream<TollChangeTransactions> otherTollChangeTrans = exitAllSream.getSideOutput(otherTollChange);
+        DataStream<ExitLocalOtherTrans> localOtherTrans = exitAllSream.getSideOutput(localOther);
+        DataStream<ExitForeignOtherTrans> foreignOtherTrans = exitAllSream.getSideOutput(foreignOther);
+        DataStream<ExitForeignETCTrans> foreignETCTrans = exitAllSream.getSideOutput(foreignETC);
+        DataStream<ExitLocalETCTrans> localETCTrans = exitAllSream;
+
+        addSinkToStream(etcTollChangeTrans, TollChangeTransactions.class);
+        addSinkToStream(otherTollChangeTrans, TollChangeTransactions.class);
+        addSinkToStream(localOtherTrans, ExitLocalOtherTrans.class);
+        addSinkToStream(foreignOtherTrans, ExitForeignOtherTrans.class);
+        addSinkToStream(foreignETCTrans, ExitForeignETCTrans.class);
+        addSinkToStream(localETCTrans, ExitLocalETCTrans.class);
+    }
+
+    public static void addSinkToStream(DataStream dataStream, Class clazz) {
+        dataStream.addSink(JdbcSink.sink(
+                JdbcConnectorHelper.getInsertTemplateString(clazz),
                 JdbcConnectorHelper.getStatementBuilder(),
                 JdbcConnectorHelper.getJdbcExecutionOptions(),
                 JdbcConnectorHelper.getJdbcConnectionOptions()));

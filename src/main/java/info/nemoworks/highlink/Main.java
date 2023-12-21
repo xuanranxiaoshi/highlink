@@ -2,7 +2,6 @@ package info.nemoworks.highlink;
 
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.connector.jdbc.JdbcSink;
-import org.apache.flink.runtime.minicluster.MiniCluster;
 import org.apache.flink.runtime.minicluster.MiniClusterConfiguration;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.json.JsonReadFeature;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
@@ -16,7 +15,7 @@ import org.apache.flink.util.OutputTag;
 
 import info.nemoworks.highlink.connector.JdbcConnectorHelper;
 import info.nemoworks.highlink.model.EntryRawTransaction;
-import info.nemoworks.highlink.model.ExitRawTransaction;
+import info.nemoworks.highlink.model.ExitTransaction.ExitRawTransaction;
 import info.nemoworks.highlink.model.gantryTransaction.GantryCpcTransaction;
 import info.nemoworks.highlink.model.gantryTransaction.GantryEtcTransaction;
 import info.nemoworks.highlink.model.gantryTransaction.GantryRawTransaction;
