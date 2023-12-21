@@ -24,11 +24,11 @@ public class ExitLocalETCTrans implements HighwayTransaction{
     @JsonProperty("ISSUERID")
     public int iSSUERID;
     @JsonProperty("OBUSIGN")
-    public int oBUSIGN;
+    public String oBUSIGN;
     @JsonProperty("IDENTIFICATION")
     public int iDENTIFICATION;
     @JsonProperty("OBUID")
-    public long oBUID;
+    public String oBUID;
     @JsonProperty("ETCCARDTYPE")
     public int eTCCARDTYPE;
     @JsonProperty("ETCCARDNET")
@@ -182,9 +182,9 @@ public class ExitLocalETCTrans implements HighwayTransaction{
     @JsonProperty("CARDTOTALAMOUNT")
     public int cARDTOTALAMOUNT;
     @JsonProperty("OBUTOTALAMOUNT")
-    public int oBUTOTALAMOUNT;
+    public String oBUTOTALAMOUNT;
     @JsonProperty("OBUTOTALDISCOUNTAMOUNT")
-    public int oBUTOTALDISCOUNTAMOUNT;
+    public String oBUTOTALDISCOUNTAMOUNT;
     @JsonProperty("OBUPROVINCEFEE")
     public int oBUPROVINCEFEE;
     @JsonProperty("TOTALCOUNT")
