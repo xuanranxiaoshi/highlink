@@ -35,7 +35,7 @@ public class PrepareData {
     public static void start() throws Exception {
 
         //StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(new Configuration());
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment(new Configuration());
 
         // 1. 读入并汇总源数据，形成数据源
         DataStream<HighwayTransaction> unionStream = readUnionSourceData(env);
@@ -87,21 +87,7 @@ public class PrepareData {
 
 
         entryStream.addSink(new TransactionSinks.LogSink<>());
-//        exitStream.addSink(new TransactionSinks.LogSink<>());
-//        parkStream.addSink(new TransactionSinks.LogSink<>());
 
-
-        // 配置flink集群，启动任务
-        MiniClusterConfiguration clusterConfiguration = new MiniClusterConfiguration.Builder()
-                .setNumTaskManagers(2)
-                .setNumSlotsPerTaskManager(4).build();
-
-
-//        try (var cluster = new MiniCluster(clusterConfiguration)) {
-//            cluster.start();
-//            cluster.executeJobBlocking(env.getStreamGraph().getJobGraph());
-//            cluster.close();
-//        }
         env.execute();
     }
 
@@ -110,10 +96,10 @@ public class PrepareData {
         mapper.configure(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS.mappedFeature(), true);
 
         // 读取json文件，模拟数据接收系统收到上传数据
-        JsonNode enWasteRec = mapper.readTree(PrepareData.class.getResourceAsStream("/TBL_ENWASTEREC.json"));
-        JsonNode exWasteRec = mapper.readTree(PrepareData.class.getResourceAsStream("/TBL_EXWASTEREC.json"));
-        JsonNode gantryWasteRec = mapper.readTree(PrepareData.class.getResourceAsStream("/TBL_GANTRYWASTEREC.json"));
-        JsonNode parkWasteRec = mapper.readTree(PrepareData.class.getResourceAsStream("/TBL_PARKTRANSWASTEREC.json"));
+        JsonNode enWasteRec = mapper.readTree(PrepareData.class.getClassLoader().getResourceAsStream("TBL_ENWASTEREC.json"));
+        JsonNode exWasteRec = mapper.readTree(PrepareData.class.getClassLoader().getResourceAsStream("TBL_EXWASTEREC.json"));
+        JsonNode gantryWasteRec = mapper.readTree(PrepareData.class.getClassLoader().getResourceAsStream("TBL_GANTRYWASTEREC.json"));
+        JsonNode parkWasteRec = mapper.readTree(PrepareData.class.getClassLoader().getResourceAsStream("tbl_ParkTransWasteRec.json"));
 
         // 用json中的对象生成数据流（用while true循环模拟无限数据）
         DataStream<HighwayTransaction> enWaste = env
@@ -271,6 +257,7 @@ public class PrepareData {
     }
 
     public static void addSinkToStream(DataStream dataStream, Class clazz) {
+        dataStream.addSink(new TransactionSinks.LogSink<>());
         dataStream.addSink(JdbcSink.sink(
                 JdbcConnectorHelper.getInsertTemplateString(clazz),
                 JdbcConnectorHelper.getStatementBuilder(),
