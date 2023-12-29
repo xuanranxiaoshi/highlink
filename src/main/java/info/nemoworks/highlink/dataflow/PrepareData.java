@@ -14,7 +14,6 @@ import info.nemoworks.highlink.sink.TransactionSinks;
 import info.nemoworks.highlink.source.RawTransactionSource;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.connector.jdbc.JdbcSink;
-import org.apache.flink.runtime.minicluster.MiniCluster;
 import org.apache.flink.runtime.minicluster.MiniClusterConfiguration;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.json.JsonReadFeature;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
@@ -33,41 +32,15 @@ import org.apache.flink.util.OutputTag;
  * @Copyright：
  */
 public class PrepareData {
-    public static void main(String[] args) throws Exception {
-
-        JdbcConnectorHelper.getCreateTableString(GantryEtcTransaction.class);
-        JdbcConnectorHelper.getCreateTableString(GantryCpcTransaction.class);
+    public static void start() throws Exception {
 
         //StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(new Configuration());
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment(new Configuration());
 
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS.mappedFeature(), true);
+        // 1. 读入并汇总源数据，形成数据源
+        DataStream<HighwayTransaction> unionStream = readUnionSourceData(env);
 
-        // 读取json文件，模拟数据接收系统收到上传数据
-        JsonNode enWasteRec = mapper.readTree(PrepareData.class.getResourceAsStream("/TBL_ENWASTEREC.json"));
-        JsonNode exWasteRec = mapper.readTree(PrepareData.class.getResourceAsStream("/TBL_EXWASTEREC.json"));
-        JsonNode gantryWasteRec = mapper.readTree(PrepareData.class.getResourceAsStream("/TBL_GANTRYWASTEREC.json"));
-        JsonNode parkWasteRec = mapper.readTree(PrepareData.class.getResourceAsStream("/TBL_PARKTRANSWASTEREC.json"));
 
-        // 用json中的对象生成数据流（用while true循环模拟无限数据）
-        DataStream<HighwayTransaction> enWaste = env
-                .addSource(new RawTransactionSource(enWasteRec, "entry"))
-                .name("ENTRY_WASTE");
-        DataStream<HighwayTransaction> exWaste = env
-                .addSource(new RawTransactionSource(exWasteRec, "exit"))
-                .name("EXIT_WASTE");
-        DataStream<HighwayTransaction> gantryWaste = env
-                .addSource(new RawTransactionSource(gantryWasteRec, "gantry"))
-                .name("GANTRY_WASTE");
-        DataStream<HighwayTransaction> parkWaste = env
-                .addSource(new RawTransactionSource(parkWasteRec, "park"))
-                .name("PARK_WASTE");
-
-        // 用json中的对象生成数据流（用while true循环模拟无限数据）
-        DataStream<HighwayTransaction> unionStream = enWaste.union(exWaste).union(gantryWaste).union(parkWaste);
-
-        // 将数据流按规则进行拆分
         final OutputTag<ExitRawTransaction> exitTrans = new OutputTag<ExitRawTransaction>("exitTrans") {
         };
         final OutputTag<ExtendRawTransaction> parkTrans = new OutputTag<ExtendRawTransaction>("parkTrans") {
@@ -97,51 +70,66 @@ public class PrepareData {
                         }
                     }
                 });
-
+        // 2. 将数据流按规则进行拆分
         DataStream<GantryRawTransaction> gantryStream = mainDataStream.getSideOutput(gantryTrans);
         DataStream<ExitRawTransaction> exitStream = mainDataStream.getSideOutput(exitTrans);
         DataStream<ExtendRawTransaction> parkStream = mainDataStream.getSideOutput(parkTrans);
         DataStream<EntryRawTransaction> entryStream = mainDataStream;
 
-        // 1. 门架数据预处理
+        // 3.1 门架数据预处理
         processGantryTrans(gantryStream);
 
-        // 2. 拓展数据预处理
+        // 3.2 拓展数据预处理
         processExdTrans(parkStream);
 
-        // 3. 出口数据预备处理
+        // 3.3 出口数据预处理
         processExitTrans(exitStream);
 
 
-        // 得到四个不同类型的数据流
         entryStream.addSink(new TransactionSinks.LogSink<>());
-//        exitStream.addSink(new TransactionSinks.LogSink<>());
-//        parkStream.addSink(new TransactionSinks.LogSink<>());
 
-
-        // 配置flink集群，启动任务
-        MiniClusterConfiguration clusterConfiguration = new MiniClusterConfiguration.Builder()
-                .setNumTaskManagers(2)
-                .setNumSlotsPerTaskManager(4).build();
-
-
-//        try (var cluster = new MiniCluster(clusterConfiguration)) {
-//            cluster.start();
-//            cluster.executeJobBlocking(env.getStreamGraph().getJobGraph());
-//            cluster.close();
-//        }
         env.execute();
+    }
+
+    private static DataStream<HighwayTransaction> readUnionSourceData(StreamExecutionEnvironment env) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS.mappedFeature(), true);
+
+        // 读取json文件，模拟数据接收系统收到上传数据
+        JsonNode enWasteRec = mapper.readTree(PrepareData.class.getClassLoader().getResourceAsStream("TBL_ENWASTEREC.json"));
+        JsonNode exWasteRec = mapper.readTree(PrepareData.class.getClassLoader().getResourceAsStream("TBL_EXWASTEREC.json"));
+        JsonNode gantryWasteRec = mapper.readTree(PrepareData.class.getClassLoader().getResourceAsStream("TBL_GANTRYWASTEREC.json"));
+        JsonNode parkWasteRec = mapper.readTree(PrepareData.class.getClassLoader().getResourceAsStream("tbl_ParkTransWasteRec.json"));
+
+        // 用json中的对象生成数据流（用while true循环模拟无限数据）
+        DataStream<HighwayTransaction> enWaste = env
+                .addSource(new RawTransactionSource(enWasteRec, "entry"))
+                .name("ENTRY_WASTE");
+        DataStream<HighwayTransaction> exWaste = env
+                .addSource(new RawTransactionSource(exWasteRec, "exit"))
+                .name("EXIT_WASTE");
+        DataStream<HighwayTransaction> gantryWaste = env
+                .addSource(new RawTransactionSource(gantryWasteRec, "gantry"))
+                .name("GANTRY_WASTE");
+        DataStream<HighwayTransaction> parkWaste = env
+                .addSource(new RawTransactionSource(parkWasteRec, "park"))
+                .name("PARK_WASTE");
+
+        // 用json中的对象生成数据流（用while true循环模拟无限数据）
+        DataStream<HighwayTransaction> unionStream = enWaste.union(exWaste).union(gantryWaste).union(parkWaste);
+
+        return unionStream;
     }
 
     private static ExitRawTransaction reCompute(ExitRawTransaction value) {
         return value;
     }
 
-
     private static void processGantryTrans(DataStream<GantryRawTransaction> gantryStream) {
         final OutputTag<GantryCpcTransaction> ganCpcTag = new OutputTag<GantryCpcTransaction>("gantryCpcTrans") {
         };
 
+        // 1. 对拆分得到的门架数据流进行处理
         SingleOutputStreamOperator<GantryEtcTransaction> gantryAllStream = gantryStream
                 .process(new ProcessFunction<GantryRawTransaction, GantryEtcTransaction>() {
 
@@ -149,30 +137,21 @@ public class PrepareData {
                     public void processElement(GantryRawTransaction value,
                                                ProcessFunction<GantryRawTransaction, GantryEtcTransaction>.Context ctx,
                                                Collector<GantryEtcTransaction> out) throws Exception {
-                        if (value.isEtc()) {
-                            ctx.output(ganCpcTag, GantryMapper.INSTANCE
-                                    .gantryRawToCpcTransaction(value));
-                        } else {
-                            out.collect(GantryMapper.INSTANCE
-                                    .gantryRawToEtcTransaction(value));
+                        // 处理逻辑 1：判断通行介质是否为OBU
+                        if (value.isEtc()) {    // 是：转化为门架ETC计费流水数据
+                            ctx.output(ganCpcTag, GantryMapper.INSTANCE.gantryRawToCpcTransaction(value));
+                        } else {                // 否：转化为门架CPC计费流水
+                            out.collect(GantryMapper.INSTANCE.gantryRawToEtcTransaction(value));
                         }
                     }
                 });
-
+        // 2. 通过判断逻辑拆分数据流
         DataStream<GantryCpcTransaction> gantryCpcStream = gantryAllStream.getSideOutput(ganCpcTag);
         DataStream<GantryEtcTransaction> gantryEtcStream = gantryAllStream;
 
-        gantryCpcStream.addSink(JdbcSink.sink(
-                JdbcConnectorHelper.getInsertTemplateString(GantryCpcTransaction.class),
-                JdbcConnectorHelper.getStatementBuilder(),
-                JdbcConnectorHelper.getJdbcExecutionOptions(),
-                JdbcConnectorHelper.getJdbcConnectionOptions()));
-
-        gantryEtcStream.addSink(JdbcSink.sink(
-                JdbcConnectorHelper.getInsertTemplateString(GantryEtcTransaction.class),
-                JdbcConnectorHelper.getStatementBuilder(),
-                JdbcConnectorHelper.getJdbcExecutionOptions(),
-                JdbcConnectorHelper.getJdbcConnectionOptions()));
+        // 3. 分别对两类数据进行记录
+        addSinkToStream(gantryCpcStream, GantryCpcTransaction.class);
+        addSinkToStream(gantryEtcStream, GantryEtcTransaction.class);
     }
 
     private static void processExdTrans(DataStream<ExtendRawTransaction> parkStream) {
@@ -219,7 +198,7 @@ public class PrepareData {
 
     }
 
-    private static void processExitTrans(DataStream<ExitRawTransaction> exitStream){
+    private static void processExitTrans(DataStream<ExitRawTransaction> exitStream) {
         final OutputTag<TollChangeTransactions> etcTollChange = new OutputTag<TollChangeTransactions>("etcTollChangeTrans") {
         };
         final OutputTag<TollChangeTransactions> otherTollChange = new OutputTag<TollChangeTransactions>("otherTollChangeTrans") {
@@ -248,12 +227,12 @@ public class PrepareData {
                             ctx.output(foreignOther, ExitMapper.INSTANCE.exitRawToExitForeignOther(value));
                         }
                     } else {    // ETC 支付
-                        if (!value.isTruck() || !value.isEtc() || !value.isGreenCar()){ // 触发二次计算
+                        if (!value.isTruck() || !value.isEtc() || !value.isGreenCar()) { // 触发二次计算
                             value = reCompute(value);
                         }
-                        if(!value.isLocal()){
+                        if (!value.isLocal()) {
                             ctx.output(foreignETC, ExitMapper.INSTANCE.exitRawToExitForeignETC(value));
-                        }else{
+                        } else {
                             collector.collect(ExitMapper.INSTANCE.exitRawToExitLocalETC(value));
                         }
                     }
@@ -278,6 +257,7 @@ public class PrepareData {
     }
 
     public static void addSinkToStream(DataStream dataStream, Class clazz) {
+        dataStream.addSink(new TransactionSinks.LogSink<>());
         dataStream.addSink(JdbcSink.sink(
                 JdbcConnectorHelper.getInsertTemplateString(clazz),
                 JdbcConnectorHelper.getStatementBuilder(),

@@ -10,10 +10,33 @@ import info.nemoworks.highlink.model.extendTransaction.ExdForeignGasTransaction;
 import info.nemoworks.highlink.model.extendTransaction.ExdForeignMunicipalTransaction;
 import info.nemoworks.highlink.model.extendTransaction.ExdForeignParkTransaction;
 import info.nemoworks.highlink.model.extendTransaction.ExdLocalTransaction;
+import info.nemoworks.highlink.model.gantryTransaction.GantryCpcTransaction;
+import info.nemoworks.highlink.model.gantryTransaction.GantryEtcTransaction;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class CreateTableSQL {
+
+
     public static void main(String[] args) {
-        String createTableString = JdbcConnectorHelper.getCreateTableString(ExitLocalETCTrans.class);
-        System.out.println(createTableString);
+        System.out.println("出口交易数据的建表语句: ");
+        JdbcConnectorHelper.getCreateTableString(ExitForeignETCTrans.class);
+        JdbcConnectorHelper.getCreateTableString(ExitForeignOtherTrans.class);
+        JdbcConnectorHelper.getCreateTableString(ExitLocalETCTrans.class);
+        JdbcConnectorHelper.getCreateTableString(ExitLocalOtherTrans.class);
+
+        System.out.println("拓展交易数据的建表语句: ");
+        JdbcConnectorHelper.getCreateTableString(ExdForeignGasTransaction.class);
+        JdbcConnectorHelper.getCreateTableString(ExdForeignMunicipalTransaction.class);
+        JdbcConnectorHelper.getCreateTableString(ExdForeignParkTransaction.class);
+        JdbcConnectorHelper.getCreateTableString(ExdLocalTransaction.class);
+
+        System.out.println("门架交易数据的建表语句: ");
+        JdbcConnectorHelper.getCreateTableString(GantryCpcTransaction.class);
+        JdbcConnectorHelper.getCreateTableString(GantryEtcTransaction.class);
+
+
+
     }
 }
