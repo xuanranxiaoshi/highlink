@@ -1,6 +1,7 @@
 package info.nemoworks.highlink.dataflow;
 
 import info.nemoworks.highlink.connector.JdbcConnectorHelper;
+import info.nemoworks.highlink.metric.LinkCounter;
 import info.nemoworks.highlink.model.*;
 import info.nemoworks.highlink.model.ExitTransaction.*;
 import info.nemoworks.highlink.model.extendTransaction.*;
@@ -32,12 +33,10 @@ import org.apache.flink.util.OutputTag;
  * @Copyright：
  */
 public class PrepareData {
-    public static void start() throws Exception {
 
-        //StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment(new Configuration());
+    public static void start(StreamExecutionEnvironment env) throws Exception {
 
-        // 1. 读入并汇总源数据，形成数据源
+        // 1. 读入源数据并进行汇总，形成统一的数据源输入
         DataStream<HighwayTransaction> unionStream = readUnionSourceData(env);
 
 
@@ -70,6 +69,7 @@ public class PrepareData {
                         }
                     }
                 });
+
         // 2. 将数据流按规则进行拆分
         DataStream<GantryRawTransaction> gantryStream = mainDataStream.getSideOutput(gantryTrans);
         DataStream<ExitRawTransaction> exitStream = mainDataStream.getSideOutput(exitTrans);
@@ -146,8 +146,8 @@ public class PrepareData {
                     }
                 });
         // 2. 通过判断逻辑拆分数据流
-        DataStream<GantryCpcTransaction> gantryCpcStream = gantryAllStream.getSideOutput(ganCpcTag);
-        DataStream<GantryEtcTransaction> gantryEtcStream = gantryAllStream;
+        SingleOutputStreamOperator gantryCpcStream = gantryAllStream.getSideOutput(ganCpcTag).map(new LinkCounter("gantryCpcCounter"));
+        SingleOutputStreamOperator gantryEtcStream = gantryAllStream.map(new LinkCounter("gantryEtcCounter"));
 
         // 3. 分别对两类数据进行记录
         addSinkToStream(gantryCpcStream, GantryCpcTransaction.class);
@@ -184,11 +184,11 @@ public class PrepareData {
             }
         });
 
-        DataStream<TollChangeTransactions> exchangeStream = allTransStream.getSideOutput(exdChangeTag);
-        DataStream<ExdForeignGasTransaction> extForeignGasStream = allTransStream.getSideOutput(extForeignGasTag);
-        DataStream<ExdForeignParkTransaction> extForeignParkStream = allTransStream.getSideOutput(extForeignParkTag);
-        DataStream<ExdForeignMunicipalTransaction> extForeignMunicipalStream = allTransStream.getSideOutput(extForeignMunicipalTag);
-        DataStream<ExdLocalTransaction> extLocalTransStream = allTransStream;
+        DataStream<TollChangeTransactions> exchangeStream = allTransStream.getSideOutput(exdChangeTag).map( new LinkCounter("extChangeCounter"));
+        DataStream<ExdForeignGasTransaction> extForeignGasStream = allTransStream.getSideOutput(extForeignGasTag).map(new LinkCounter("extForeignGasCounter"));
+        DataStream<ExdForeignParkTransaction> extForeignParkStream = allTransStream.getSideOutput(extForeignParkTag).map(new LinkCounter("extForeignParkCounter"));
+        DataStream<ExdForeignMunicipalTransaction> extForeignMunicipalStream = allTransStream.getSideOutput(extForeignMunicipalTag).map(new LinkCounter("extForeignMunicipalCounter"));
+        DataStream<ExdLocalTransaction> extLocalTransStream = allTransStream.map(new LinkCounter("extLocalTransCounter"));
 
         addSinkToStream(exchangeStream, TollChangeTransactions.class);
         addSinkToStream(extForeignGasStream, ExdForeignGasTransaction.class);
@@ -241,12 +241,12 @@ public class PrepareData {
         });
 
 
-        DataStream<TollChangeTransactions> etcTollChangeTrans = exitAllSream.getSideOutput(etcTollChange);
-        DataStream<TollChangeTransactions> otherTollChangeTrans = exitAllSream.getSideOutput(otherTollChange);
-        DataStream<ExitLocalOtherTrans> localOtherTrans = exitAllSream.getSideOutput(localOther);
-        DataStream<ExitForeignOtherTrans> foreignOtherTrans = exitAllSream.getSideOutput(foreignOther);
-        DataStream<ExitForeignETCTrans> foreignETCTrans = exitAllSream.getSideOutput(foreignETC);
-        DataStream<ExitLocalETCTrans> localETCTrans = exitAllSream;
+        DataStream<TollChangeTransactions> etcTollChangeTrans = exitAllSream.getSideOutput(etcTollChange).map(new LinkCounter("etcTollChangeTrans"));
+        DataStream<TollChangeTransactions> otherTollChangeTrans = exitAllSream.getSideOutput(otherTollChange).map(new LinkCounter("otherTollChangeTransCounter"));
+        DataStream<ExitLocalOtherTrans> localOtherTrans = exitAllSream.getSideOutput(localOther).map(new LinkCounter("localOtherTransCounter"));
+        DataStream<ExitForeignOtherTrans> foreignOtherTrans = exitAllSream.getSideOutput(foreignOther).map(new LinkCounter("foreignOtherTransCounter"));
+        DataStream<ExitForeignETCTrans> foreignETCTrans = exitAllSream.getSideOutput(foreignETC).map(new LinkCounter("foreignETCTransCounter"));
+        DataStream<ExitLocalETCTrans> localETCTrans = exitAllSream.map(new LinkCounter("localETCTransCounter"));
 
         addSinkToStream(etcTollChangeTrans, TollChangeTransactions.class);
         addSinkToStream(otherTollChangeTrans, TollChangeTransactions.class);
@@ -258,10 +258,10 @@ public class PrepareData {
 
     public static void addSinkToStream(DataStream dataStream, Class clazz) {
         dataStream.addSink(new TransactionSinks.LogSink<>());
-        dataStream.addSink(JdbcSink.sink(
-                JdbcConnectorHelper.getInsertTemplateString(clazz),
-                JdbcConnectorHelper.getStatementBuilder(),
-                JdbcConnectorHelper.getJdbcExecutionOptions(),
-                JdbcConnectorHelper.getJdbcConnectionOptions()));
+//        dataStream.addSink(JdbcSink.sink(
+//                JdbcConnectorHelper.getInsertTemplateString(clazz),
+//                JdbcConnectorHelper.getStatementBuilder(),
+//                JdbcConnectorHelper.getJdbcExecutionOptions(),
+//                JdbcConnectorHelper.getJdbcConnectionOptions()));
     }
 }
