@@ -1,8 +1,10 @@
 package info.nemoworks.highlink.dataflow;
 
-import info.nemoworks.highlink.connector.JdbcConnectorHelper;
-import info.nemoworks.highlink.model.*;
+import info.nemoworks.highlink.connector.KafkaConnectorHelper;
+import info.nemoworks.highlink.metric.LinkCounter;
+import info.nemoworks.highlink.model.EntryRawTransaction;
 import info.nemoworks.highlink.model.ExitTransaction.*;
+import info.nemoworks.highlink.model.TollChangeTransactions;
 import info.nemoworks.highlink.model.extendTransaction.*;
 import info.nemoworks.highlink.model.gantryTransaction.GantryCpcTransaction;
 import info.nemoworks.highlink.model.gantryTransaction.GantryEtcTransaction;
@@ -11,14 +13,10 @@ import info.nemoworks.highlink.model.mapper.ExitMapper;
 import info.nemoworks.highlink.model.mapper.ExtensionMapper;
 import info.nemoworks.highlink.model.mapper.GantryMapper;
 import info.nemoworks.highlink.sink.TransactionSinks;
-import info.nemoworks.highlink.source.RawTransactionSource;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.connector.jdbc.JdbcSink;
-import org.apache.flink.runtime.minicluster.MiniClusterConfiguration;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.json.JsonReadFeature;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.flink.api.common.eventtime.WatermarkStrategy;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
@@ -28,97 +26,42 @@ import org.apache.flink.util.OutputTag;
 /**
  * @description:
  * @author：jimi
- * @date: 2023/12/20
+ * @date: 2024/1/7
  * @Copyright：
  */
-public class PrepareData {
-    public static void start() throws Exception {
+public class PrepareDataFromKafka {
 
-        //StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment(new Configuration());
+    public static void start(StreamExecutionEnvironment env) throws Exception {
 
-        // 1. 读入并汇总源数据，形成数据源
-        DataStream<HighwayTransaction> unionStream = readUnionSourceData(env);
-
-
-        final OutputTag<ExitRawTransaction> exitTrans = new OutputTag<ExitRawTransaction>("exitTrans") {
-        };
-        final OutputTag<ExtendRawTransaction> parkTrans = new OutputTag<ExtendRawTransaction>("parkTrans") {
-        };
-        final OutputTag<GantryRawTransaction> gantryTrans = new OutputTag<GantryRawTransaction>("gantryTrans") {
-        };
-
-        SingleOutputStreamOperator<EntryRawTransaction> mainDataStream = unionStream
-                .process(new ProcessFunction<HighwayTransaction, EntryRawTransaction>() {
-                    @Override
-                    public void processElement(HighwayTransaction value,
-                                               ProcessFunction<HighwayTransaction, EntryRawTransaction>.Context ctx,
-                                               Collector<EntryRawTransaction> out) throws Exception {
-                        if (value instanceof ExitRawTransaction) {
-                            ctx.output(exitTrans, (ExitRawTransaction) value);
-                        } else {
-                            if (value instanceof GantryRawTransaction) {
-                                ctx.output(gantryTrans, (GantryRawTransaction) value);
-                            } else {
-                                if (value instanceof ExtendRawTransaction) {
-                                    ctx.output(parkTrans,
-                                            (ExtendRawTransaction) value);
-                                } else {
-                                    out.collect((EntryRawTransaction) value);
-                                }
-                            }
-                        }
-                    }
-                });
-        // 2. 将数据流按规则进行拆分
-        DataStream<GantryRawTransaction> gantryStream = mainDataStream.getSideOutput(gantryTrans);
-        DataStream<ExitRawTransaction> exitStream = mainDataStream.getSideOutput(exitTrans);
-        DataStream<ExtendRawTransaction> parkStream = mainDataStream.getSideOutput(parkTrans);
-        DataStream<EntryRawTransaction> entryStream = mainDataStream;
+        // 1. 从不同 Kafka topic 中读取数据
+        DataStreamSource<EntryRawTransaction> entryStream = env.fromSource(KafkaConnectorHelper.<EntryRawTransaction>getKafkaSource("ENTRY_WASTE", EntryRawTransaction.class),
+                WatermarkStrategy.noWatermarks(),
+                "ENTRY_WASTE",
+                TypeInformation.of(EntryRawTransaction.class));
+        DataStreamSource<ExitRawTransaction> exitStream = env.fromSource(KafkaConnectorHelper.<ExitRawTransaction>getKafkaSource("EXIT_WASTE", ExitRawTransaction.class),
+                WatermarkStrategy.noWatermarks(),
+                "EXIT_WASTE",
+                TypeInformation.of(ExitRawTransaction.class));
+        DataStreamSource<GantryRawTransaction> gantryStream = env.fromSource(KafkaConnectorHelper.<GantryRawTransaction>getKafkaSource("GANTRY_WASTE", GantryRawTransaction.class),
+                WatermarkStrategy.noWatermarks(),
+                "GANTRY_WASTE",
+                TypeInformation.of(GantryRawTransaction.class));
+        DataStreamSource<ExtendRawTransaction> extendStream = env.fromSource(KafkaConnectorHelper.<ExtendRawTransaction>getKafkaSource("EXTEND_WASTE", ExtendRawTransaction.class),
+                WatermarkStrategy.noWatermarks(),
+                "EXTEND_WASTE",
+                TypeInformation.of(ExtendRawTransaction.class));
 
         // 3.1 门架数据预处理
         processGantryTrans(gantryStream);
 
         // 3.2 拓展数据预处理
-        processExdTrans(parkStream);
+        processExdTrans(extendStream);
 
         // 3.3 出口数据预处理
         processExitTrans(exitStream);
 
-
         entryStream.addSink(new TransactionSinks.LogSink<>());
 
-        env.execute();
-    }
-
-    private static DataStream<HighwayTransaction> readUnionSourceData(StreamExecutionEnvironment env) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS.mappedFeature(), true);
-
-        // 读取json文件，模拟数据接收系统收到上传数据
-        JsonNode enWasteRec = mapper.readTree(PrepareData.class.getClassLoader().getResourceAsStream("TBL_ENWASTEREC.json"));
-        JsonNode exWasteRec = mapper.readTree(PrepareData.class.getClassLoader().getResourceAsStream("TBL_EXWASTEREC.json"));
-        JsonNode gantryWasteRec = mapper.readTree(PrepareData.class.getClassLoader().getResourceAsStream("TBL_GANTRYWASTEREC.json"));
-        JsonNode parkWasteRec = mapper.readTree(PrepareData.class.getClassLoader().getResourceAsStream("tbl_ParkTransWasteRec.json"));
-
-        // 用json中的对象生成数据流（用while true循环模拟无限数据）
-        DataStream<HighwayTransaction> enWaste = env
-                .addSource(new RawTransactionSource(enWasteRec, "entry"))
-                .name("ENTRY_WASTE");
-        DataStream<HighwayTransaction> exWaste = env
-                .addSource(new RawTransactionSource(exWasteRec, "exit"))
-                .name("EXIT_WASTE");
-        DataStream<HighwayTransaction> gantryWaste = env
-                .addSource(new RawTransactionSource(gantryWasteRec, "gantry"))
-                .name("GANTRY_WASTE");
-        DataStream<HighwayTransaction> parkWaste = env
-                .addSource(new RawTransactionSource(parkWasteRec, "park"))
-                .name("PARK_WASTE");
-
-        // 用json中的对象生成数据流（用while true循环模拟无限数据）
-        DataStream<HighwayTransaction> unionStream = enWaste.union(exWaste).union(gantryWaste).union(parkWaste);
-
-        return unionStream;
     }
 
     private static ExitRawTransaction reCompute(ExitRawTransaction value) {
@@ -144,10 +87,10 @@ public class PrepareData {
                             out.collect(GantryMapper.INSTANCE.gantryRawToEtcTransaction(value));
                         }
                     }
-                });
+                }).returns(GantryEtcTransaction.class);
         // 2. 通过判断逻辑拆分数据流
-        DataStream<GantryCpcTransaction> gantryCpcStream = gantryAllStream.getSideOutput(ganCpcTag);
-        DataStream<GantryEtcTransaction> gantryEtcStream = gantryAllStream;
+        SingleOutputStreamOperator<GantryCpcTransaction> gantryCpcStream = gantryAllStream.getSideOutput(ganCpcTag).map(new LinkCounter<>("gantryCpcCounter"));
+        SingleOutputStreamOperator<GantryEtcTransaction> gantryEtcStream = gantryAllStream.map(new LinkCounter<>("gantryEtcCounter"));
 
         // 3. 分别对两类数据进行记录
         addSinkToStream(gantryCpcStream, GantryCpcTransaction.class);
@@ -182,13 +125,13 @@ public class PrepareData {
                     }
                 }
             }
-        });
+        }).returns(ExdLocalTransaction.class);
 
-        DataStream<TollChangeTransactions> exchangeStream = allTransStream.getSideOutput(exdChangeTag);
-        DataStream<ExdForeignGasTransaction> extForeignGasStream = allTransStream.getSideOutput(extForeignGasTag);
-        DataStream<ExdForeignParkTransaction> extForeignParkStream = allTransStream.getSideOutput(extForeignParkTag);
-        DataStream<ExdForeignMunicipalTransaction> extForeignMunicipalStream = allTransStream.getSideOutput(extForeignMunicipalTag);
-        DataStream<ExdLocalTransaction> extLocalTransStream = allTransStream;
+        DataStream<TollChangeTransactions> exchangeStream = allTransStream.getSideOutput(exdChangeTag).map(new LinkCounter<>("extChangeCounter"));
+        DataStream<ExdForeignGasTransaction> extForeignGasStream = allTransStream.getSideOutput(extForeignGasTag).map(new LinkCounter<>("extForeignGasCounter"));
+        DataStream<ExdForeignParkTransaction> extForeignParkStream = allTransStream.getSideOutput(extForeignParkTag).map(new LinkCounter<>("extForeignParkCounter"));
+        DataStream<ExdForeignMunicipalTransaction> extForeignMunicipalStream = allTransStream.getSideOutput(extForeignMunicipalTag).map(new LinkCounter<>("extForeignMunicipalCounter"));
+        DataStream<ExdLocalTransaction> extLocalTransStream = allTransStream.map(new LinkCounter<>("extLocalTransCounter"));
 
         addSinkToStream(exchangeStream, TollChangeTransactions.class);
         addSinkToStream(extForeignGasStream, ExdForeignGasTransaction.class);
@@ -238,15 +181,15 @@ public class PrepareData {
                     }
                 }
             }
-        });
+        }).returns(ExitLocalETCTrans.class);
 
 
-        DataStream<TollChangeTransactions> etcTollChangeTrans = exitAllSream.getSideOutput(etcTollChange);
-        DataStream<TollChangeTransactions> otherTollChangeTrans = exitAllSream.getSideOutput(otherTollChange);
-        DataStream<ExitLocalOtherTrans> localOtherTrans = exitAllSream.getSideOutput(localOther);
-        DataStream<ExitForeignOtherTrans> foreignOtherTrans = exitAllSream.getSideOutput(foreignOther);
-        DataStream<ExitForeignETCTrans> foreignETCTrans = exitAllSream.getSideOutput(foreignETC);
-        DataStream<ExitLocalETCTrans> localETCTrans = exitAllSream;
+        DataStream<TollChangeTransactions> etcTollChangeTrans = exitAllSream.getSideOutput(etcTollChange).map(new LinkCounter<>("etcTollChangeTrans"));
+        DataStream<TollChangeTransactions> otherTollChangeTrans = exitAllSream.getSideOutput(otherTollChange).map(new LinkCounter<>("otherTollChangeTransCounter"));
+        DataStream<ExitLocalOtherTrans> localOtherTrans = exitAllSream.getSideOutput(localOther).map(new LinkCounter<>("localOtherTransCounter"));
+        DataStream<ExitForeignOtherTrans> foreignOtherTrans = exitAllSream.getSideOutput(foreignOther).map(new LinkCounter<>("foreignOtherTransCounter"));
+        DataStream<ExitForeignETCTrans> foreignETCTrans = exitAllSream.getSideOutput(foreignETC).map(new LinkCounter<>("foreignETCTransCounter"));
+        DataStream<ExitLocalETCTrans> localETCTrans = exitAllSream.map(new LinkCounter<>("localETCTransCounter"));
 
         addSinkToStream(etcTollChangeTrans, TollChangeTransactions.class);
         addSinkToStream(otherTollChangeTrans, TollChangeTransactions.class);
@@ -258,10 +201,10 @@ public class PrepareData {
 
     public static void addSinkToStream(DataStream dataStream, Class clazz) {
         dataStream.addSink(new TransactionSinks.LogSink<>());
-        dataStream.addSink(JdbcSink.sink(
-                JdbcConnectorHelper.getInsertTemplateString(clazz),
-                JdbcConnectorHelper.getStatementBuilder(),
-                JdbcConnectorHelper.getJdbcExecutionOptions(),
-                JdbcConnectorHelper.getJdbcConnectionOptions()));
+//        dataStream.addSink(JdbcSink.sink(
+//                JdbcConnectorHelper.getInsertTemplateString(clazz),
+//                JdbcConnectorHelper.getStatementBuilder(),
+//                JdbcConnectorHelper.getJdbcExecutionOptions(),
+//                JdbcConnectorHelper.getJdbcConnectionOptions()));
     }
 }
