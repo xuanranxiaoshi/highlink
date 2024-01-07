@@ -1,6 +1,7 @@
 package info.nemoworks.highlink;
 
-import info.nemoworks.highlink.dataflow.PrepareData;
+import info.nemoworks.highlink.dataflow.PrepareDataFromKafka;
+import info.nemoworks.highlink.dataflow.PrepareDateFromFiles;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
@@ -16,6 +17,8 @@ public class Main {
         // 2. 配置检查点信息
         env.enableCheckpointing(5000, CheckpointingMode.EXACTLY_ONCE);
         CheckpointConfig checkpointConfig = env.getCheckpointConfig();
+
+        // todo: 修改为本地路径
         checkpointConfig.setCheckpointStorage("file:///home/csc/checkpoints");
         checkpointConfig.setMaxConcurrentCheckpoints(1);
         checkpointConfig.setMinPauseBetweenCheckpoints(1000);
@@ -23,6 +26,9 @@ public class Main {
         checkpointConfig.setTolerableCheckpointFailureNumber(10);
 
         // 2. 读入数据进行预处理
-        PrepareData.start(env);
+        // PrepareDateFromFiles.start(env);
+        PrepareDataFromKafka.start(env);
+
+        env.execute();
     }
 }

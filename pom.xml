@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>info.nemoworks</groupId>
     <artifactId>highlink</artifactId>
@@ -11,6 +11,7 @@
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
+        <flink.version>1.18.0</flink.version>
     </properties>
     <dependencies>
         <dependency>
@@ -72,6 +73,20 @@
             <version>1.18.0</version>
             <scope>provided</scope>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.flink/flink-connector-kafka -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-connector-kafka</artifactId>
+            <version>1.17.1</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients -->
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>3.6.1</version>
+        </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -104,10 +119,10 @@
                         </path>
                     </annotationProcessorPaths>
                     <encoding>UTF-8</encoding>
-<!--                    <compilerArgs>-->
-<!--                        <arg>&#45;&#45;add-opens java.base/java.lang=ALL-UNNAMED</arg>-->
-<!--                        <arg>&#45;&#45;add-opens java.base/java.util=ALL-UNNAMED</arg>-->
-<!--                    </compilerArgs>-->
+                    <!--                    <compilerArgs>-->
+                    <!--                        <arg>&#45;&#45;add-opens java.base/java.lang=ALL-UNNAMED</arg>-->
+                    <!--                        <arg>&#45;&#45;add-opens java.base/java.util=ALL-UNNAMED</arg>-->
+                    <!--                    </compilerArgs>-->
                 </configuration>
             </plugin>
 

@@ -40,7 +40,7 @@ public class RawTransactionSource implements SourceFunction<HighwayTransaction> 
     @Override
     public void run(SourceContext<HighwayTransaction> ctx) throws Exception {
         while (isRunning && this.count > 0) {
-            TimeUnit.SECONDS.sleep(random.nextInt(2));
+            TimeUnit.SECONDS.sleep(random.nextInt(4));
             ctx.collect((RawTransactionFactory.fromJson(transactions.get(random.nextInt(transactions.size() - 1)))));
             this.count--;
         }
