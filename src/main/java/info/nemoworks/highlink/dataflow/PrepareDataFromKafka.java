@@ -4,6 +4,7 @@ import info.nemoworks.highlink.connector.KafkaConnectorHelper;
 import info.nemoworks.highlink.metric.LinkCounter;
 import info.nemoworks.highlink.model.EntryRawTransaction;
 import info.nemoworks.highlink.model.ExitTransaction.*;
+import info.nemoworks.highlink.model.HighwayTransaction;
 import info.nemoworks.highlink.model.TollChangeTransactions;
 import info.nemoworks.highlink.model.extendTransaction.*;
 import info.nemoworks.highlink.model.gantryTransaction.GantryCpcTransaction;
@@ -14,6 +15,7 @@ import info.nemoworks.highlink.model.mapper.ExtensionMapper;
 import info.nemoworks.highlink.model.mapper.GantryMapper;
 import info.nemoworks.highlink.sink.TransactionSinks;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
+import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
@@ -33,32 +35,89 @@ public class PrepareDataFromKafka {
 
     public static void start(StreamExecutionEnvironment env) throws Exception {
 
-        // 1. 从不同 Kafka topic 中读取数据
-        DataStreamSource<EntryRawTransaction> entryStream = env.fromSource(KafkaConnectorHelper.<EntryRawTransaction>getKafkaSource("ENTRY_WASTE", EntryRawTransaction.class),
+        // 1. 从 Kafka 中读取数据
+        DataStreamSource unionStream = env.fromSource(KafkaConnectorHelper.getKafkaHighWayTransSource("HighLink"),
                 WatermarkStrategy.noWatermarks(),
-                "ENTRY_WASTE",
+                "HighLinkSource",
                 TypeInformation.of(EntryRawTransaction.class));
-        DataStreamSource<ExitRawTransaction> exitStream = env.fromSource(KafkaConnectorHelper.<ExitRawTransaction>getKafkaSource("EXIT_WASTE", ExitRawTransaction.class),
-                WatermarkStrategy.noWatermarks(),
-                "EXIT_WASTE",
-                TypeInformation.of(ExitRawTransaction.class));
-        DataStreamSource<GantryRawTransaction> gantryStream = env.fromSource(KafkaConnectorHelper.<GantryRawTransaction>getKafkaSource("GANTRY_WASTE", GantryRawTransaction.class),
-                WatermarkStrategy.noWatermarks(),
-                "GANTRY_WASTE",
-                TypeInformation.of(GantryRawTransaction.class));
-        DataStreamSource<ExtendRawTransaction> extendStream = env.fromSource(KafkaConnectorHelper.<ExtendRawTransaction>getKafkaSource("EXTEND_WASTE", ExtendRawTransaction.class),
-                WatermarkStrategy.noWatermarks(),
-                "EXTEND_WASTE",
-                TypeInformation.of(ExtendRawTransaction.class));
+
+        // 2. 切分为不同的数据流
+        final OutputTag<ExitRawTransaction> exitTrans = new OutputTag<ExitRawTransaction>("exitTrans") {
+        };
+        final OutputTag<ExtendRawTransaction> extendTrans = new OutputTag<ExtendRawTransaction>("extendTrans") {
+        };
+        final OutputTag<GantryRawTransaction> gantryTrans = new OutputTag<GantryRawTransaction>("gantryTrans") {
+        };
+
+        SingleOutputStreamOperator<EntryRawTransaction> mainDataStream = unionStream
+                .process(new ProcessFunction<HighwayTransaction, EntryRawTransaction>() {
+                    @Override
+                    public void processElement(HighwayTransaction value,
+                                               ProcessFunction<HighwayTransaction, EntryRawTransaction>.Context ctx,
+                                               Collector<EntryRawTransaction> out) throws Exception {
+                        if (value instanceof ExitRawTransaction) {
+                            ctx.output(exitTrans, (ExitRawTransaction) value);
+                        } else {
+                            if (value instanceof GantryRawTransaction) {
+                                ctx.output(gantryTrans, (GantryRawTransaction) value);
+                            } else {
+                                if (value instanceof ExtendRawTransaction) {
+                                    ctx.output(extendTrans,
+                                            (ExtendRawTransaction) value);
+                                } else {
+                                    out.collect((EntryRawTransaction) value);
+                                }
+                            }
+                        }
+                    }
+                })
+                .returns(EntryRawTransaction.class);
+
+        // 2. 将数据流按规则进行拆分
+        DataStream<GantryRawTransaction> gantryStream = mainDataStream.getSideOutput(gantryTrans);
+        DataStream<ExitRawTransaction> exitStream = mainDataStream.getSideOutput(exitTrans);
+        DataStream<ExtendRawTransaction> extendStream = mainDataStream.getSideOutput(extendTrans);
+        DataStream<EntryRawTransaction> entryStream = mainDataStream;
+
+
+        SingleOutputStreamOperator<GantryRawTransaction> rawGantryTrans = gantryStream.map(new MapFunction<GantryRawTransaction, GantryRawTransaction>() {
+                    @Override
+                    public GantryRawTransaction map(GantryRawTransaction gantryRawTransaction) throws Exception {
+                        return gantryRawTransaction;
+                    }
+                })
+                .map(new LinkCounter<>("RawGantryTrans"))
+                .setParallelism(6);
+
+        SingleOutputStreamOperator<ExitRawTransaction> rawExitTrans = exitStream.map(new MapFunction<ExitRawTransaction, ExitRawTransaction>() {
+                    @Override
+                    public ExitRawTransaction map(ExitRawTransaction exitRawTransaction) throws Exception {
+                        return exitRawTransaction;
+                    }
+                })
+                .map(new LinkCounter<>("RawExitTrans"))
+                .setParallelism(6);
+
+
+        SingleOutputStreamOperator<ExtendRawTransaction> rawExdTrans = extendStream.map(new MapFunction<ExtendRawTransaction, ExtendRawTransaction>() {
+                    @Override
+                    public ExtendRawTransaction map(ExtendRawTransaction extendRawTransaction) throws Exception {
+                        return extendRawTransaction;
+                    }
+                })
+                .map(new LinkCounter<>("RawExdTrans"))
+                .setParallelism(6);
+
+
 
         // 3.1 门架数据预处理
-        processGantryTrans(gantryStream);
+        processGantryTrans(rawGantryTrans);
 
         // 3.2 拓展数据预处理
-        processExdTrans(extendStream);
+        processExdTrans(rawExdTrans);
 
         // 3.3 出口数据预处理
-        processExitTrans(exitStream);
+        processExitTrans(rawExitTrans);
 
         entryStream.addSink(new TransactionSinks.LogSink<>());
 
@@ -87,7 +146,8 @@ public class PrepareDataFromKafka {
                             out.collect(GantryMapper.INSTANCE.gantryRawToEtcTransaction(value));
                         }
                     }
-                }).returns(GantryEtcTransaction.class);
+                })
+                .returns(GantryEtcTransaction.class);
         // 2. 通过判断逻辑拆分数据流
         SingleOutputStreamOperator<GantryCpcTransaction> gantryCpcStream = gantryAllStream.getSideOutput(ganCpcTag).map(new LinkCounter<>("gantryCpcCounter"));
         SingleOutputStreamOperator<GantryEtcTransaction> gantryEtcStream = gantryAllStream.map(new LinkCounter<>("gantryEtcCounter"));
@@ -125,7 +185,8 @@ public class PrepareDataFromKafka {
                     }
                 }
             }
-        }).returns(ExdLocalTransaction.class);
+        })
+                .returns(ExdLocalTransaction.class);
 
         DataStream<TollChangeTransactions> exchangeStream = allTransStream.getSideOutput(exdChangeTag).map(new LinkCounter<>("extChangeCounter"));
         DataStream<ExdForeignGasTransaction> extForeignGasStream = allTransStream.getSideOutput(extForeignGasTag).map(new LinkCounter<>("extForeignGasCounter"));
@@ -181,7 +242,8 @@ public class PrepareDataFromKafka {
                     }
                 }
             }
-        }).returns(ExitLocalETCTrans.class);
+        })
+                .returns(ExitLocalETCTrans.class);
 
 
         DataStream<TollChangeTransactions> etcTollChangeTrans = exitAllSream.getSideOutput(etcTollChange).map(new LinkCounter<>("etcTollChangeTrans"));

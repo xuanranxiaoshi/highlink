@@ -1,4 +1,4 @@
-package info.nemoworks.highlink;
+package info.nemoworks.highlink.model.mapper;
 
 import info.nemoworks.highlink.dataflow.PrepareDateFromFiles;
 import info.nemoworks.highlink.kafka.KafkaProducerEmulator;
@@ -24,16 +24,14 @@ public class RunKafkaProducer {
         JsonNode gantryWasteRec = mapper.readTree(PrepareDateFromFiles.class.getClassLoader().getResourceAsStream("TBL_GANTRYWASTEREC.json"));
         JsonNode parkWasteRec = mapper.readTree(PrepareDateFromFiles.class.getClassLoader().getResourceAsStream("tbl_ParkTransWasteRec.json"));
 
-        String[] topics = {"ENTRY_WASTE", "EXIT_WASTE", "GANTRY_WASTE", "EXTEND_WASTE"};
         JsonNode[] jsonNodesArray = new JsonNode[] {enWasteRec, exWasteRec, gantryWasteRec, parkWasteRec};
 
         // 创建一个固定大小的线程池，可以根据需要调整线程数
-        int numberOfThreads = Math.min(jsonNodesArray.length, topics.length);
-        ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads);
+        ExecutorService executorService = Executors.newFixedThreadPool(jsonNodesArray.length);
 
-        for (int i = 0; i < numberOfThreads; i++) {
+        for (int i = 0; i < jsonNodesArray.length; i++) {
             // 提交任务给线程池，使用KafkaProducerEmulator作为Runnable
-            executorService.submit(new KafkaProducerEmulator(jsonNodesArray[i], topics[i]));
+            executorService.submit(new KafkaProducerEmulator(jsonNodesArray[i], "HighLink"));
         }
 
         // 关闭线程池

@@ -1,6 +1,5 @@
-package info.nemoworks.highlink.kafka;
+package info.nemoworks.highlink.model.mapper;
 import info.nemoworks.highlink.model.EntryRawTransaction;
-import info.nemoworks.highlink.model.ExitTransaction.ExitRawTransaction;
 import info.nemoworks.highlink.kafka.JsonDeSerializer;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -15,7 +14,7 @@ import java.util.Properties;
  * @date: 2024/1/6
  * @Copyright：
  */
-public class TestConsumer {
+public class TestGeneralConsumer {
     public static void main(String[] args) throws Exception {
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();

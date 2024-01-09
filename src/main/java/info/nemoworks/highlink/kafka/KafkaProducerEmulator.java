@@ -42,7 +42,7 @@ public class KafkaProducerEmulator implements Runnable {
         // 1. 配置 kafka
         // 设置参数
         Properties props = new Properties();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "192.168.234.106:9092");
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "hadoop105:9092");
         // 把发送的key从字符串序列化为字节数组，这里不采用jdk的序列化，而是自定义序列化方式
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         //把发送消息value从字符串序列化为字节数组
