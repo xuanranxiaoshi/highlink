@@ -36,6 +36,9 @@ public class CreateTableSQL {
         JdbcConnectorHelper.getCreateTableString(GantryCpcTransaction.class);
         JdbcConnectorHelper.getCreateTableString(GantryEtcTransaction.class);
 
+        System.out.println("通行费变更数据的建表语句: ");
+        JdbcConnectorHelper.getCreateTableString(TollChangeTransactions.class);
+
 
 
     }

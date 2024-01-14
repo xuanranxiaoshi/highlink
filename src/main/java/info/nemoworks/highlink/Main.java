@@ -1,6 +1,7 @@
 package info.nemoworks.highlink;
 
 import info.nemoworks.highlink.dataflow.PrepareDataFromKafka;
+import info.nemoworks.highlink.dataflow.PrepareDateFromFiles;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
