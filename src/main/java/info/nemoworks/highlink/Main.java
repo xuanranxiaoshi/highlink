@@ -19,7 +19,7 @@ public class Main {
         CheckpointConfig checkpointConfig = env.getCheckpointConfig();
 
         // todo: 修改为本地路径
-        checkpointConfig.setCheckpointStorage("file:///home/csc/checkpoints");
+        checkpointConfig.setCheckpointStorage("file:///WDC/users/chensc/modules/flink-1.18.0/checkpoints");
         checkpointConfig.setMaxConcurrentCheckpoints(1);
         checkpointConfig.setMinPauseBetweenCheckpoints(1000);
         checkpointConfig.setExternalizedCheckpointCleanup(CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
