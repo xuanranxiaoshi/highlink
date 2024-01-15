@@ -2,12 +2,15 @@ package info.nemoworks.highlink.connector;
 
 import info.nemoworks.highlink.kafka.HighwayTransDeSerializer;
 import info.nemoworks.highlink.kafka.JsonDeSerializer;
+import info.nemoworks.highlink.kafka.KafkaProducerEmulator;
 import info.nemoworks.highlink.model.HighwayTransaction;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 /**
@@ -18,10 +21,16 @@ import java.util.Properties;
  */
 public class KafkaConnectorHelper {
     public static Properties getKafkaProperties(){
-        Properties properties = new Properties();
-        // properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "192.168.80.188:9092");
+        Properties props = new Properties();
+        //props.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "192.168.80.188:9092");
+        InputStream input = KafkaProducerEmulator.class.getClassLoader().getResourceAsStream("kafkaBasic.properties");
+        try {
+            props.load(input);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         // properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "hadoop105:9092");
-        return properties;
+        return props;
     }
 
     public static <targetClazz> KafkaSource getKafkaGeneralSource(String topic, Class clazz){

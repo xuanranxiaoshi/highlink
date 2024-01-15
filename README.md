@@ -57,9 +57,9 @@ localhost:8081
 ```
 - 访问 服务器ip:8081 地址查看flink 集群信息
 
-### 4. 程序配置
+### 4. 程序参数配置
 - 根据本地 H2 账户信息修改 `info.nemoworks.highlink.connector.JdbcConnectorHelper` 中 `getJdbcConnectionOptions` 函数的连接信息
-- 根据本地 kafka 配置信息修改 `info.nemoworks.highlink.connector.KafkaConnectorHelper` 中 `getKafkaProperties` 中的连接信息
+- 根据本地 kafka 配置信息修改 resource 目录下 `kafkaBasic.properties` 中 kafka 地址
 - 指定本地 checkpoint 的存储位置，修改 `info.nemoworks.highlink.Main` 中的
 ```
 checkpointConfig.setCheckpointStorage("file:///WDC/users/chensc/modules/flink-1.18.0/checkpoints");
@@ -80,6 +80,7 @@ checkpointConfig.setCheckpointStorage("file:///WDC/users/chensc/modules/flink-1.
 - 运行 test 目录下 `info.nemoworks.highlink.kafka.RunKafkaProducer` 程序，向kafka 产生数据
 - 查看数据流处理过程中的 metrics。对于数据流中每一个以 Counter 结尾命名的算子，都可以通过点击选中该算子后，在 web-ui 右侧 Metric 菜单中添加同名的 Metric 监控信息，如下图所示，为`RawGantryTransCounter`算子添加 RawGantryTransCounter.RawGantryTransCounter metric 信息：
 ![img.png](src/main/resources/static/counterMetrics.png)
+![img.png](src/main/resources/static/counterMetrics2.png)
 - 在 web ui 上取消任务或停止程序
 - 重新登陆h2数据库web管理界面，查询数据表的数据
 
