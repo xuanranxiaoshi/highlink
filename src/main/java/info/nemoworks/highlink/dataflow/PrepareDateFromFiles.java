@@ -92,10 +92,10 @@ public class PrepareDateFromFiles {
         mapper.configure(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS.mappedFeature(), true);
 
         // 读取json文件，模拟数据接收系统收到上传数据
-        JsonNode enWasteRec = mapper.readTree(PrepareDateFromFiles.class.getClassLoader().getResourceAsStream("TBL_ENWASTEREC.json"));
-        JsonNode exWasteRec = mapper.readTree(PrepareDateFromFiles.class.getClassLoader().getResourceAsStream("TBL_EXWASTEREC.json"));
-        JsonNode gantryWasteRec = mapper.readTree(PrepareDateFromFiles.class.getClassLoader().getResourceAsStream("TBL_GANTRYWASTEREC.json"));
-        JsonNode parkWasteRec = mapper.readTree(PrepareDateFromFiles.class.getClassLoader().getResourceAsStream("tbl_ParkTransWasteRec.json"));
+        JsonNode enWasteRec = mapper.readTree(PrepareDateFromFiles.class.getClassLoader().getResourceAsStream("previousData/TBL_ENWASTEREC.json"));
+        JsonNode exWasteRec = mapper.readTree(PrepareDateFromFiles.class.getClassLoader().getResourceAsStream("previousData/TBL_EXWASTEREC.json"));
+        JsonNode gantryWasteRec = mapper.readTree(PrepareDateFromFiles.class.getClassLoader().getResourceAsStream("previousData/TBL_GANTRYWASTEREC.json"));
+        JsonNode parkWasteRec = mapper.readTree(PrepareDateFromFiles.class.getClassLoader().getResourceAsStream("previousData/tbl_ParkTransWasteRec.json"));
 
         // 用json中的对象生成数据流（用while true循环模拟无限数据）
         DataStream<HighwayTransaction> enWaste = env

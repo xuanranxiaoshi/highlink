@@ -74,20 +74,21 @@ public class PrepareDataFromKafka {
                         }
                     }
                 })
+                .name("UnionStreamSplit")
                 .setParallelism(2);
 
         // 2. 将数据流按规则进行拆分
         DataStream<GantryRawTransaction> gantryStream = mainDataStream.getSideOutput(gantryTrans);
         DataStream<ExitRawTransaction> exitStream = mainDataStream.getSideOutput(exitTrans);
         DataStream<ExtendRawTransaction> extendStream = mainDataStream.getSideOutput(extendTrans);
-        DataStream<EntryRawTransaction> entryStream = mainDataStream.map(new LinkCounter<>("RawEntryTrans"));
+        DataStream<EntryRawTransaction> entryStream = mainDataStream.map(new LinkCounter<>("RawEntryTransCounter")).name("RawEntryTransCounter");
 
 
-        SingleOutputStreamOperator<GantryRawTransaction> rawGantryTrans = gantryStream.map(new LinkCounter<>("RawGantryTrans"));
+        SingleOutputStreamOperator<GantryRawTransaction> rawGantryTrans = gantryStream.map(new LinkCounter<>("RawGantryTransCounter")).name("RawGantryTransCounter");
 
-        SingleOutputStreamOperator<ExitRawTransaction> rawExitTrans = exitStream.map(new LinkCounter<>("RawExitTrans"));
+        SingleOutputStreamOperator<ExitRawTransaction> rawExitTrans = exitStream.map(new LinkCounter<>("RawExitTransCounter")).name("RawExitTransCounter");
 
-        SingleOutputStreamOperator<ExtendRawTransaction> rawExdTrans = extendStream.map(new LinkCounter<>("RawExdTrans"));
+        SingleOutputStreamOperator<ExtendRawTransaction> rawExdTrans = extendStream.map(new LinkCounter<>("RawExdTransCounter")).name("RawExdTransCounter");
 
 
         // 3.1 门架数据预处理
@@ -128,11 +129,12 @@ public class PrepareDataFromKafka {
                         }
                     }
                 })
+                .name("GantryTransProcess")
                 .setParallelism(2);
 //                .map(new LinkCounter<>("processGantryTrans"));
         // 2. 通过判断逻辑拆分数据流
-        DataStream<GantryCpcTransaction> gantryCpcStream = gantryAllStream.getSideOutput(ganCpcTag).map(new LinkCounter<>("gantryCpcCounter"));
-        SingleOutputStreamOperator<GantryEtcTransaction> gantryEtcStream = gantryAllStream.map(new LinkCounter<>("gantryEtcCounter"));
+        DataStream<GantryCpcTransaction> gantryCpcStream = gantryAllStream.getSideOutput(ganCpcTag).map(new LinkCounter<>("gantryCpcCounter")).name("gantryCpcCounter");
+        SingleOutputStreamOperator<GantryEtcTransaction> gantryEtcStream = gantryAllStream.map(new LinkCounter<>("gantryEtcCounter")).name("gantryEtcCounter");
 
 
         // 3. 分别对两类数据进行记录
@@ -169,15 +171,16 @@ public class PrepareDataFromKafka {
                         }
                     }
                 })
+                .name("ExdTransProcess")
                 .setParallelism(2);
 //                .map(new LinkCounter<>("processExdTrans"));
 
 
-        DataStream<TollChangeTransactions> exchangeStream = allTransStream.getSideOutput(exdChangeTag).map(new LinkCounter<>("extChangeCounter"));
-        DataStream<ExdForeignGasTransaction> extForeignGasStream = allTransStream.getSideOutput(extForeignGasTag).map(new LinkCounter<>("extForeignGasCounter"));
-        DataStream<ExdForeignParkTransaction> extForeignParkStream = allTransStream.getSideOutput(extForeignParkTag).map(new LinkCounter<>("extForeignParkCounter"));
-        DataStream<ExdForeignMunicipalTransaction> extForeignMunicipalStream = allTransStream.getSideOutput(extForeignMunicipalTag).map(new LinkCounter<>("extForeignMunicipalCounter"));
-        DataStream<ExdLocalTransaction> extLocalTransStream = allTransStream.map(new LinkCounter<>("extLocalTransCounter"));
+        DataStream<TollChangeTransactions> exchangeStream = allTransStream.getSideOutput(exdChangeTag).map(new LinkCounter<>("extChangeCounter")).name("extChangeCounter");
+        DataStream<ExdForeignGasTransaction> extForeignGasStream = allTransStream.getSideOutput(extForeignGasTag).map(new LinkCounter<>("extForeignGasCounter")).name("extForeignGasCounter");
+        DataStream<ExdForeignParkTransaction> extForeignParkStream = allTransStream.getSideOutput(extForeignParkTag).map(new LinkCounter<>("extForeignParkCounter")).name("extForeignParkCounter");
+        DataStream<ExdForeignMunicipalTransaction> extForeignMunicipalStream = allTransStream.getSideOutput(extForeignMunicipalTag).map(new LinkCounter<>("extForeignMunicipalCounter")).name("extForeignMunicipalCounter");
+        DataStream<ExdLocalTransaction> extLocalTransStream = allTransStream.map(new LinkCounter<>("extLocalTransCounter")).name("extLocalTransCounter");
 
         addSinkToStream(exchangeStream, TollChangeTransactions.class, "exchangeStream");
         addSinkToStream(extForeignGasStream, ExdForeignGasTransaction.class, "extForeignGasStream");
@@ -228,16 +231,17 @@ public class PrepareDataFromKafka {
                         }
                     }
                 })
+                .name("ExitTransProcess")
                 .setParallelism(2);
 //                .map(new LinkCounter<>("processExitTrans"));
 
 
-        DataStream<TollChangeTransactions> etcTollChangeTrans = exitAllSream.getSideOutput(etcTollChange).map(new LinkCounter<>("etcTollChangeTrans"));
-        DataStream<TollChangeTransactions> otherTollChangeTrans = exitAllSream.getSideOutput(otherTollChange).map(new LinkCounter<>("otherTollChangeTransCounter"));
-        DataStream<ExitLocalOtherTrans> localOtherTrans = exitAllSream.getSideOutput(localOther).map(new LinkCounter<>("localOtherTransCounter"));
-        DataStream<ExitForeignOtherTrans> foreignOtherTrans = exitAllSream.getSideOutput(foreignOther).map(new LinkCounter<>("foreignOtherTransCounter"));
-        DataStream<ExitForeignETCTrans> foreignETCTrans = exitAllSream.getSideOutput(foreignETC).map(new LinkCounter<>("foreignETCTransCounter"));
-        DataStream<ExitLocalETCTrans> localETCTrans = exitAllSream.map(new LinkCounter<>("localETCTransCounter"));
+        DataStream<TollChangeTransactions> etcTollChangeTrans = exitAllSream.getSideOutput(etcTollChange).map(new LinkCounter<>("etcTollChangeTrans")).name("etcTollChangeTrans");
+        DataStream<TollChangeTransactions> otherTollChangeTrans = exitAllSream.getSideOutput(otherTollChange).map(new LinkCounter<>("otherTollChangeTransCounter")).name("otherTollChangeTransCounter");
+        DataStream<ExitLocalOtherTrans> localOtherTrans = exitAllSream.getSideOutput(localOther).map(new LinkCounter<>("localOtherTransCounter")).name("localOtherTransCounter");
+        DataStream<ExitForeignOtherTrans> foreignOtherTrans = exitAllSream.getSideOutput(foreignOther).map(new LinkCounter<>("foreignOtherTransCounter")).name("foreignOtherTransCounter");
+        DataStream<ExitForeignETCTrans> foreignETCTrans = exitAllSream.getSideOutput(foreignETC).map(new LinkCounter<>("foreignETCTransCounter")).name("foreignETCTransCounter");
+        DataStream<ExitLocalETCTrans> localETCTrans = exitAllSream.map(new LinkCounter<>("localETCTransCounter")).name("localETCTransCounter");
 
         addSinkToStream(etcTollChangeTrans, TollChangeTransactions.class, "etcTollChangeTrans");
         addSinkToStream(otherTollChangeTrans, TollChangeTransactions.class, "otherTollChangeTrans");
@@ -262,6 +266,6 @@ public class PrepareDataFromKafka {
                 JdbcConnectorHelper.getInsertTemplateString(clazz),
                 JdbcConnectorHelper.getStatementBuilder(),
                 JdbcConnectorHelper.getJdbcExecutionOptions(),
-                JdbcConnectorHelper.getJdbcConnectionOptions()));
+                JdbcConnectorHelper.getJdbcConnectionOptions())).name(name);
     }
 }
