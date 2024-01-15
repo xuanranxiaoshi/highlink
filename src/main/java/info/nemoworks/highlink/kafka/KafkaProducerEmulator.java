@@ -1,14 +1,14 @@
 package info.nemoworks.highlink.kafka;
 
-import info.nemoworks.highlink.dataflow.PrepareDateFromFiles;
+
 import lombok.SneakyThrows;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
+
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.ArrayList;
 import java.util.Properties;
@@ -37,11 +37,13 @@ public class KafkaProducerEmulator implements Runnable {
     public KafkaProducerEmulator(JsonNode jsonNode, String topic) {
         this.jsonNode = jsonNode;
         this.topic = topic;
-        this.count = random.nextInt(100);
+        this.count = 0;
 
         // 1. 配置 kafka
         // 设置参数
         Properties props = new Properties();
+        // todo：修改 kafka 连接地址
+//        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "192.168.80.188:9092");
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "hadoop105:9092");
         // 把发送的key从字符串序列化为字节数组，这里不采用jdk的序列化，而是自定义序列化方式
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
@@ -56,8 +58,8 @@ public class KafkaProducerEmulator implements Runnable {
     @SneakyThrows
     @Override
     public void run() {
-        while (count > 0) {
-            TimeUnit.SECONDS.sleep(random.nextInt(4));
+        while (true) {
+            TimeUnit.MILLISECONDS.sleep(random.nextInt(200, 500));
             // 3.创建消息: 随机发送文中的一条 jason 数据
             String message = null;
 
@@ -65,8 +67,7 @@ public class KafkaProducerEmulator implements Runnable {
             ProducerRecord<String, String> producerRecord = new ProducerRecord<>(topic, "oneKey", message);
             // 4.同步发送
             producer.send(producerRecord);
-            System.out.println("Send topic ["+ topic + "] :" + message);
-            count--;
+            System.out.println("Send topic [" + topic + "] :" + count++);
         }
     }
 }

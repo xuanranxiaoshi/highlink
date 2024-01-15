@@ -1,7 +1,6 @@
-package info.nemoworks.highlink.model.mapper;
+package info.nemoworks.highlink.kafka;
 
 import info.nemoworks.highlink.dataflow.PrepareDateFromFiles;
-import info.nemoworks.highlink.kafka.KafkaProducerEmulator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -19,10 +18,10 @@ public class RunKafkaProducer {
     public static void main(String[] args) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
 
-        JsonNode enWasteRec = mapper.readTree(PrepareDateFromFiles.class.getClassLoader().getResourceAsStream("TBL_ENWASTEREC.json"));
-        JsonNode exWasteRec = mapper.readTree(PrepareDateFromFiles.class.getClassLoader().getResourceAsStream("TBL_EXWASTEREC.json"));
-        JsonNode gantryWasteRec = mapper.readTree(PrepareDateFromFiles.class.getClassLoader().getResourceAsStream("TBL_GANTRYWASTEREC.json"));
-        JsonNode parkWasteRec = mapper.readTree(PrepareDateFromFiles.class.getClassLoader().getResourceAsStream("tbl_ParkTransWasteRec.json"));
+        JsonNode enWasteRec = mapper.readTree(PrepareDateFromFiles.class.getClassLoader().getResourceAsStream("previousData/TBL_ENWASTEREC.json"));
+        JsonNode exWasteRec = mapper.readTree(PrepareDateFromFiles.class.getClassLoader().getResourceAsStream("previousData/TBL_EXWASTEREC.json"));
+        JsonNode gantryWasteRec = mapper.readTree(PrepareDateFromFiles.class.getClassLoader().getResourceAsStream("previousData/TBL_GANTRYWASTEREC.json"));
+        JsonNode parkWasteRec = mapper.readTree(PrepareDateFromFiles.class.getClassLoader().getResourceAsStream("previousData/tbl_ParkTransWasteRec.json"));
 
         JsonNode[] jsonNodesArray = new JsonNode[] {enWasteRec, exWasteRec, gantryWasteRec, parkWasteRec};
 
