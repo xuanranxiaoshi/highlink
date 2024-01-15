@@ -19,8 +19,8 @@ import java.util.Properties;
 public class KafkaConnectorHelper {
     public static Properties getKafkaProperties(){
         Properties properties = new Properties();
-        properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "192.168.80.188:9092");
-//        properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "hadoop105:9092");
+        // properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "192.168.80.188:9092");
+        // properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "hadoop105:9092");
         return properties;
     }
 

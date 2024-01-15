@@ -65,6 +65,7 @@ localhost:8081
 checkpointConfig.setCheckpointStorage("file:///WDC/users/chensc/modules/flink-1.18.0/checkpoints");
 ```
 ## 二、程序运行
+- 运行前请确保数据库和 kafka 服务已经启动 ！！！
 ### 1. ide 本地运行（不需要配置 flink 环境）
 - 修改 `info.nemoworks.highlink.Main` 中的 flink 执行环境如下所示（注释第一行，使用第二行），以在本地显示 flink web-ui
 ```
@@ -75,9 +76,11 @@ checkpointConfig.setCheckpointStorage("file:///WDC/users/chensc/modules/flink-1.
 ```
 - 运行`info.nemoworks.highlink.Main`
 - 访问 `localhost:8081` 在 web-ui 上查看任务的详细信息 
-[img]![img.png](src/main/resources/static/runningJob.png)
+![img.png](src/main/resources/static/runningJob.png)
 - 运行 test 目录下 `info.nemoworks.highlink.kafka.RunKafkaProducer` 程序，向kafka 产生数据
-- 查看数据流处理过程中的 metrics
+- 查看数据流处理过程中的 metrics。对于数据流中每一个以 Counter 结尾命名的算子，都可以通过点击选中该算子后，在 web-ui 右侧 Metric 菜单中添加同名的 Metric 监控信息，如下图所示，为`RawGantryTransCounter`算子添加 RawGantryTransCounter.RawGantryTransCounter metric 信息：
+![img.png](src/main/resources/static/counterMetrics.png)
+- 在 web ui 上取消任务或停止程序
 - 重新登陆h2数据库web管理界面，查询数据表的数据
 
 ### 2. 服务器运行 （需要配置 flink 环境）
