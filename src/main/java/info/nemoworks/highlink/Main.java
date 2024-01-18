@@ -1,9 +1,9 @@
 package info.nemoworks.highlink;
 
-import info.nemoworks.highlink.dataflow.PrepareDataFromKafka;
-import info.nemoworks.highlink.dataflow.PrepareDateFromFiles;
+import info.nemoworks.highlink.dataflow.*;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.CheckpointingMode;
+import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
@@ -15,6 +15,8 @@ public class Main {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment(new Configuration());
         // 本地 web-ui 显示方式
         // StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(new Configuration());
+
+         env.setParallelism(1);
 
         // 2. 配置检查点信息
         env.enableCheckpointing(5000, CheckpointingMode.EXACTLY_ONCE);
@@ -29,7 +31,8 @@ public class Main {
 
         // 2. 读入数据进行预处理
         // PrepareDateFromFiles.start(env);
-        PrepareDataFromKafka.start(env);
+        PrepareGantryFromKafka.start(env);
+
 
         env.execute();
     }

@@ -147,13 +147,13 @@ public class GantryEtcTransaction implements HighwayTransaction {
     @JsonProperty("VEHICLECLASS")
     public int vEHICLECLASS;
     @JsonProperty("VEHICLESEAT")
-    public int vEHICLESEAT;
+    public String vEHICLESEAT;
     @JsonProperty("VEHICLESIGN")
     public String vEHICLESIGN;
     @JsonProperty("VEHICLESIGNID")
     public String vEHICLESIGNID;
     @JsonProperty("VEHICLETYPE")
-    public int vEHICLETYPE;
+    public String vEHICLETYPE;
     @JsonProperty("VLP")
     public String vLP;
     @JsonProperty("VLPC")
