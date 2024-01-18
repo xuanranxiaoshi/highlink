@@ -1,6 +1,7 @@
 package info.nemoworks.highlink.kafka;
 
 import com.csvreader.CsvReader;
+import info.nemoworks.highlink.connector.KafkaConnectorHelper;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -63,10 +64,7 @@ public class GenerateGantryPath {
 
         // 4. 每个线程随机选择一个 passID 产生相应的 entry, gantry， exit 时序数据
         // 4.1 配置 kafka
-        Properties props = new Properties();
-        // todo：修改 kafka 连接地址
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "192.168.80.188:9092");
-        // props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "hadoop105:9092");
+        Properties props = KafkaConnectorHelper.getKafkaProperties();
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
 
