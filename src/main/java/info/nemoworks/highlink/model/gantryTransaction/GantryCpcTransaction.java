@@ -152,7 +152,7 @@ public class GantryCpcTransaction implements HighwayTransaction {
     @JsonProperty("VEHICLESIGNID")
     public String vEHICLESIGNID;
     @JsonProperty("VEHICLETYPE")
-    public int vEHICLETYPE;
+    public String vEHICLETYPE;
     @JsonProperty("VLP")
     public String vLP;
     @JsonProperty("VLPC")

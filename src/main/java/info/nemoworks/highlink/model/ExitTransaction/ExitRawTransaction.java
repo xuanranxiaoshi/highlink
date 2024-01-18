@@ -1,12 +1,13 @@
 package info.nemoworks.highlink.model.ExitTransaction;
 
 import info.nemoworks.highlink.model.HighwayTransaction;
+import info.nemoworks.highlink.model.PathTransaction;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
 
 @Data
-public class ExitRawTransaction implements HighwayTransaction {
+public class ExitRawTransaction implements HighwayTransaction, PathTransaction {
 
     @JsonProperty("ID")
     private String iD;

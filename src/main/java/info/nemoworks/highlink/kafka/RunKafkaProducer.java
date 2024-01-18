@@ -32,6 +32,7 @@ public class RunKafkaProducer {
             // 提交任务给线程池，使用KafkaProducerEmulator作为Runnable
             executorService.submit(new KafkaProducerEmulator(jsonNodesArray[i], "HighLink"));
         }
+        //executorService.submit(new KafkaProducerEmulator(jsonNodesArray[2], "HighLink"));
 
         // 关闭线程池
         executorService.shutdown();

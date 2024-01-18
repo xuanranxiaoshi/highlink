@@ -2,12 +2,12 @@ package info.nemoworks.highlink.dataflow;
 
 import info.nemoworks.highlink.connector.JdbcConnectorHelper;
 import info.nemoworks.highlink.connector.KafkaConnectorHelper;
-import info.nemoworks.highlink.functions.CpcAggregateFunction;
-import info.nemoworks.highlink.functions.CpcProcessWindowFunction;
+import info.nemoworks.highlink.functions.*;
 import info.nemoworks.highlink.metric.LinkCounter;
 import info.nemoworks.highlink.model.EntryRawTransaction;
 import info.nemoworks.highlink.model.ExitTransaction.*;
 import info.nemoworks.highlink.model.HighwayTransaction;
+import info.nemoworks.highlink.model.PathTransaction;
 import info.nemoworks.highlink.model.TollChangeTransactions;
 import info.nemoworks.highlink.model.extendTransaction.*;
 import info.nemoworks.highlink.model.gantryTransaction.GantryCpcTransaction;
@@ -17,6 +17,7 @@ import info.nemoworks.highlink.model.mapper.ExitMapper;
 import info.nemoworks.highlink.model.mapper.ExtensionMapper;
 import info.nemoworks.highlink.model.mapper.GantryMapper;
 import info.nemoworks.highlink.sink.TransactionSinks;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.flink.api.common.eventtime.*;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.connector.jdbc.JdbcSink;
@@ -26,13 +27,17 @@ import org.apache.flink.streaming.api.datastream.KeyedStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
+import org.apache.flink.streaming.api.functions.co.CoMapFunction;
 import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.assigners.EventTimeSessionWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
+import org.apache.flink.streaming.api.windowing.triggers.Trigger;
+import org.apache.flink.streaming.api.windowing.triggers.TriggerResult;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
 
+import java.nio.file.Path;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
@@ -89,12 +94,7 @@ public class PrepareGantryFromKafka {
                 .setParallelism(1);
 
         // 2. 将数据流按规则进行拆分
-        DataStream<GantryRawTransaction> gantryStream = mainDataStream.getSideOutput(gantryTrans).assignTimestampsAndWatermarks(new WatermarkStrategy<GantryRawTransaction>() {
-            @Override
-            public WatermarkGenerator<GantryRawTransaction> createWatermarkGenerator(WatermarkGeneratorSupplier.Context context) {
-                return null;
-            }
-        });
+        DataStream<GantryRawTransaction> gantryStream = mainDataStream.getSideOutput(gantryTrans);
         DataStream<ExitRawTransaction> exitStream = mainDataStream.getSideOutput(exitTrans);
         DataStream<ExtendRawTransaction> extendStream = mainDataStream.getSideOutput(extendTrans);
         DataStream<EntryRawTransaction> entryStream = mainDataStream.map(new LinkCounter<>("RawEntryTransCounter")).name("RawEntryTransCounter");
@@ -108,7 +108,15 @@ public class PrepareGantryFromKafka {
 
 
         // 3.1 门架数据预处理:
+        // (1) 基本的处理逻辑
         processGantryTrans(rawGantryTrans);
+
+        // (2) 门架数据归并
+        DataStream<EntryRawTransaction> entryCopyStream = entryStream.broadcast();
+        DataStream<GantryRawTransaction> gantryCopyStream = gantryStream.broadcast();
+        DataStream<ExitRawTransaction> exitCopyStream = exitStream.broadcast();
+
+        processGantryTrans(gantryCopyStream, entryCopyStream, exitCopyStream);
 
 
         // 3.2 拓展数据预处理
@@ -122,22 +130,51 @@ public class PrepareGantryFromKafka {
 
     }
 
+
     private static ExitRawTransaction reCompute(ExitRawTransaction value) {
         return value;
     }
 
-    private static void processGantryTrans(DataStream<GantryRawTransaction> gantryStream) {
+    private static void processGantryTrans(DataStream<GantryRawTransaction> gantryStream, DataStream<EntryRawTransaction> entryCopyStream, DataStream<ExitRawTransaction> exitCopyStream) {
 
-        // todo: 测试环境时间设置
-        Duration OutOfOrderGap = Duration.ofSeconds(2);  // 乱序等待 gap
-        Time sessionGap = Time.seconds(10); // 会话超时时间
+        // 0. 参数设置
+        // 乱序等待 gap
+        Duration OutOfOrderGap = Duration.ofHours(2);
+        // 会话超时时间
+        Time sessionGap = Time.hours(24);
 
-        // 1. 定义 Watermark 策略: 采用事件语义，提取 enTime 作为逻辑时间
-        WatermarkStrategy<GantryRawTransaction> watermarkStrategy = WatermarkStrategy
-                .<GantryRawTransaction>forBoundedOutOfOrderness(OutOfOrderGap)
-                .withTimestampAssigner(new SerializableTimestampAssigner<GantryRawTransaction>() {
+        // 1. 合并 entry, gantry, exit 数据流
+        DataStream<GantryRawTransaction> gantryCopyStream = gantryStream.broadcast();
+        SingleOutputStreamOperator<PathTransaction> connetStream = gantryCopyStream.connect(entryCopyStream).map(new CoMapFunction<GantryRawTransaction, EntryRawTransaction, PathTransaction>() {
+            @Override
+            public PathTransaction map2(EntryRawTransaction entryRawTransaction) throws Exception {
+                return (PathTransaction) entryRawTransaction;
+            }
+
+            @Override
+            public PathTransaction map1(GantryRawTransaction rawTransaction) throws Exception {
+                return (PathTransaction) rawTransaction;
+            }
+        });
+        SingleOutputStreamOperator<PathTransaction> pathTransStream = connetStream.connect(exitCopyStream).map(new CoMapFunction<PathTransaction, ExitRawTransaction, PathTransaction>() {
+            @Override
+            public PathTransaction map1(PathTransaction pathTransaction) throws Exception {
+                return pathTransaction;
+            }
+
+            @Override
+            public PathTransaction map2(ExitRawTransaction exitRawTransaction) throws Exception {
+                return (PathTransaction) exitRawTransaction;
+            }
+        });
+
+
+        // 2. 定义 Watermark 策略: 采用事件语义，提取 enTime 作为逻辑时间
+        WatermarkStrategy<PathTransaction> watermarkStrategy = WatermarkStrategy
+                .<PathTransaction>forBoundedOutOfOrderness(OutOfOrderGap)
+                .withTimestampAssigner(new SerializableTimestampAssigner<PathTransaction>() {
                     @Override
-                    public long extractTimestamp(GantryRawTransaction rawTransaction, long l) {
+                    public long extractTimestamp(PathTransaction rawTransaction, long l) {
                         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                         Date date = null;
                         try {
@@ -150,16 +187,29 @@ public class PrepareGantryFromKafka {
                         System.out.println("数据= { id: " + rawTransaction.getPASSID() + ", enTime: " + rawTransaction.getENTIME() + " }");
                         return timestamp;
                     }
-                });
+                })
+                .withIdleness(Duration.ofSeconds(5));
 
         // 指定 watermark 策略，添加水位线
-        SingleOutputStreamOperator<GantryRawTransaction> gantryRawTransWithWatermark = gantryStream.assignTimestampsAndWatermarks(watermarkStrategy);
+        SingleOutputStreamOperator<PathTransaction> pathTransWithWatermark = pathTransStream.assignTimestampsAndWatermarks(watermarkStrategy);
 
-        //2. 划分数据流
+
+        // 3. 根据 passId 对数据流开窗
+        SingleOutputStreamOperator<LinkedList<PathTransaction>> aggregateCpaStream = pathTransWithWatermark
+                .keyBy(PathTransaction::getPASSID)
+                .window(EventTimeSessionWindows.withGap(sessionGap))
+                .trigger(new PathTrigger())
+                .aggregate(new PathAggregateFunction(), new PathProcessWindowFunction());
+
+        aggregateCpaStream.print();
+    }
+
+    private static void processGantryTrans(DataStream<GantryRawTransaction> gantryStream) {
         final OutputTag<GantryCpcTransaction> ganCpcTag = new OutputTag<GantryCpcTransaction>("gantryCpcTrans") {
         };
 
-        SingleOutputStreamOperator<GantryEtcTransaction> gantryAllStream = gantryRawTransWithWatermark
+        // 1. 对拆分得到的门架数据流进行处理
+        SingleOutputStreamOperator<GantryEtcTransaction> gantryAllStream = gantryStream
                 .process(new ProcessFunction<GantryRawTransaction, GantryEtcTransaction>() {
 
                     @Override
@@ -175,22 +225,15 @@ public class PrepareGantryFromKafka {
                     }
                 })
                 .name("GantryTransProcess")
-                .setParallelism(1);
+                .setParallelism(2);
 
+        // 2. 通过判断逻辑拆分数据流
         DataStream<GantryCpcTransaction> gantryCpcStream = gantryAllStream.getSideOutput(ganCpcTag).map(new LinkCounter<>("gantryCpcCounter")).name("gantryCpcCounter");
         SingleOutputStreamOperator<GantryEtcTransaction> gantryEtcStream = gantryAllStream.map(new LinkCounter<>("gantryEtcCounter")).name("gantryEtcCounter");
 
 
-        // 3. 根据 passId 对 cpc 数据流开窗
-        SingleOutputStreamOperator<LinkedList<GantryCpcTransaction>> aggregateCpaStream = gantryCpcStream
-                .keyBy(GantryCpcTransaction::getPASSID)
-                .window(EventTimeSessionWindows.withGap(sessionGap))
-                .aggregate(new CpcAggregateFunction(), new CpcProcessWindowFunction());
-
-        aggregateCpaStream.print();
-
         // 3. 分别对两类数据进行记录
-        addSinkToStream(aggregateCpaStream, GantryCpcTransaction.class, "gantryCpcStream");
+        addSinkToStream(gantryCpcStream, GantryCpcTransaction.class, "gantryCpcStream");
         addSinkToStream(gantryEtcStream, GantryEtcTransaction.class, "gantryEtcStream");
     }
 

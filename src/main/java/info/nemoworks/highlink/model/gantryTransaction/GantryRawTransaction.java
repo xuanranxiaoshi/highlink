@@ -1,12 +1,13 @@
 package info.nemoworks.highlink.model.gantryTransaction;
 
 import info.nemoworks.highlink.model.HighwayTransaction;
+import info.nemoworks.highlink.model.PathTransaction;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
 
 @Data
-public class GantryRawTransaction implements HighwayTransaction {
+public class GantryRawTransaction implements HighwayTransaction, PathTransaction {
     @JsonProperty("TRADEID")
     private String tRADEID;
     @JsonProperty("GANTRYID")
@@ -54,7 +55,7 @@ public class GantryRawTransaction implements HighwayTransaction {
     @JsonProperty("VLPC")
     private int vLPC;
     @JsonProperty("VEHICLETYPE")
-    private int vEHICLETYPE;
+    private String vEHICLETYPE;
     @JsonProperty("IDENTIFYVEHICLETYPE")
     private String iDENTIFYVEHICLETYPE;
     @JsonProperty("VEHICLECLASS")

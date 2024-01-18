@@ -6,7 +6,7 @@ import org.apache.flink.metrics.Counter;
 
 import info.nemoworks.highlink.model.HighwayTransaction;
 
-public class LinkCounter<T extends HighwayTransaction> extends RichMapFunction<T, T> {
+public class LinkCounter<T> extends RichMapFunction<T, T> {
     private transient Counter counter;
 
     private String name;
