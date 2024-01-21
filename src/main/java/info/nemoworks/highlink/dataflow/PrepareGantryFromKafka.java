@@ -91,7 +91,7 @@ public class PrepareGantryFromKafka {
                     }
                 })
                 .name("UnionStreamSplit")
-                .setParallelism(1);
+                .setParallelism(2);
 
         // 2. 将数据流按规则进行拆分
         DataStream<GantryRawTransaction> gantryStream = mainDataStream.getSideOutput(gantryTrans);
@@ -183,8 +183,8 @@ public class PrepareGantryFromKafka {
                             throw new RuntimeException(e);
                         }
                         long timestamp = date.getTime();
-                        // 返回的时间戳，要 毫秒
-                        System.out.println("数据= { id: " + rawTransaction.getPASSID() + ", enTime: " + rawTransaction.getENTIME() + " }");
+                        // 返回的时间戳，毫秒
+                        // System.out.println("数据= { id: " + rawTransaction.getPASSID() + ", enTime: " + rawTransaction.getENTIME() + " }");
                         return timestamp;
                     }
                 })
@@ -201,7 +201,7 @@ public class PrepareGantryFromKafka {
                 .trigger(new PathTrigger())
                 .aggregate(new PathAggregateFunction(), new PathProcessWindowFunction());
 
-        aggregateCpaStream.print();
+        aggregateCpaStream.addSink(new TransactionSinks.PathLogSink());
     }
 
     private static void processGantryTrans(DataStream<GantryRawTransaction> gantryStream) {
@@ -268,7 +268,6 @@ public class PrepareGantryFromKafka {
                 })
                 .name("ExdTransProcess")
                 .setParallelism(2);
-//                .map(new LinkCounter<>("processExdTrans"));
 
 
         DataStream<TollChangeTransactions> exchangeStream = allTransStream.getSideOutput(exdChangeTag).map(new LinkCounter<>("extChangeCounter")).name("extChangeCounter");
@@ -346,6 +345,11 @@ public class PrepareGantryFromKafka {
         addSinkToStream(localETCTrans, ExitLocalETCTrans.class, "localETCTrans");
     }
 
+
+
+    private static void addLogSinkToStream(DataStream dataStream, Class clazz, String name){
+        dataStream.addSink(new TransactionSinks.LogSink<>());
+    }
     public static void addSinkToStream(DataStream dataStream, Class clazz) {
 //        dataStream.addSink(new TransactionSinks.LogSink<>());
         dataStream.addSink(JdbcSink.sink(

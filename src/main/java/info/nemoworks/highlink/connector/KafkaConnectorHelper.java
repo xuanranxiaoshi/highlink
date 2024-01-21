@@ -45,6 +45,7 @@ public class KafkaConnectorHelper {
     public static KafkaSource getKafkaHighWayTransSource(String topic){
         return KafkaSource.<HighwayTransaction>builder()
                 .setProperties(KafkaConnectorHelper.getKafkaProperties())
+                .setGroupId("flink")
                 .setTopics(topic)
                 .setValueOnlyDeserializer(new HighwayTransDeSerializer())
                 .setStartingOffsets(OffsetsInitializer.latest())
