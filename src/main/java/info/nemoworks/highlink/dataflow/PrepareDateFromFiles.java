@@ -2,7 +2,7 @@ package info.nemoworks.highlink.dataflow;
 
 import info.nemoworks.highlink.metric.LinkCounter;
 import info.nemoworks.highlink.model.*;
-import info.nemoworks.highlink.model.ExitTransaction.*;
+import info.nemoworks.highlink.model.exitTransaction.*;
 import info.nemoworks.highlink.model.extendTransaction.*;
 import info.nemoworks.highlink.model.gantryTransaction.GantryCpcTransaction;
 import info.nemoworks.highlink.model.gantryTransaction.GantryEtcTransaction;
@@ -38,7 +38,7 @@ public class PrepareDateFromFiles {
 
         final OutputTag<ExitRawTransaction> exitTrans = new OutputTag<ExitRawTransaction>("exitTrans") {
         };
-        final OutputTag<ExtendRawTransaction> parkTrans = new OutputTag<ExtendRawTransaction>("parkTrans") {
+        final OutputTag<ParkTransWasteRec> parkTrans = new OutputTag<ParkTransWasteRec>("parkTrans") {
         };
         final OutputTag<GantryRawTransaction> gantryTrans = new OutputTag<GantryRawTransaction>("gantryTrans") {
         };
@@ -55,9 +55,9 @@ public class PrepareDateFromFiles {
                             if (value instanceof GantryRawTransaction) {
                                 ctx.output(gantryTrans, (GantryRawTransaction) value);
                             } else {
-                                if (value instanceof ExtendRawTransaction) {
+                                if (value instanceof ParkTransWasteRec) {
                                     ctx.output(parkTrans,
-                                            (ExtendRawTransaction) value);
+                                            (ParkTransWasteRec) value);
                                 } else {
                                     out.collect((EntryRawTransaction) value);
                                 }
@@ -69,7 +69,7 @@ public class PrepareDateFromFiles {
         // 2. 将数据流按规则进行拆分
         DataStream<GantryRawTransaction> gantryStream = mainDataStream.getSideOutput(gantryTrans);
         DataStream<ExitRawTransaction> exitStream = mainDataStream.getSideOutput(exitTrans);
-        DataStream<ExtendRawTransaction> parkStream = mainDataStream.getSideOutput(parkTrans);
+        DataStream<ParkTransWasteRec> parkStream = mainDataStream.getSideOutput(parkTrans);
         DataStream<EntryRawTransaction> entryStream = mainDataStream;
 
         // 3.1 门架数据预处理
@@ -150,7 +150,7 @@ public class PrepareDateFromFiles {
         addSinkToStream(gantryEtcStream, GantryEtcTransaction.class);
     }
 
-    private static void processExdTrans(DataStream<ExtendRawTransaction> parkStream) {
+    private static void processExdTrans(DataStream<ParkTransWasteRec> parkStream) {
         final OutputTag<TollChangeTransactions> exdChangeTag = new OutputTag<>("extChangeTrans") {
         };
         final OutputTag<ExdForeignGasTransaction> extForeignGasTag = new OutputTag<>("extForeignGasTrans") {
@@ -159,9 +159,9 @@ public class PrepareDateFromFiles {
         };
         final OutputTag<ExdForeignParkTransaction> extForeignParkTag = new OutputTag<>("extForeignParkTrans") {
         };
-        SingleOutputStreamOperator<ExdLocalTransaction> allTransStream = parkStream.process(new ProcessFunction<ExtendRawTransaction, ExdLocalTransaction>() {
+        SingleOutputStreamOperator<ExdLocalTransaction> allTransStream = parkStream.process(new ProcessFunction<ParkTransWasteRec, ExdLocalTransaction>() {
             @Override
-            public void processElement(ExtendRawTransaction rawTrans, ProcessFunction<ExtendRawTransaction, ExdLocalTransaction>.Context ctx, Collector<ExdLocalTransaction> collector) throws Exception {
+            public void processElement(ParkTransWasteRec rawTrans, ProcessFunction<ParkTransWasteRec, ExdLocalTransaction>.Context ctx, Collector<ExdLocalTransaction> collector) throws Exception {
                 if (!rawTrans.isPrimaryTrans()) {
                     ctx.output(exdChangeTag, ExtensionMapper.INSTANCE.exdRawToTollChangeTrans(rawTrans));
                 } else {

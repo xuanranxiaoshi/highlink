@@ -4,7 +4,7 @@ import info.nemoworks.highlink.connector.JdbcConnectorHelper;
 import info.nemoworks.highlink.connector.KafkaConnectorHelper;
 import info.nemoworks.highlink.metric.LinkCounter;
 import info.nemoworks.highlink.model.EntryRawTransaction;
-import info.nemoworks.highlink.model.ExitTransaction.*;
+import info.nemoworks.highlink.model.exitTransaction.*;
 import info.nemoworks.highlink.model.HighwayTransaction;
 import info.nemoworks.highlink.model.TollChangeTransactions;
 import info.nemoworks.highlink.model.extendTransaction.*;
@@ -16,12 +16,10 @@ import info.nemoworks.highlink.model.mapper.ExtensionMapper;
 import info.nemoworks.highlink.model.mapper.GantryMapper;
 import info.nemoworks.highlink.sink.TransactionSinks;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
-import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.connector.jdbc.JdbcSink;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
-import org.apache.flink.streaming.api.datastream.SideOutputDataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
@@ -47,7 +45,7 @@ public class PrepareDataFromKafka {
         // 2. 切分为不同的数据流
         final OutputTag<ExitRawTransaction> exitTrans = new OutputTag<ExitRawTransaction>("exitTrans") {
         };
-        final OutputTag<ExtendRawTransaction> extendTrans = new OutputTag<ExtendRawTransaction>("extendTrans") {
+        final OutputTag<ParkTransWasteRec> extendTrans = new OutputTag<ParkTransWasteRec>("extendTrans") {
         };
         final OutputTag<GantryRawTransaction> gantryTrans = new OutputTag<GantryRawTransaction>("gantryTrans") {
         };
@@ -64,9 +62,9 @@ public class PrepareDataFromKafka {
                             if (value instanceof GantryRawTransaction) {
                                 ctx.output(gantryTrans, (GantryRawTransaction) value);
                             } else {
-                                if (value instanceof ExtendRawTransaction) {
+                                if (value instanceof ParkTransWasteRec) {
                                     ctx.output(extendTrans,
-                                            (ExtendRawTransaction) value);
+                                            (ParkTransWasteRec) value);
                                 } else {
                                     out.collect((EntryRawTransaction) value);
                                 }
@@ -80,7 +78,7 @@ public class PrepareDataFromKafka {
         // 2. 将数据流按规则进行拆分
         DataStream<GantryRawTransaction> gantryStream = mainDataStream.getSideOutput(gantryTrans);
         DataStream<ExitRawTransaction> exitStream = mainDataStream.getSideOutput(exitTrans);
-        DataStream<ExtendRawTransaction> extendStream = mainDataStream.getSideOutput(extendTrans);
+        DataStream<ParkTransWasteRec> extendStream = mainDataStream.getSideOutput(extendTrans);
         DataStream<EntryRawTransaction> entryStream = mainDataStream.map(new LinkCounter<>("RawEntryTransCounter")).name("RawEntryTransCounter");
 
 
@@ -88,7 +86,7 @@ public class PrepareDataFromKafka {
 
         SingleOutputStreamOperator<ExitRawTransaction> rawExitTrans = exitStream.map(new LinkCounter<>("RawExitTransCounter")).name("RawExitTransCounter");
 
-        SingleOutputStreamOperator<ExtendRawTransaction> rawExdTrans = extendStream.map(new LinkCounter<>("RawExdTransCounter")).name("RawExdTransCounter");
+        SingleOutputStreamOperator<ParkTransWasteRec> rawExdTrans = extendStream.map(new LinkCounter<>("RawExdTransCounter")).name("RawExdTransCounter");
 
 
         // 3.1 门架数据预处理
@@ -142,7 +140,7 @@ public class PrepareDataFromKafka {
         addSinkToStream(gantryEtcStream, GantryEtcTransaction.class, "gantryEtcStream");
     }
 
-    private static void processExdTrans(DataStream<ExtendRawTransaction> parkStream) {
+    private static void processExdTrans(DataStream<ParkTransWasteRec> parkStream) {
         final OutputTag<TollChangeTransactions> exdChangeTag = new OutputTag<>("extChangeTrans") {
         };
         final OutputTag<ExdForeignGasTransaction> extForeignGasTag = new OutputTag<>("extForeignGasTrans") {
@@ -151,9 +149,9 @@ public class PrepareDataFromKafka {
         };
         final OutputTag<ExdForeignParkTransaction> extForeignParkTag = new OutputTag<>("extForeignParkTrans") {
         };
-        SingleOutputStreamOperator<ExdLocalTransaction> allTransStream = parkStream.process(new ProcessFunction<ExtendRawTransaction, ExdLocalTransaction>() {
+        SingleOutputStreamOperator<ExdLocalTransaction> allTransStream = parkStream.process(new ProcessFunction<ParkTransWasteRec, ExdLocalTransaction>() {
                     @Override
-                    public void processElement(ExtendRawTransaction rawTrans, ProcessFunction<ExtendRawTransaction, ExdLocalTransaction>.Context ctx, Collector<ExdLocalTransaction> collector) throws Exception {
+                    public void processElement(ParkTransWasteRec rawTrans, ProcessFunction<ParkTransWasteRec, ExdLocalTransaction>.Context ctx, Collector<ExdLocalTransaction> collector) throws Exception {
                         if (!rawTrans.isPrimaryTrans()) {
                             ctx.output(exdChangeTag, ExtensionMapper.INSTANCE.exdRawToTollChangeTrans(rawTrans));
                         } else {

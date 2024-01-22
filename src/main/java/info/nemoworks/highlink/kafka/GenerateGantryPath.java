@@ -23,7 +23,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * @description:
+ * @description: 简单路径数据模拟生成，每个线程生成一个 passID 的完整路径数据之后，再生成其他路径的数据
  * @author：jimi
  * @date: 2024/1/17
  * @Copyright：

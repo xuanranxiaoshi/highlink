@@ -6,6 +6,13 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonPro
 
 import lombok.Data;
 
+/**
+ * @description: 对应预处理输入中门架接收的 “ETC门架计费扣费交易数据接收表（tbl_GantryWasteRec）”
+ * @author：jimi
+ * @date: 2024/1/21
+ * @Copyright：
+ */
+
 @Data
 public class GantryRawTransaction implements HighwayTransaction, PathTransaction {
     @JsonProperty("TRADEID")

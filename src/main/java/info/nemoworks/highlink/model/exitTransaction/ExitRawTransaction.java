@@ -1,4 +1,4 @@
-package info.nemoworks.highlink.model.ExitTransaction;
+package info.nemoworks.highlink.model.exitTransaction;
 
 import info.nemoworks.highlink.model.HighwayTransaction;
 import info.nemoworks.highlink.model.PathTransaction;

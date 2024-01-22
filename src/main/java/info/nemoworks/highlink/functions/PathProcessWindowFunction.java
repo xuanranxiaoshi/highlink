@@ -1,9 +1,8 @@
 package info.nemoworks.highlink.functions;
 
 import info.nemoworks.highlink.model.EntryRawTransaction;
-import info.nemoworks.highlink.model.ExitTransaction.ExitRawTransaction;
+import info.nemoworks.highlink.model.exitTransaction.ExitRawTransaction;
 import info.nemoworks.highlink.model.PathTransaction;
-import info.nemoworks.highlink.model.gantryTransaction.GantryCpcTransaction;
 import info.nemoworks.highlink.model.gantryTransaction.GantryRawTransaction;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;

@@ -1,8 +1,7 @@
 package info.nemoworks.highlink.model.mapper;
 
-import info.nemoworks.highlink.model.ExitTransaction.*;
+import info.nemoworks.highlink.model.exitTransaction.*;
 import info.nemoworks.highlink.model.TollChangeTransactions;
-import info.nemoworks.highlink.model.extendTransaction.ExtendRawTransaction;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 

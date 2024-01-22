@@ -2,6 +2,7 @@ package info.nemoworks.highlink;
 
 import info.nemoworks.highlink.dataflow.*;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.contrib.streaming.state.EmbeddedRocksDBStateBackend;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
@@ -21,6 +22,10 @@ public class Main {
         // 2. 配置检查点
         String checkPath = "file:///WDC/users/chensc/modules/flink-1.18.0/checkpoints";
         setCheckPoint(checkPath, env);
+
+        // 3. 设置状态后端
+//        EmbeddedRocksDBStateBackend rocksDBStateBackend = new EmbeddedRocksDBStateBackend();
+//        env.setStateBackend(rocksDBStateBackend);
 
 
         // 3. 读入数据进行预处理

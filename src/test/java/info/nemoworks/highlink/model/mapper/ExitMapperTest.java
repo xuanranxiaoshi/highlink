@@ -1,13 +1,11 @@
 package info.nemoworks.highlink.model.mapper;
 
-import info.nemoworks.highlink.model.ExitTransaction.*;
+import info.nemoworks.highlink.model.exitTransaction.*;
 import info.nemoworks.highlink.model.RawTransactionFactory;
 import info.nemoworks.highlink.model.TollChangeTransactions;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

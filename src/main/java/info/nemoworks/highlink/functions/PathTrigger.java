@@ -1,11 +1,10 @@
 package info.nemoworks.highlink.functions;
 
-import info.nemoworks.highlink.model.ExitTransaction.ExitRawTransaction;
+import info.nemoworks.highlink.model.exitTransaction.ExitRawTransaction;
 import info.nemoworks.highlink.model.PathTransaction;
 import org.apache.flink.streaming.api.windowing.triggers.Trigger;
 import org.apache.flink.streaming.api.windowing.triggers.TriggerResult;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
-import org.apache.flink.streaming.api.windowing.windows.Window;
 
 /**
  * @description:
@@ -18,9 +17,8 @@ public class PathTrigger extends Trigger<PathTransaction, TimeWindow> {
 
     @Override
     public TriggerResult onElement(PathTransaction element, long timestamp, TimeWindow window, TriggerContext ctx) throws Exception {
+        // 超时或者 exit 数据到达，则窗口结束
         if (window.maxTimestamp() <= ctx.getCurrentWatermark() || element instanceof ExitRawTransaction) {
-            // if the watermark is already past the window or the exitTrans arrive
-            // fire immediately
             return TriggerResult.FIRE;
         } else {
             ctx.registerEventTimeTimer(window.maxTimestamp());
