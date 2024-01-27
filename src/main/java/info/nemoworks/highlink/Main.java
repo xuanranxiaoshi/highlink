@@ -24,8 +24,8 @@ public class Main {
         setCheckPoint(checkPath, env);
 
         // 3. 设置状态后端
-//        EmbeddedRocksDBStateBackend rocksDBStateBackend = new EmbeddedRocksDBStateBackend();
-//        env.setStateBackend(rocksDBStateBackend);
+        EmbeddedRocksDBStateBackend rocksDBStateBackend = new EmbeddedRocksDBStateBackend();
+        env.setStateBackend(rocksDBStateBackend);
 
 
         // 3. 读入数据进行预处理

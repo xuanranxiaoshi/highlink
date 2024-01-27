@@ -3,6 +3,7 @@ package info.nemoworks.highlink.kafka;
 import info.nemoworks.highlink.dataflow.PrepareDateFromFiles;
 import lombok.SneakyThrows;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
+
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
