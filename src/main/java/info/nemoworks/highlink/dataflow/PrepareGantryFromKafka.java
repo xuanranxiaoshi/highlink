@@ -5,7 +5,7 @@ import info.nemoworks.highlink.connector.KafkaConnectorHelper;
 import info.nemoworks.highlink.functions.*;
 import info.nemoworks.highlink.metric.LinkCounter;
 import info.nemoworks.highlink.model.EntryRawTransaction;
-import info.nemoworks.highlink.model.ExitTransaction.*;
+import info.nemoworks.highlink.model.exitTransaction.*;
 import info.nemoworks.highlink.model.HighwayTransaction;
 import info.nemoworks.highlink.model.PathTransaction;
 import info.nemoworks.highlink.model.TollChangeTransactions;
@@ -17,27 +17,20 @@ import info.nemoworks.highlink.model.mapper.ExitMapper;
 import info.nemoworks.highlink.model.mapper.ExtensionMapper;
 import info.nemoworks.highlink.model.mapper.GantryMapper;
 import info.nemoworks.highlink.sink.TransactionSinks;
-import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.flink.api.common.eventtime.*;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.connector.jdbc.JdbcSink;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
-import org.apache.flink.streaming.api.datastream.KeyedStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.streaming.api.functions.co.CoMapFunction;
-import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.assigners.EventTimeSessionWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
-import org.apache.flink.streaming.api.windowing.triggers.Trigger;
-import org.apache.flink.streaming.api.windowing.triggers.TriggerResult;
-import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
 
-import java.nio.file.Path;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
@@ -63,7 +56,7 @@ public class PrepareGantryFromKafka {
         // 2. 切分为不同的数据流
         final OutputTag<ExitRawTransaction> exitTrans = new OutputTag<ExitRawTransaction>("exitTrans") {
         };
-        final OutputTag<ExtendRawTransaction> extendTrans = new OutputTag<ExtendRawTransaction>("extendTrans") {
+        final OutputTag<ParkTransWasteRec> extendTrans = new OutputTag<ParkTransWasteRec>("extendTrans") {
         };
         final OutputTag<GantryRawTransaction> gantryTrans = new OutputTag<GantryRawTransaction>("gantryTrans") {
         };
@@ -80,9 +73,9 @@ public class PrepareGantryFromKafka {
                             if (value instanceof GantryRawTransaction) {
                                 ctx.output(gantryTrans, (GantryRawTransaction) value);
                             } else {
-                                if (value instanceof ExtendRawTransaction) {
+                                if (value instanceof ParkTransWasteRec) {
                                     ctx.output(extendTrans,
-                                            (ExtendRawTransaction) value);
+                                            (ParkTransWasteRec) value);
                                 } else {
                                     out.collect((EntryRawTransaction) value);
                                 }
@@ -91,12 +84,12 @@ public class PrepareGantryFromKafka {
                     }
                 })
                 .name("UnionStreamSplit")
-                .setParallelism(1);
+                .setParallelism(2);
 
         // 2. 将数据流按规则进行拆分
         DataStream<GantryRawTransaction> gantryStream = mainDataStream.getSideOutput(gantryTrans);
         DataStream<ExitRawTransaction> exitStream = mainDataStream.getSideOutput(exitTrans);
-        DataStream<ExtendRawTransaction> extendStream = mainDataStream.getSideOutput(extendTrans);
+        DataStream<ParkTransWasteRec> extendStream = mainDataStream.getSideOutput(extendTrans);
         DataStream<EntryRawTransaction> entryStream = mainDataStream.map(new LinkCounter<>("RawEntryTransCounter")).name("RawEntryTransCounter");
 
 
@@ -104,7 +97,7 @@ public class PrepareGantryFromKafka {
 
         SingleOutputStreamOperator<ExitRawTransaction> rawExitTrans = exitStream.map(new LinkCounter<>("RawExitTransCounter")).name("RawExitTransCounter");
 
-        SingleOutputStreamOperator<ExtendRawTransaction> rawExdTrans = extendStream.map(new LinkCounter<>("RawExdTransCounter")).name("RawExdTransCounter");
+        SingleOutputStreamOperator<ParkTransWasteRec> rawExdTrans = extendStream.map(new LinkCounter<>("RawExdTransCounter")).name("RawExdTransCounter");
 
 
         // 3.1 门架数据预处理:
@@ -183,8 +176,8 @@ public class PrepareGantryFromKafka {
                             throw new RuntimeException(e);
                         }
                         long timestamp = date.getTime();
-                        // 返回的时间戳，要 毫秒
-                        System.out.println("数据= { id: " + rawTransaction.getPASSID() + ", enTime: " + rawTransaction.getENTIME() + " }");
+                        // 返回的时间戳，毫秒
+                        // System.out.println("数据= { id: " + rawTransaction.getPASSID() + ", enTime: " + rawTransaction.getENTIME() + " }");
                         return timestamp;
                     }
                 })
@@ -199,9 +192,10 @@ public class PrepareGantryFromKafka {
                 .keyBy(PathTransaction::getPASSID)
                 .window(EventTimeSessionWindows.withGap(sessionGap))
                 .trigger(new PathTrigger())
-                .aggregate(new PathAggregateFunction(), new PathProcessWindowFunction());
+                .aggregate(new PathAggregateFunction(), new PathProcessWindowFunction())
+                .setParallelism(12);
 
-        aggregateCpaStream.print();
+        aggregateCpaStream.addSink(new TransactionSinks.PathLogSink());
     }
 
     private static void processGantryTrans(DataStream<GantryRawTransaction> gantryStream) {
@@ -237,7 +231,7 @@ public class PrepareGantryFromKafka {
         addSinkToStream(gantryEtcStream, GantryEtcTransaction.class, "gantryEtcStream");
     }
 
-    private static void processExdTrans(DataStream<ExtendRawTransaction> parkStream) {
+    private static void processExdTrans(DataStream<ParkTransWasteRec> parkStream) {
         final OutputTag<TollChangeTransactions> exdChangeTag = new OutputTag<>("extChangeTrans") {
         };
         final OutputTag<ExdForeignGasTransaction> extForeignGasTag = new OutputTag<>("extForeignGasTrans") {
@@ -246,9 +240,9 @@ public class PrepareGantryFromKafka {
         };
         final OutputTag<ExdForeignParkTransaction> extForeignParkTag = new OutputTag<>("extForeignParkTrans") {
         };
-        SingleOutputStreamOperator<ExdLocalTransaction> allTransStream = parkStream.process(new ProcessFunction<ExtendRawTransaction, ExdLocalTransaction>() {
+        SingleOutputStreamOperator<ExdLocalTransaction> allTransStream = parkStream.process(new ProcessFunction<ParkTransWasteRec, ExdLocalTransaction>() {
                     @Override
-                    public void processElement(ExtendRawTransaction rawTrans, ProcessFunction<ExtendRawTransaction, ExdLocalTransaction>.Context ctx, Collector<ExdLocalTransaction> collector) throws Exception {
+                    public void processElement(ParkTransWasteRec rawTrans, ProcessFunction<ParkTransWasteRec, ExdLocalTransaction>.Context ctx, Collector<ExdLocalTransaction> collector) throws Exception {
                         if (!rawTrans.isPrimaryTrans()) {
                             ctx.output(exdChangeTag, ExtensionMapper.INSTANCE.exdRawToTollChangeTrans(rawTrans));
                         } else {
@@ -268,7 +262,6 @@ public class PrepareGantryFromKafka {
                 })
                 .name("ExdTransProcess")
                 .setParallelism(2);
-//                .map(new LinkCounter<>("processExdTrans"));
 
 
         DataStream<TollChangeTransactions> exchangeStream = allTransStream.getSideOutput(exdChangeTag).map(new LinkCounter<>("extChangeCounter")).name("extChangeCounter");
@@ -346,6 +339,11 @@ public class PrepareGantryFromKafka {
         addSinkToStream(localETCTrans, ExitLocalETCTrans.class, "localETCTrans");
     }
 
+
+
+    private static void addLogSinkToStream(DataStream dataStream, Class clazz, String name){
+        dataStream.addSink(new TransactionSinks.LogSink<>());
+    }
     public static void addSinkToStream(DataStream dataStream, Class clazz) {
 //        dataStream.addSink(new TransactionSinks.LogSink<>());
         dataStream.addSink(JdbcSink.sink(

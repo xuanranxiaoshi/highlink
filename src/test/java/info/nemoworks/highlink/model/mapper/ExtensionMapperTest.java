@@ -18,7 +18,7 @@ public class ExtensionMapperTest {
     // given
     JsonNode extendRaw = new ObjectMapper().readTree(ExtensionMapperTest.class.getResourceAsStream("/extendraw.json"));
 
-    ExtendRawTransaction rawTransaction = (ExtendRawTransaction) RawTransactionFactory.fromJson(extendRaw);
+    ParkTransWasteRec rawTransaction = (ParkTransWasteRec) RawTransactionFactory.fromJson(extendRaw);
 
     public ExtensionMapperTest() throws Exception {
     }

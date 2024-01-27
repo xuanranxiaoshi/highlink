@@ -150,4 +150,5 @@ buildNumber.properties
 
 =======
 >>>>>>> 0f13a86debee9b1517ea73d343df79c90a8d15e6
-# End of https://www.toptal.com/developers/gitignore/api/intellij+all,maven,macos
+# End of https://www.toptal.com/developers/gitignore/api/intellij+all,maven,macos!/.gitignore
+!/.gitignore

@@ -2,12 +2,9 @@ package info.nemoworks.highlink.connector;
 
 import info.nemoworks.highlink.kafka.HighwayTransDeSerializer;
 import info.nemoworks.highlink.kafka.JsonDeSerializer;
-import info.nemoworks.highlink.kafka.KafkaProducerEmulator;
 import info.nemoworks.highlink.model.HighwayTransaction;
-import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,7 +20,7 @@ public class KafkaConnectorHelper {
     public static Properties getKafkaProperties(){
         Properties props = new Properties();
         //props.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "192.168.80.188:9092");
-        InputStream input = KafkaProducerEmulator.class.getClassLoader().getResourceAsStream("kafkaBasic.properties");
+        InputStream input = KafkaConnectorHelper.class.getClassLoader().getResourceAsStream("kafkaBasic.properties");
         try {
             props.load(input);
         } catch (IOException e) {
@@ -45,6 +42,7 @@ public class KafkaConnectorHelper {
     public static KafkaSource getKafkaHighWayTransSource(String topic){
         return KafkaSource.<HighwayTransaction>builder()
                 .setProperties(KafkaConnectorHelper.getKafkaProperties())
+                .setGroupId("flink")
                 .setTopics(topic)
                 .setValueOnlyDeserializer(new HighwayTransDeSerializer())
                 .setStartingOffsets(OffsetsInitializer.latest())

@@ -1,10 +1,12 @@
-package info.nemoworks.highlink.model.ExitTransaction;
+package info.nemoworks.highlink.model.exitTransaction;
 
 import info.nemoworks.highlink.model.HighwayTransaction;
 import info.nemoworks.highlink.model.PathTransaction;
+import info.nemoworks.highlink.model.mapper.BinaryToHexDeserializer;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @Data
 public class ExitRawTransaction implements HighwayTransaction, PathTransaction {
@@ -218,6 +220,7 @@ public class ExitRawTransaction implements HighwayTransaction, PathTransaction {
     @JsonProperty("LANESPINFO")
     private double lANESPINFO;
     @JsonProperty("SPINFO")
+    @JsonDeserialize(using = BinaryToHexDeserializer.class)
     private String sPINFO;
     @JsonProperty("VEHICLESIGNID")
     private String vEHICLESIGNID;

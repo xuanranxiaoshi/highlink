@@ -1,4 +1,4 @@
-package info.nemoworks.highlink.model.ExitTransaction;
+package info.nemoworks.highlink.model.exitTransaction;
 
 import info.nemoworks.highlink.model.HighwayTransaction;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
@@ -6,11 +6,9 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonPro
 import lombok.Data;
 
 @Data
-public class ExitForeignOtherTrans implements HighwayTransaction{
+public class ExitForeignETCTrans implements HighwayTransaction{
     @JsonProperty("ID")
     public String iD;
-    @JsonProperty("WASTETYPE")
-    public int wASTETYPE;
     @JsonProperty("MODIFYFLAG")
     public int mODIFYFLAG;
     @JsonProperty("MULTIPROVINCE")
@@ -19,20 +17,24 @@ public class ExitForeignOtherTrans implements HighwayTransaction{
     public int mEDIATYPE;
     @JsonProperty("MEDIANO")
     public long mEDIANO;
-    @JsonProperty("EXITFEETYPE")
-    public int eXITFEETYPE;
+    @JsonProperty("TRANSPAYTYPE")
+    public int tRANSPAYTYPE;
     @JsonProperty("TOLLPROVINCEID")
     public int tOLLPROVINCEID;
+    @JsonProperty("ISSUERID")
+    public int iSSUERID;
     @JsonProperty("OBUSIGN")
     public String oBUSIGN;
     @JsonProperty("IDENTIFICATION")
     public int iDENTIFICATION;
+    @JsonProperty("OBUID")
+    public String oBUID;
     @JsonProperty("ETCCARDTYPE")
-    public String eTCCARDTYPE;
-    @JsonProperty("CARDNET")
-    public String cARDNET;
-    @JsonProperty("CARDID")
-    public int cARDID;
+    public int eTCCARDTYPE;
+    @JsonProperty("ETCCARDNET")
+    public int eTCCARDNET;
+    @JsonProperty("ETCCARDID")
+    public long eTCCARDID;
     @JsonProperty("EXTIME")
     public String eXTIME;
     @JsonProperty("VLP")
@@ -49,6 +51,22 @@ public class ExitForeignOtherTrans implements HighwayTransaction{
     public int vEHICLETYPE;
     @JsonProperty("VEHICLECLASS")
     public int vEHICLECLASS;
+    @JsonProperty("TAC")
+    public String tAC;
+    @JsonProperty("TRANSFEE")
+    public int tRANSFEE;
+    @JsonProperty("TRANSTYPE")
+    public String tRANSTYPE;
+    @JsonProperty("PAYCARDTRANSN")
+    public int pAYCARDTRANSN;
+    @JsonProperty("TERMINALTRANSNO")
+    public String tERMINALTRANSNO;
+    @JsonProperty("TERMINALNO")
+    public String tERMINALNO;
+    @JsonProperty("PREBALANCE")
+    public long pREBALANCE;
+    @JsonProperty("POSTBALANCE")
+    public long pOSTBALANCE;
     @JsonProperty("DESCRIPTION")
     public int dESCRIPTION;
     @JsonProperty("LANESPINFO")
@@ -84,7 +102,7 @@ public class ExitForeignOtherTrans implements HighwayTransaction{
     @JsonProperty("EXTOLLSTATIONNAME")
     public String eXTOLLSTATIONNAME;
     @JsonProperty("EXTOLLSTATION")
-    public String eXTOLLSTATION;
+    public int eXTOLLSTATION;
     @JsonProperty("EXTOLLLANE")
     public int eXTOLLLANE;
     @JsonProperty("EXTOLLSTATIONID")
@@ -92,9 +110,9 @@ public class ExitForeignOtherTrans implements HighwayTransaction{
     @JsonProperty("EXTOLLLANEID")
     public String eXTOLLLANEID;
     @JsonProperty("EXTOLLSTATIONHEX")
-    public String eXTOLLSTATIONHEX;
+    public int eXTOLLSTATIONHEX;
     @JsonProperty("EXTOLLLANEHEX")
-    public String eXTOLLLANEHEX;
+    public long eXTOLLLANEHEX;
     @JsonProperty("EXWEIGHT")
     public int eXWEIGHT;
     @JsonProperty("AXLECOUNT")
@@ -116,7 +134,7 @@ public class ExitForeignOtherTrans implements HighwayTransaction{
     @JsonProperty("SHIFT")
     public int sHIFT;
     @JsonProperty("OPERID")
-    public String oPERID;
+    public int oPERID;
     @JsonProperty("OPERNAME")
     public String oPERNAME;
     @JsonProperty("LANEAPPVER")
@@ -127,32 +145,18 @@ public class ExitForeignOtherTrans implements HighwayTransaction{
     public String pARAVER;
     @JsonProperty("CHECKSIGN")
     public int cHECKSIGN;
-    @JsonProperty("LANETYPE")
-    public int lANETYPE;
     @JsonProperty("OPEN")
     public int oPEN;
+    @JsonProperty("LANETYPE")
+    public int lANETYPE;
     @JsonProperty("BL_SUBCENTER")
-    public String bL_SUBCENTER;
+    public int bL_SUBCENTER;
     @JsonProperty("BL_CENTER")
-    public String bL_CENTER;
+    public int bL_CENTER;
     @JsonProperty("LDATE")
     public String lDATE;
     @JsonProperty("BATCHNUM")
     public String bATCHNUM;
-    @JsonProperty("PAKAGEID")
-    public String pAKAGEID;
-    @JsonProperty("PAKAGETIME")
-    public String pAKAGETIME;
-    @JsonProperty("CHARGEBATCH")
-    public String cHARGEBATCH;
-    @JsonProperty("PAYCARDTRANSN")
-    public int pAYCARDTRANSN;
-    @JsonProperty("PAYORDERNUM")
-    public String pAYORDERNUM;
-    @JsonProperty("PAYCODE")
-    public String pAYCODE;
-    @JsonProperty("VERIFYPASSTIME")
-    public String vERIFYPASSTIME;
     @JsonProperty("PASSID")
     public String pASSID;
     @JsonProperty("VEHICLESIGN")
@@ -171,8 +175,8 @@ public class ExitForeignOtherTrans implements HighwayTransaction{
     public int sHORTFEE;
     @JsonProperty("SHORTFEEMILEAGE")
     public int sHORTFEEMILEAGE;
-    @JsonProperty("FEERATE")
-    public int fEERATE;
+    @JsonProperty("EXITFEETYPE")
+    public int eXITFEETYPE;
     @JsonProperty("SPCRATEVERSION")
     public int sPCRATEVERSION;
     @JsonProperty("CARDTOTALAMOUNT")
@@ -195,36 +199,56 @@ public class ExitForeignOtherTrans implements HighwayTransaction{
     public String pROVINCEDISCOUNTFEE;
     @JsonProperty("ORIGINFEE")
     public String oRIGINFEE;
-    @JsonProperty("ROADTYPE")
-    public int rOADTYPE;
-    @JsonProperty("PAYTYPE")
-    public int pAYTYPE;
     @JsonProperty("SIGNSTATUS")
     public int sIGNSTATUS;
-    @JsonProperty("GENTIME")
-    public String gENTIME;
+    @JsonProperty("ROADTYPE")
+    public int rOADTYPE;
+    @JsonProperty("VERIFYPASSTIME")
+    public String vERIFYPASSTIME;
     @JsonProperty("STATIONRECEIVETIME")
     public String sTATIONRECEIVETIME;
     @JsonProperty("RECEIVETIME")
     public String rECEIVETIME;
-    @JsonProperty("BATCHFILENAME")
-    public String bATCHFILENAME;
+    @JsonProperty("GENTIME")
+    public String gENTIME;
+    @JsonProperty("MESSAGEID")
+    public String mESSAGEID;
+    @JsonProperty("REMARKS")
+    public String rEMARKS;
     @JsonProperty("STATUS")
     public int sTATUS;
-    @JsonProperty("PROTIME")
-    public String pROTIME;
     @JsonProperty("RESPONSECODE")
     public int rESPONSECODE;
     @JsonProperty("RESPONSEINFO")
     public String rESPONSEINFO;
     @JsonProperty("NATIONRECEIVETIME")
     public String nATIONRECEIVETIME;
-    @JsonProperty("SPLITCHECKDATE")
-    public String sPLITCHECKDATE;
-    @JsonProperty("SPLITCHECKSTATUS")
-    public int sPLITCHECKSTATUS;
-    @JsonProperty("SPLITCHECKTIME")
-    public String sPLITCHECKTIME;
+    @JsonProperty("PROTIME")
+    public String pROTIME;
+    @JsonProperty("BATCHFILENAME")
+    public String bATCHFILENAME;
+    @JsonProperty("CHARGESTATUS")
+    public int cHARGESTATUS;
+    @JsonProperty("ISSUECHARGETIME")
+    public String iSSUECHARGETIME;
+    @JsonProperty("CHARGERECEIVETIME")
+    public String cHARGERECEIVETIME;
+    @JsonProperty("CHARGETIME")
+    public String cHARGETIME;
+    @JsonProperty("DISPUTEDTYPE")
+    public String dISPUTEDTYPE;
+    @JsonProperty("DISPUTEDDESC")
+    public String dISPUTEDDESC;
+    @JsonProperty("DISPUTEDPROTIME")
+    public String dISPUTEDPROTIME;
+    @JsonProperty("DISPUTEDVERSION")
+    public String dISPUTEDVERSION;
+    @JsonProperty("NATIONCLEARDATE")
+    public String nATIONCLEARDATE;
+    @JsonProperty("NATIONCLEARFLAG")
+    public int nATIONCLEARFLAG;
+    @JsonProperty("NATIONCLEARTIME")
+    public String nATIONCLEARTIME;
     @JsonProperty("SPLITINFEE")
     public int sPLITINFEE;
     @JsonProperty("SPLITCROSSFEE")
@@ -271,18 +295,44 @@ public class ExitForeignOtherTrans implements HighwayTransaction{
     public String sPARE2;
     @JsonProperty("SPARE3")
     public String sPARE3;
-    @JsonProperty("CHARGERESULT")
-    public int cHARGERESULT;
-    @JsonProperty("ISSUECHARGETIME")
-    public String iSSUECHARGETIME;
+    @JsonProperty("CHARGEFEE")
+    public int cHARGEFEE;
+    @JsonProperty("CHARGEDISCOUNTTYPE")
+    public String cHARGEDISCOUNTTYPE;
+    @JsonProperty("CHARGEPROVINCEDISCOUNTFEE")
+    public String cHARGEPROVINCEDISCOUNTFEE;
+    @JsonProperty("CHARGERORIGINFEE")
+    public String cHARGERORIGINFEE;
+    @JsonProperty("FEERATE")
+    public int fEERATE;
     @JsonProperty("SPLITOWNERGROUP1")
     public String sPLITOWNERGROUP1;
     @JsonProperty("SPLITOWNERGROUP2")
     public String sPLITOWNERGROUP2;
+    @JsonProperty("SECFREETYPE")
+    public int sECFREETYPE;
+    @JsonProperty("SECPRORESULT")
+    public int sECPRORESULT;
+    @JsonProperty("SECPROTIME")
+    public String sECPROTIME;
+    @JsonProperty("SECBEFFEE")
+    public String sECBEFFEE;
+    @JsonProperty("SECFREEFEE")
+    public String sECFREEFEE;
     @JsonProperty("ORIGINALFLAG")
     public int oRIGINALFLAG;
+    @JsonProperty("PACKTIME")
+    public String pACKTIME;
+    @JsonProperty("SPLITCHECKDATE")
+    public String sPLITCHECKDATE;
+    @JsonProperty("SPLITCHECKSTATUS")
+    public String sPLITCHECKSTATUS;
+    @JsonProperty("SPLITCHECKTIME")
+    public String sPLITCHECKTIME;
     @JsonProperty("VACCINEFLAG")
     public int vACCINEFLAG;
     @JsonProperty("APPOINTID")
     public String aPPOINTID;
+    @JsonProperty("CHARGEAPPOINTID")
+    public String cHARGEAPPOINTID;
 }

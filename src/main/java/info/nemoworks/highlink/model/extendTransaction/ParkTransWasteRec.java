@@ -2,11 +2,17 @@ package info.nemoworks.highlink.model.extendTransaction;
 
 import info.nemoworks.highlink.model.HighwayTransaction;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
-
 import lombok.Data;
 
+/**
+ * @description: 对应预处理输入中拓展接收的 “停车场ETC交易流水接收表（tbl_ParkTransWasteRec）”， 其他输入未使用
+ * @author：jimi
+ * @date: 2024/1/21
+ * @Copyright：
+ */
+
 @Data
-public class ExtendRawTransaction implements HighwayTransaction {
+public class ParkTransWasteRec implements HighwayTransaction {
     @JsonProperty("ID")
     private double iD;
     @JsonProperty("PARKOPERATORID")

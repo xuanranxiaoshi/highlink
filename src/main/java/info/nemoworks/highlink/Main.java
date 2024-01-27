@@ -2,6 +2,7 @@ package info.nemoworks.highlink;
 
 import info.nemoworks.highlink.dataflow.*;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.contrib.streaming.state.EmbeddedRocksDBStateBackend;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
@@ -16,24 +17,34 @@ public class Main {
         // 本地 web-ui 显示方式
         // StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(new Configuration());
 
-         env.setParallelism(1);
+        // env.setParallelism(1);
 
-        // 2. 配置检查点信息
-        env.enableCheckpointing(5000, CheckpointingMode.EXACTLY_ONCE);
-        CheckpointConfig checkpointConfig = env.getCheckpointConfig();
+        // 2. 配置检查点
+        String checkPath = "file:///WDC/users/chensc/modules/flink-1.18.0/checkpoints";
+        setCheckPoint(checkPath, env);
 
-        // todo: 指定 checkpoint 的存储位置，格式为 file://...
-        checkpointConfig.setCheckpointStorage("file:///WDC/users/chensc/modules/flink-1.18.0/checkpoints");
-        checkpointConfig.setMaxConcurrentCheckpoints(1);
-        checkpointConfig.setMinPauseBetweenCheckpoints(1000);
-        checkpointConfig.setExternalizedCheckpointCleanup(CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
-        checkpointConfig.setTolerableCheckpointFailureNumber(10);
+        // 3. 设置状态后端
+        EmbeddedRocksDBStateBackend rocksDBStateBackend = new EmbeddedRocksDBStateBackend();
+        env.setStateBackend(rocksDBStateBackend);
 
-        // 2. 读入数据进行预处理
+
+        // 3. 读入数据进行预处理
         // PrepareDateFromFiles.start(env);
         PrepareGantryFromKafka.start(env);
 
 
         env.execute();
+    }
+
+    public static void setCheckPoint(String path, StreamExecutionEnvironment env){
+        // 配置检查点信息
+        env.enableCheckpointing(5000, CheckpointingMode.EXACTLY_ONCE);
+        CheckpointConfig checkpointConfig = env.getCheckpointConfig();
+
+        checkpointConfig.setCheckpointStorage(path);
+        checkpointConfig.setMaxConcurrentCheckpoints(1);
+        checkpointConfig.setMinPauseBetweenCheckpoints(1000);
+        checkpointConfig.setExternalizedCheckpointCleanup(CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
+        checkpointConfig.setTolerableCheckpointFailureNumber(10);
     }
 }

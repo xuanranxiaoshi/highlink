@@ -1,11 +1,20 @@
 package info.nemoworks.highlink.model;
 
+import info.nemoworks.highlink.model.mapper.BinaryToHexDeserializer;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+/**
+ * @description: 对应预处理输入中入口接收的 “入口车道流水接收表（tbl_EnWasteRec）”
+ * @author：jimi
+ * @date: 2024/1/21
+ * @Copyright：
+ */
 
 @Data
-public class EntryRawTransaction implements HighwayTransaction, PathTransaction{
+public class EntryRawTransaction implements HighwayTransaction, PathTransaction {
 
     @JsonProperty("ID")
     private String iD;
@@ -128,8 +137,10 @@ public class EntryRawTransaction implements HighwayTransaction, PathTransaction{
     @JsonProperty("SPECIALTYPE")
     private Object sPECIALTYPE;
     @JsonProperty("LANESPINFO")
+    @JsonDeserialize(using = BinaryToHexDeserializer.class)
     private Object lANESPINFO;
     @JsonProperty("SPINFO")
+    @JsonDeserialize(using = BinaryToHexDeserializer.class)
     private String sPINFO;
     @JsonProperty("VEHICLESIGNID")
     private String vEHICLESIGNID;
@@ -194,4 +205,7 @@ public class EntryRawTransaction implements HighwayTransaction, PathTransaction{
     public String getID() {
         return this.iD;
     }
+
 }
+
+
