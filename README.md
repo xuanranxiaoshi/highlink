@@ -65,7 +65,12 @@ localhost:8081
 checkpointConfig.setCheckpointStorage("file:///WDC/users/chensc/modules/flink-1.18.0/checkpoints");
 ```
 ## 二、程序运行
-- 运行前请确保数据库和 kafka 服务已经启动 ！！！
+- **提示**：运行前请确保数据库和 kafka 服务已经启动 ！！！
+- **版本说明**：目前实现了同时对10万辆车的路径聚合测试，数据处理速度为 200条/秒，为此涉及到以下的代码更新，需要在服务器上进行配置调优:
+
+: (1) 采用新的数据生成代码 `info.nemoworks.highlink.kafka.GenerateBigWindowGantryPath`, 基本设置是使用 40 个线程，同时生成10万条路径数据（包括entry,gantry,exit； 路径长度为10），数据内容基本相同，此后会采用更真实的数据模拟系统
+: (2) 路径聚合期间，在车辆下高速之前（收到 exit 数据，或者超时）需要保存记录此前已有的路径状态，这里采用 `RocksDBStateBackend` 状态后端以保证充足的数据存储空间；容错策略为每 10s 进行一次通用增量 checkpoint 存储，具体设置值见第二点服务器运行说明
+
 ### 1. ide 本地运行（不需要配置 flink 环境）
 - 修改 `info.nemoworks.highlink.Main` 中的 flink 执行环境如下所示（注释第一行，使用第二行），以在本地显示 flink web-ui
 ```
@@ -86,10 +91,30 @@ checkpointConfig.setCheckpointStorage("file:///WDC/users/chensc/modules/flink-1.
 
 ### 2. 服务器运行 （需要配置 flink 环境）
 - 将程序打包，将 jar 包（highlink-0.0.1-SNAPSHOT-jar-with-dependencies.jar）上传到 flink 安装目录下
+- 配置 flink 服务器, 分配 6G 内存，启用增量 checkpoint，配置存储位置
+```agsl
+# 重新分配 flink 的内存大小
+taskmanager.memory.process.size: 6144m
+taskmanager.memory.managed.fraction: 0.4
+taskmanager.memory.network.fraction: 0.05
+# 启用状态后端的通用增量 checkpoint
+state.backend.changelog.enabled: true
+state.backend.changelog.storage: filesystem
+dstl.dfs.base-path: file:///WDC/users/chensc/modules/flink-1.18.0/changeLog/
+state.backend.changelog.periodic-materialize.interval: 3 min
+```
+- 启动集群
+```
+./bin/start-cluster.sh
+```
 - 通过命令行，向集群提交任务（-m 后的服务器地址根据自己配置的 master 调整）：
 ```
 ./bin/flink run -m localhost:8081 -c info.nemoworks.highlink.Main ./highlink-0.0.1-SNAPSHOT-jar-with-dependencies.jar
 ```
-- 在 flink 的 web-ui 上查看 Running Job 的详细信息
-- 向kafka 发送数据
+- 运行 `info.nemoworks.highlink.kafka.GenerateBigWindowGantryPath` 产生路径数据
+- 在 flink 的 web-ui 上查看 Running Job 的详细信息, 数据流相对于此前增加了数据聚合窗口
+![dataflow2.png](src%2Fmain%2Fresources%2Fstatic%2Fdataflow2.png)
 - 查看数量流处理过程中的 metric
+- 查看 checkpoint 保存情况：定时、通用增量式存储; CheckPointed Data Size 为当前检查点相对于上一轮新增的数据，Full Checkpoint Data Size 为检查点当前的数据总量
+![checkpoints.png](src%2Fmain%2Fresources%2Fstatic%2Fcheckpoints.png)
+
