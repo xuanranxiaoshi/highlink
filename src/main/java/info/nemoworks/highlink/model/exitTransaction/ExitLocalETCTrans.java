@@ -80,7 +80,7 @@ public class ExitLocalETCTrans implements HighwayTransaction{
     @JsonProperty("ENTOLLSTATION")
     public String eNTOLLSTATION;
     @JsonProperty("ENTOLLLANE")
-    public int eNTOLLLANE;
+    public String eNTOLLLANE;
     @JsonProperty("ENTOLLSTATIONID")
     public String eNTOLLSTATIONID;
     @JsonProperty("ENTOLLLANEID")
@@ -104,7 +104,7 @@ public class ExitLocalETCTrans implements HighwayTransaction{
     @JsonProperty("EXTOLLSTATION")
     public String eXTOLLSTATION;
     @JsonProperty("EXTOLLLANE")
-    public int eXTOLLLANE;
+    public String eXTOLLLANE;
     @JsonProperty("EXTOLLSTATIONID")
     public String eXTOLLSTATIONID;
     @JsonProperty("EXTOLLLANEID")

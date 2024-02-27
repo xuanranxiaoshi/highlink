@@ -49,13 +49,13 @@ public class EntryRawTransaction implements HighwayTransaction, PathTransaction 
     @JsonProperty("LANETYPE")
     private int lANETYPE;
     @JsonProperty("ENTOLLSTATION")
-    private Object eNTOLLSTATION;
+    private String eNTOLLSTATION;
     @JsonProperty("ENTOLLLANE")
-    private Object eNTOLLLANE;
+    private String eNTOLLLANE;
     @JsonProperty("ENTOLLSTATIONHEX")
-    private Object eNTOLLSTATIONHEX;
+    private String eNTOLLSTATIONHEX;
     @JsonProperty("ENTOLLLANEHEX")
-    private Object eNTOLLLANEHEX;
+    private String eNTOLLLANEHEX;
     @JsonProperty("ENTOLLSTATIONID")
     private String eNTOLLSTATIONID;
     @JsonProperty("ENTOLLLANEID")
@@ -65,7 +65,7 @@ public class EntryRawTransaction implements HighwayTransaction, PathTransaction 
     @JsonProperty("MEDIATYPE")
     private int mEDIATYPE;
     @JsonProperty("OBUSIGN")
-    private Object oBUSIGN;
+    private int oBUSIGN;
     @JsonProperty("OBUISSUEFLAG")
     private String oBUISSUEFLAG;
     @JsonProperty("OBUID")

@@ -8,6 +8,8 @@ import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
+import java.time.Duration;
+
 public class Main {
 
     public static void main(String[] args) throws Exception {
@@ -21,11 +23,12 @@ public class Main {
 
         // 2. 配置检查点
         String checkPath = "file:///WDC/users/chensc/modules/flink-1.18.0/checkpoints";
+        // String checkPath = "file:///tmp/flinkCheckPoints";
         setCheckPoint(checkPath, env);
 
         // 3. 设置状态后端
-//        EmbeddedRocksDBStateBackend rocksDBStateBackend = new EmbeddedRocksDBStateBackend();
-//        env.setStateBackend(rocksDBStateBackend);
+        EmbeddedRocksDBStateBackend rocksDBStateBackend = new EmbeddedRocksDBStateBackend(true);
+        env.setStateBackend(rocksDBStateBackend);
 
 
         // 3. 读入数据进行预处理
@@ -37,8 +40,12 @@ public class Main {
     }
 
     public static void setCheckPoint(String path, StreamExecutionEnvironment env){
+
+
+
         // 配置检查点信息
-        env.enableCheckpointing(5000, CheckpointingMode.EXACTLY_ONCE);
+        env.enableCheckpointing(20000, CheckpointingMode.EXACTLY_ONCE);
+
         CheckpointConfig checkpointConfig = env.getCheckpointConfig();
 
         checkpointConfig.setCheckpointStorage(path);
@@ -46,5 +53,14 @@ public class Main {
         checkpointConfig.setMinPauseBetweenCheckpoints(1000);
         checkpointConfig.setExternalizedCheckpointCleanup(CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
         checkpointConfig.setTolerableCheckpointFailureNumber(10);
+        checkpointConfig.setCheckpointTimeout(20 * 1000 * 60);
+
+        // 启动非 barrier 对齐
+//        checkpointConfig.enableUnalignedCheckpoints();
+//        checkpointConfig.setAlignedCheckpointTimeout(Duration.ofSeconds(1));
+        // 启动 changelog
+        env.enableChangelogStateBackend(true);
+
+
     }
 }

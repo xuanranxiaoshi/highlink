@@ -86,7 +86,7 @@ public class ExitForeignOtherTrans implements HighwayTransaction{
     @JsonProperty("EXTOLLSTATION")
     public String eXTOLLSTATION;
     @JsonProperty("EXTOLLLANE")
-    public int eXTOLLLANE;
+    public String eXTOLLLANE;
     @JsonProperty("EXTOLLSTATIONID")
     public String eXTOLLSTATIONID;
     @JsonProperty("EXTOLLLANEID")

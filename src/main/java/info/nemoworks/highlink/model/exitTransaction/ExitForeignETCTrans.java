@@ -102,17 +102,17 @@ public class ExitForeignETCTrans implements HighwayTransaction{
     @JsonProperty("EXTOLLSTATIONNAME")
     public String eXTOLLSTATIONNAME;
     @JsonProperty("EXTOLLSTATION")
-    public int eXTOLLSTATION;
+    public String eXTOLLSTATION;
     @JsonProperty("EXTOLLLANE")
-    public int eXTOLLLANE;
+    public String eXTOLLLANE;
     @JsonProperty("EXTOLLSTATIONID")
     public String eXTOLLSTATIONID;
     @JsonProperty("EXTOLLLANEID")
     public String eXTOLLLANEID;
     @JsonProperty("EXTOLLSTATIONHEX")
-    public int eXTOLLSTATIONHEX;
+    public String eXTOLLSTATIONHEX;
     @JsonProperty("EXTOLLLANEHEX")
-    public long eXTOLLLANEHEX;
+    public String eXTOLLLANEHEX;
     @JsonProperty("EXWEIGHT")
     public int eXWEIGHT;
     @JsonProperty("AXLECOUNT")
