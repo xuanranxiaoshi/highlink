@@ -9,5 +9,5 @@ package info.nemoworks.highlink.model;
 public interface PathTransaction extends HighwayTransaction{
     public String getPASSID();
 
-    public String getENTIME();
+    public String getTime();
 }

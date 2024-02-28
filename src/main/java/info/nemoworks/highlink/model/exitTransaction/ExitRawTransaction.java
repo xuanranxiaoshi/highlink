@@ -411,4 +411,9 @@ public class ExitRawTransaction implements HighwayTransaction, PathTransaction {
     public boolean isTruck() {
         return this.getEXVEHICLETYPE() == 12;
     }
+
+    @Override
+    public String getTime() {
+        return eXTIME;
+    }
 }

@@ -15,13 +15,12 @@ import java.util.LinkedList;
 public class PathAggregateFunction implements AggregateFunction<PathTransaction, LinkedList<PathTransaction>, LinkedList<PathTransaction>> {
     @Override
     public LinkedList<PathTransaction> createAccumulator() {
-        System.out.println("================= Path begin =====================！");
         return new LinkedList<>();
     }
 
     @Override
     public LinkedList<PathTransaction> add(PathTransaction pathTransaction, LinkedList<PathTransaction> pathTransactions) {
-        System.out.println("Add value = { passId: " + pathTransaction.getPASSID() + ", enTime: " + pathTransaction.getENTIME() +"}");
+        System.out.println("{ passId: " + pathTransaction.getPASSID() + ", time: " + pathTransaction.getTime() +"}");
         pathTransactions.add(pathTransaction);
         return pathTransactions;
     }

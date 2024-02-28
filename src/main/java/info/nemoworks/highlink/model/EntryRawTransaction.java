@@ -206,6 +206,10 @@ public class EntryRawTransaction implements HighwayTransaction, PathTransaction 
         return this.iD;
     }
 
+    @Override
+    public String getTime() {
+        return eNTIME;
+    }
 }
 
 

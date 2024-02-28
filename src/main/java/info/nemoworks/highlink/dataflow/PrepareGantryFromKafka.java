@@ -171,7 +171,7 @@ public class PrepareGantryFromKafka {
                         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                         Date date = null;
                         try {
-                            date = dateFormat.parse(rawTransaction.getENTIME());
+                            date = dateFormat.parse(rawTransaction.getTime());
                         } catch (ParseException e) {
                             throw new RuntimeException(e);
                         }

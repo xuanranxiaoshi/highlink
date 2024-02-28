@@ -45,11 +45,11 @@ public class PathProcessWindowFunction extends ProcessWindowFunction<LinkedList<
         for (int i = 0; i < transList.size(); i++) {
             PathTransaction pathTransaction = transList.get(i);
             if( pathTransaction instanceof EntryRawTransaction){
-                stringBuilder.append("EntryRaw { psID: " + pathTransaction.getPASSID() + ", enTime: " + pathTransaction.getENTIME() +" } ");
+                stringBuilder.append("EntryRaw { psID: " + pathTransaction.getPASSID() + ", time: " + pathTransaction.getTime() +" } ");
             }else if (pathTransaction instanceof GantryRawTransaction){
-                stringBuilder.append("GantryRaw { psID: " + pathTransaction.getPASSID() + ", enTime: " + pathTransaction.getENTIME() +" } ");
+                stringBuilder.append("GantryRaw { psID: " + pathTransaction.getPASSID() + ", time: " + pathTransaction.getTime() +" } ");
             }else if (pathTransaction instanceof ExitRawTransaction){
-                stringBuilder.append("ExitRaw { psID: " + pathTransaction.getPASSID() + ", enTime: " + pathTransaction.getENTIME() +" } ");
+                stringBuilder.append("ExitRaw { psID: " + pathTransaction.getPASSID() + ", time: " + pathTransaction.getTime() +" } ");
             }
         }
         stringBuilder.append("]");
