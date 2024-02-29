@@ -1,5 +1,6 @@
 package info.nemoworks.highlink.dataflow;
 
+import info.nemoworks.highlink.connector.Configure;
 import info.nemoworks.highlink.connector.JdbcConnectorHelper;
 import info.nemoworks.highlink.connector.KafkaConnectorHelper;
 import info.nemoworks.highlink.functions.*;
@@ -18,14 +19,18 @@ import info.nemoworks.highlink.model.mapper.ExtensionMapper;
 import info.nemoworks.highlink.model.mapper.GantryMapper;
 import info.nemoworks.highlink.sink.TransactionSinks;
 import org.apache.flink.api.common.eventtime.*;
+import org.apache.flink.api.common.serialization.SimpleStringEncoder;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.connector.jdbc.JdbcSink;
+import org.apache.flink.core.fs.Path;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.streaming.api.functions.co.CoMapFunction;
+import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink;
+import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.DefaultRollingPolicy;
 import org.apache.flink.streaming.api.windowing.assigners.EventTimeSessionWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.util.Collector;
@@ -35,7 +40,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.Date;
-import java.util.LinkedList;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @description:
@@ -188,14 +193,35 @@ public class PrepareGantryFromKafka {
 
 
         // 3. 根据 passId 对数据流开窗
-        SingleOutputStreamOperator<LinkedList<PathTransaction>> aggregateCpaStream = pathTransWithWatermark
+//        SingleOutputStreamOperator<LinkedList<PathTransaction>> aggregateCpaStream = pathTransWithWatermark
+//                .keyBy(PathTransaction::getPASSID)
+//                .window(EventTimeSessionWindows.withGap(sessionGap))
+//                .trigger(new PathTrigger())
+//                .aggregate(new PathAggregateFunction(), new PathProcessWindowFunction())
+//                .setParallelism(12);
+//        aggregateCpaStream.addSink(new TransactionSinks.PathLogSink());
+
+        // 将聚合的路径信息输出到文件
+        SingleOutputStreamOperator<String> aggregateCpaStream = pathTransWithWatermark
                 .keyBy(PathTransaction::getPASSID)
                 .window(EventTimeSessionWindows.withGap(sessionGap))
                 .trigger(new PathTrigger())
-                .aggregate(new PathAggregateFunction(), new PathProcessWindowFunction())
+                .aggregate(new PathAggregateFunction(), new PathProcessWindowFunction2())
                 .setParallelism(12);
 
-        aggregateCpaStream.addSink(new TransactionSinks.PathLogSink());
+        aggregateCpaStream.addSink(StreamingFileSink.forRowFormat(new Path(Configure.PRINT_FILENAME),
+                        new SimpleStringEncoder<String>("UTF-8"))
+                .withRollingPolicy(
+                        DefaultRollingPolicy.builder()
+                                //文件滚动间隔 每隔多久（指定）时间生成一个新文件
+                                .withRolloverInterval(TimeUnit.SECONDS.toMillis(5))
+                                //数据不活动时间 每隔多久（指定）未来活动数据，则将上一段时间（无数据时间段）也生成一个文件
+                                .withInactivityInterval(TimeUnit.MINUTES.toMillis(5))
+                                // 文件最大容量
+                                .withMaxPartSize(200 * 1024 * 1024)
+                                .build())
+                .build());
+
     }
 
     private static void processGantryTrans(DataStream<GantryRawTransaction> gantryStream) {

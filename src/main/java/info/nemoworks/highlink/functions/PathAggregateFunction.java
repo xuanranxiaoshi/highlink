@@ -20,14 +20,14 @@ public class PathAggregateFunction implements AggregateFunction<PathTransaction,
 
     @Override
     public LinkedList<PathTransaction> add(PathTransaction pathTransaction, LinkedList<PathTransaction> pathTransactions) {
-        System.out.println("{ passId: " + pathTransaction.getPASSID() + ", time: " + pathTransaction.getTime() +"}");
+        // System.out.println("{ passId: " + pathTransaction.getPASSID() + ", time: " + pathTransaction.getTime() +"}");
         pathTransactions.add(pathTransaction);
         return pathTransactions;
     }
 
     @Override
     public LinkedList<PathTransaction> getResult(LinkedList<PathTransaction> pathTransactions) {
-        System.out.println("================= Path end =====================！");
+        // System.out.println("================= Path end =====================！");
         return pathTransactions;
     }
 
