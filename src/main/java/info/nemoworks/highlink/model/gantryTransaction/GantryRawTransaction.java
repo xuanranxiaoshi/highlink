@@ -435,4 +435,9 @@ public class GantryRawTransaction implements HighwayTransaction, PathTransaction
     public boolean isEtc() {
         return this.getMEDIATYPE() != 1;
     }
+
+    @Override
+    public String getTime() {
+        return tRANSTIME;
+    }
 }

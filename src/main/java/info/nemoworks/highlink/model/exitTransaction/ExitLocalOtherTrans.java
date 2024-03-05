@@ -59,7 +59,7 @@ public class ExitLocalOtherTrans implements HighwayTransaction{
     @JsonProperty("ENTOLLSTATIONNAME")
     public String eNTOLLSTATIONNAME;
     @JsonProperty("ENTOLLSTATION")
-    public int eNTOLLSTATION;
+    public String eNTOLLSTATION;
     @JsonProperty("ENTOLLLANE")
     public String eNTOLLLANE;
     @JsonProperty("ENTOLLSTATIONID")
@@ -67,9 +67,9 @@ public class ExitLocalOtherTrans implements HighwayTransaction{
     @JsonProperty("ENTOLLLANEID")
     public String eNTOLLLANEID;
     @JsonProperty("ENTOLLSTATIONHEX")
-    public int eNTOLLSTATIONHEX;
+    public String eNTOLLSTATIONHEX;
     @JsonProperty("ENTOLLLANEHEX")
-    public long eNTOLLLANEHEX;
+    public String eNTOLLLANEHEX;
     @JsonProperty("ENVLP")
     public String eNVLP;
     @JsonProperty("ENVLPC")
@@ -83,17 +83,17 @@ public class ExitLocalOtherTrans implements HighwayTransaction{
     @JsonProperty("EXTOLLSTATIONNAME")
     public String eXTOLLSTATIONNAME;
     @JsonProperty("EXTOLLSTATION")
-    public int eXTOLLSTATION;
+    public String eXTOLLSTATION;
     @JsonProperty("EXTOLLLANE")
-    public int eXTOLLLANE;
+    public String eXTOLLLANE;
     @JsonProperty("EXTOLLSTATIONID")
     public String eXTOLLSTATIONID;
     @JsonProperty("EXTOLLLANEID")
     public String eXTOLLLANEID;
     @JsonProperty("EXTOLLSTATIONHEX")
-    public int eXTOLLSTATIONHEX;
+    public String eXTOLLSTATIONHEX;
     @JsonProperty("EXTOLLLANEHEX")
-    public long eXTOLLLANEHEX;
+    public String eXTOLLLANEHEX;
     @JsonProperty("EXWEIGHT")
     public int eXWEIGHT;
     @JsonProperty("AXLECOUNT")

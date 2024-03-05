@@ -1,6 +1,9 @@
 package info.nemoworks.highlink.functions;
 
+import info.nemoworks.highlink.model.EntryRawTransaction;
 import info.nemoworks.highlink.model.PathTransaction;
+import info.nemoworks.highlink.model.exitTransaction.ExitRawTransaction;
+import info.nemoworks.highlink.model.gantryTransaction.GantryRawTransaction;
 import org.apache.flink.api.common.functions.AggregateFunction;
 
 import java.nio.file.Path;
@@ -15,20 +18,26 @@ import java.util.LinkedList;
 public class PathAggregateFunction implements AggregateFunction<PathTransaction, LinkedList<PathTransaction>, LinkedList<PathTransaction>> {
     @Override
     public LinkedList<PathTransaction> createAccumulator() {
-        System.out.println("================= Path begin =====================！");
         return new LinkedList<>();
     }
 
     @Override
     public LinkedList<PathTransaction> add(PathTransaction pathTransaction, LinkedList<PathTransaction> pathTransactions) {
-        System.out.println("Add value = { passId: " + pathTransaction.getPASSID() + ", enTime: " + pathTransaction.getENTIME() +"}");
+        if(pathTransaction instanceof EntryRawTransaction){
+            System.out.println("Entry { passId: " + pathTransaction.getPASSID() + ", time: " + pathTransaction.getTime() +"}");
+        }else if(pathTransaction instanceof GantryRawTransaction){
+            System.out.println("Gantry { passId: " + pathTransaction.getPASSID() + ", time: " + pathTransaction.getTime() +"}");
+        }else if(pathTransaction instanceof ExitRawTransaction){
+            System.out.println("Exit { passId: " + pathTransaction.getPASSID() + ", time: " + pathTransaction.getTime() +"}");
+        }
+
         pathTransactions.add(pathTransaction);
         return pathTransactions;
     }
 
     @Override
     public LinkedList<PathTransaction> getResult(LinkedList<PathTransaction> pathTransactions) {
-        System.out.println("================= Path end =====================！");
+        System.out.println("================= Path [" +pathTransactions.get(0).getPASSID() + "] end =====================！");
         return pathTransactions;
     }
 

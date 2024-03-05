@@ -18,9 +18,15 @@ public class PathTrigger extends Trigger<PathTransaction, TimeWindow> {
     @Override
     public TriggerResult onElement(PathTransaction element, long timestamp, TimeWindow window, TriggerContext ctx) throws Exception {
         // 超时或者 exit 数据到达，则窗口结束
-        if (window.maxTimestamp() <= ctx.getCurrentWatermark() || element instanceof ExitRawTransaction) {
+        if (window.maxTimestamp() <= ctx.getCurrentWatermark()) {
             return TriggerResult.FIRE;
-        } else {
+        }
+        // fixme: 对于乱序 exit 数据可能会导致路径缺失
+        else if( element instanceof ExitRawTransaction ){
+            return TriggerResult.FIRE;
+        }
+        // 更新超时时间
+        else {
             ctx.registerEventTimeTimer(window.maxTimestamp());
             return TriggerResult.CONTINUE;
         }

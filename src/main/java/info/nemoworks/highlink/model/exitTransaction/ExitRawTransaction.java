@@ -48,7 +48,7 @@ public class ExitRawTransaction implements HighwayTransaction, PathTransaction {
     @JsonProperty("ENAXLECOUNT")
     private int eNAXLECOUNT;
     @JsonProperty("ENTOLLSTATION")
-    private int eNTOLLSTATION;
+    private String eNTOLLSTATION;
     @JsonProperty("ENTOLLLANE")
     private String eNTOLLLANE;
     @JsonProperty("ENTOLLSTATIONHEX")
@@ -66,9 +66,9 @@ public class ExitRawTransaction implements HighwayTransaction, PathTransaction {
     @JsonProperty("LANETYPE")
     private int lANETYPE;
     @JsonProperty("EXTOLLSTATION")
-    private int eXTOLLSTATION;
+    private String eXTOLLSTATION;
     @JsonProperty("EXTOLLLANE")
-    private int eXTOLLLANE;
+    private String eXTOLLLANE;
     @JsonProperty("EXTOLLSTATIONHEX")
     private String eXTOLLSTATIONHEX;
     @JsonProperty("EXTOLLLANEHEX")
@@ -410,5 +410,10 @@ public class ExitRawTransaction implements HighwayTransaction, PathTransaction {
 
     public boolean isTruck() {
         return this.getEXVEHICLETYPE() == 12;
+    }
+
+    @Override
+    public String getTime() {
+        return eXTIME;
     }
 }

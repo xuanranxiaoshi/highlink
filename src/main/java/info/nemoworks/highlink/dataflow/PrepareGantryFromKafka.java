@@ -1,5 +1,6 @@
 package info.nemoworks.highlink.dataflow;
 
+import info.nemoworks.highlink.connector.Configure;
 import info.nemoworks.highlink.connector.JdbcConnectorHelper;
 import info.nemoworks.highlink.connector.KafkaConnectorHelper;
 import info.nemoworks.highlink.functions.*;
@@ -18,14 +19,18 @@ import info.nemoworks.highlink.model.mapper.ExtensionMapper;
 import info.nemoworks.highlink.model.mapper.GantryMapper;
 import info.nemoworks.highlink.sink.TransactionSinks;
 import org.apache.flink.api.common.eventtime.*;
+import org.apache.flink.api.common.serialization.SimpleStringEncoder;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.connector.jdbc.JdbcSink;
+import org.apache.flink.core.fs.Path;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.streaming.api.functions.co.CoMapFunction;
+import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink;
+import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.DefaultRollingPolicy;
 import org.apache.flink.streaming.api.windowing.assigners.EventTimeSessionWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.util.Collector;
@@ -35,10 +40,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.Date;
-import java.util.LinkedList;
+import java.util.concurrent.TimeUnit;
 
 /**
- * @description:
+ * @description: 将接收输入表根据业务逻辑划分为不同对预处理输出表
  * @author：jimi
  * @date: 2024/1/7
  * @Copyright：
@@ -101,10 +106,10 @@ public class PrepareGantryFromKafka {
 
 
         // 3.1 门架数据预处理:
-        // (1) 基本的处理逻辑
+        // (1) 原始数据预处理
         processGantryTrans(rawGantryTrans);
 
-        // (2) 门架数据归并
+        // (2) 门架路径聚合
         DataStream<EntryRawTransaction> entryCopyStream = entryStream.broadcast();
         DataStream<GantryRawTransaction> gantryCopyStream = gantryStream.broadcast();
         DataStream<ExitRawTransaction> exitCopyStream = exitStream.broadcast();
@@ -118,7 +123,7 @@ public class PrepareGantryFromKafka {
         // 3.3 出口数据预处理
         processExitTrans(rawExitTrans);
 
-
+        // 3.4 入口流水
         entryStream.addSink(new TransactionSinks.LogSink<>());
 
     }
@@ -132,9 +137,9 @@ public class PrepareGantryFromKafka {
 
         // 0. 参数设置
         // 乱序等待 gap
-        Duration OutOfOrderGap = Duration.ofHours(2);
+        Duration OutOfOrderGap = Duration.ofMinutes(1);
         // 会话超时时间
-        Time sessionGap = Time.hours(24);
+        Time sessionGap = Time.minutes(15);
 
         // 1. 合并 entry, gantry, exit 数据流
         DataStream<GantryRawTransaction> gantryCopyStream = gantryStream.broadcast();
@@ -164,6 +169,7 @@ public class PrepareGantryFromKafka {
 
         // 2. 定义 Watermark 策略: 采用事件语义，提取 enTime 作为逻辑时间
         WatermarkStrategy<PathTransaction> watermarkStrategy = WatermarkStrategy
+                // 数据的乱序程度
                 .<PathTransaction>forBoundedOutOfOrderness(OutOfOrderGap)
                 .withTimestampAssigner(new SerializableTimestampAssigner<PathTransaction>() {
                     @Override
@@ -171,7 +177,7 @@ public class PrepareGantryFromKafka {
                         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                         Date date = null;
                         try {
-                            date = dateFormat.parse(rawTransaction.getENTIME());
+                            date = dateFormat.parse(rawTransaction.getTime());
                         } catch (ParseException e) {
                             throw new RuntimeException(e);
                         }
@@ -181,6 +187,7 @@ public class PrepareGantryFromKafka {
                         return timestamp;
                     }
                 })
+                // 解决多并行度某并行分支没有更新时的推进问题
                 .withIdleness(Duration.ofSeconds(5));
 
         // 指定 watermark 策略，添加水位线
@@ -188,14 +195,35 @@ public class PrepareGantryFromKafka {
 
 
         // 3. 根据 passId 对数据流开窗
-        SingleOutputStreamOperator<LinkedList<PathTransaction>> aggregateCpaStream = pathTransWithWatermark
+//        SingleOutputStreamOperator<LinkedList<PathTransaction>> aggregateCpaStream = pathTransWithWatermark
+//                .keyBy(PathTransaction::getPASSID)
+//                .window(EventTimeSessionWindows.withGap(sessionGap))
+//                .trigger(new PathTrigger())
+//                .aggregate(new PathAggregateFunction(), new PathProcessWindowFunction())
+//                .setParallelism(12);
+//        aggregateCpaStream.addSink(new TransactionSinks.PathLogSink());
+
+        // 将聚合的路径信息输出到文件
+        SingleOutputStreamOperator<String> aggregateCpaStream = pathTransWithWatermark
                 .keyBy(PathTransaction::getPASSID)
                 .window(EventTimeSessionWindows.withGap(sessionGap))
                 .trigger(new PathTrigger())
-                .aggregate(new PathAggregateFunction(), new PathProcessWindowFunction())
+                .aggregate(new PathAggregateFunction(), new PathProcessWindowFunction2())
                 .setParallelism(12);
 
-        aggregateCpaStream.addSink(new TransactionSinks.PathLogSink());
+        aggregateCpaStream.addSink(StreamingFileSink.forRowFormat(new Path(Configure.PRINT_FILENAME),
+                        new SimpleStringEncoder<String>("UTF-8"))
+                .withRollingPolicy(
+                        DefaultRollingPolicy.builder()
+                                //文件滚动间隔 每隔多久（指定）时间生成一个新文件
+                                .withRolloverInterval(TimeUnit.MINUTES.toMillis(1))
+                                //数据不活动时间 每隔多久（指定）未来活动数据，则将上一段时间（无数据时间段）也生成一个文件
+                                .withInactivityInterval(TimeUnit.MINUTES.toMillis(5))
+                                // 文件最大容量
+                                .withMaxPartSize(200 * 1024 * 1024)
+                                .build())
+                .build());
+
     }
 
     private static void processGantryTrans(DataStream<GantryRawTransaction> gantryStream) {

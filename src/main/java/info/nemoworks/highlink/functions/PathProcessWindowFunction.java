@@ -32,7 +32,16 @@ public class PathProcessWindowFunction extends ProcessWindowFunction<LinkedList<
         Iterator<LinkedList<PathTransaction>> iterator = iterable.iterator();
         LinkedList<PathTransaction> transList = iterator.next();
 
-        System.out.println("passId = " + s + "的窗口[" + windowStart + "," + windowEnd + "]包含" + transList.size() + "条数据===>" + getData(transList));
+        String pathData = getData(transList);
+        String pathOut = "[" + windowStart + "|" + windowEnd + "]" + s + "包含" + transList.size() + "条数据 " + pathData;
+
+
+        System.out.println(pathOut);
+        // todo: 构造 Path 信息
+
+
+        // todo: 输出到文件
+
 
         collector.collect(transList);
     }
@@ -44,15 +53,18 @@ public class PathProcessWindowFunction extends ProcessWindowFunction<LinkedList<
         stringBuilder.append("[");
         for (int i = 0; i < transList.size(); i++) {
             PathTransaction pathTransaction = transList.get(i);
-            if( pathTransaction instanceof EntryRawTransaction){
-                stringBuilder.append("EntryRaw { psID: " + pathTransaction.getPASSID() + ", enTime: " + pathTransaction.getENTIME() +" } ");
-            }else if (pathTransaction instanceof GantryRawTransaction){
-                stringBuilder.append("GantryRaw { psID: " + pathTransaction.getPASSID() + ", enTime: " + pathTransaction.getENTIME() +" } ");
-            }else if (pathTransaction instanceof ExitRawTransaction){
-                stringBuilder.append("ExitRaw { psID: " + pathTransaction.getPASSID() + ", enTime: " + pathTransaction.getENTIME() +" } ");
+            if( pathTransaction instanceof EntryRawTransaction entryRawTransaction){
+                stringBuilder.append(" => (" + pathTransaction.getTime() +") " + entryRawTransaction.getENTOLLSTATIONHEX());
+            }else if (pathTransaction instanceof GantryRawTransaction gantryRawTransaction){
+                stringBuilder.append(" -> (" + pathTransaction.getTime() +") " + gantryRawTransaction.getGANTRYHEX());
+            }else if (pathTransaction instanceof ExitRawTransaction exitRawTransaction){
+                stringBuilder.append("=> (" + pathTransaction.getTime() +") " + exitRawTransaction.getEXTOLLSTATIONHEX());
             }
         }
         stringBuilder.append("]");
         return stringBuilder.toString();
     }
 }
+/**
+ * [2023-02-23 14:23:29|2023-02-23 14:23:29] 89827872878 包含5条数据 [ => (2023-02-23 14:23:29) 7827AB -> (2023-02-23 14:23:29) 7827AB ]
+ */
