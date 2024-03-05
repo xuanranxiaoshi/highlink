@@ -61,7 +61,7 @@ public class PathProcessWindowFunction2 extends ProcessWindowFunction<LinkedList
         LinkedList<PathTransaction> transList = iterator.next();
 
         String pathData = getData(transList);
-        String pathOut = "[" + windowStart + "|" + windowEnd + "]" + s + "包含" + transList.size() + "条数据 " + pathData;
+        String pathOut = "[" + windowStart + "|" + windowEnd + "] " + s + " 包含" + transList.size() + "条数据 " + pathData;
 
         out.collect(pathOut);
     }
