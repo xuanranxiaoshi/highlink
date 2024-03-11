@@ -1,5 +1,5 @@
 package info.nemoworks.highlink.model.mapper;
-import info.nemoworks.highlink.model.EntryRawTransaction;
+import info.nemoworks.highlink.model.entryTransaction.EntryRawTransaction;
 import info.nemoworks.highlink.kafka.JsonDeSerializer;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;

@@ -1,12 +1,11 @@
 package info.nemoworks.highlink.functions;
 
-import info.nemoworks.highlink.model.EntryRawTransaction;
-import info.nemoworks.highlink.model.PathTransaction;
+import info.nemoworks.highlink.model.entryTransaction.EntryRawTransaction;
+import info.nemoworks.highlink.model.pathTransaction.PathTransaction;
 import info.nemoworks.highlink.model.exitTransaction.ExitRawTransaction;
 import info.nemoworks.highlink.model.gantryTransaction.GantryRawTransaction;
 import org.apache.flink.api.common.functions.AggregateFunction;
 
-import java.nio.file.Path;
 import java.util.LinkedList;
 
 /**

@@ -1,12 +1,12 @@
-package info.nemoworks.highlink.dataflow;
+package info.nemoworks.highlink.dataflow.old;
 
 import info.nemoworks.highlink.connector.JdbcConnectorHelper;
 import info.nemoworks.highlink.connector.KafkaConnectorHelper;
 import info.nemoworks.highlink.metric.LinkCounter;
-import info.nemoworks.highlink.model.EntryRawTransaction;
+import info.nemoworks.highlink.model.entryTransaction.EntryRawTransaction;
 import info.nemoworks.highlink.model.exitTransaction.*;
 import info.nemoworks.highlink.model.HighwayTransaction;
-import info.nemoworks.highlink.model.TollChangeTransactions;
+import info.nemoworks.highlink.model.tollChangeTransaction.TollChangeTransactions;
 import info.nemoworks.highlink.model.extendTransaction.*;
 import info.nemoworks.highlink.model.gantryTransaction.GantryCpcTransaction;
 import info.nemoworks.highlink.model.gantryTransaction.GantryEtcTransaction;
@@ -217,7 +217,7 @@ public class PrepareDataFromKafka {
                                     ctx.output(foreignOther, ExitMapper.INSTANCE.exitRawToExitForeignOther(value));
                                 }
                             } else {    // ETC 支付
-                                if (!value.isTruck() || !value.isEtc() || !value.isGreenCar()) { // 触发二次计算
+                                if (!value.isTruck() || !value.isOBU() || !value.isGreenCar()) { // 触发二次计算
                                     value = reCompute(value);
                                 }
                                 if (!value.isLocal()) {

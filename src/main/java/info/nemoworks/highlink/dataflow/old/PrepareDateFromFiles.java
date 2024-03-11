@@ -1,7 +1,8 @@
-package info.nemoworks.highlink.dataflow;
+package info.nemoworks.highlink.dataflow.old;
 
 import info.nemoworks.highlink.metric.LinkCounter;
 import info.nemoworks.highlink.model.*;
+import info.nemoworks.highlink.model.entryTransaction.EntryRawTransaction;
 import info.nemoworks.highlink.model.exitTransaction.*;
 import info.nemoworks.highlink.model.extendTransaction.*;
 import info.nemoworks.highlink.model.gantryTransaction.GantryCpcTransaction;
@@ -10,6 +11,7 @@ import info.nemoworks.highlink.model.gantryTransaction.GantryRawTransaction;
 import info.nemoworks.highlink.model.mapper.ExitMapper;
 import info.nemoworks.highlink.model.mapper.ExtensionMapper;
 import info.nemoworks.highlink.model.mapper.GantryMapper;
+import info.nemoworks.highlink.model.tollChangeTransaction.TollChangeTransactions;
 import info.nemoworks.highlink.sink.TransactionSinks;
 import info.nemoworks.highlink.source.RawTransactionSource;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.json.JsonReadFeature;
@@ -223,7 +225,7 @@ public class PrepareDateFromFiles {
                             ctx.output(foreignOther, ExitMapper.INSTANCE.exitRawToExitForeignOther(value));
                         }
                     } else {    // ETC 支付
-                        if (!value.isTruck() || !value.isEtc() || !value.isGreenCar()) { // 触发二次计算
+                        if (!value.isTruck() || !value.isOBU() || !value.isGreenCar()) { // 触发二次计算
                             value = reCompute(value);
                         }
                         if (!value.isLocal()) {

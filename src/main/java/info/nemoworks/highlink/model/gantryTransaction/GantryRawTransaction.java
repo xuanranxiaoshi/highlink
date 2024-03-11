@@ -1,7 +1,7 @@
 package info.nemoworks.highlink.model.gantryTransaction;
 
 import info.nemoworks.highlink.model.HighwayTransaction;
-import info.nemoworks.highlink.model.PathTransaction;
+import info.nemoworks.highlink.model.pathTransaction.PathTransaction;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
@@ -34,11 +34,11 @@ public class GantryRawTransaction implements HighwayTransaction, PathTransaction
     @JsonProperty("TRANSTIME")
     private String tRANSTIME;
     @JsonProperty("PAYFEE")
-    private int pAYFEE;
+    private String pAYFEE;
     @JsonProperty("FEE")
-    private int fEE;
+    private String fEE;
     @JsonProperty("DISCOUNTFEE")
-    private int dISCOUNTFEE;
+    private String dISCOUNTFEE;
     @JsonProperty("TRANSFEE")
     private int tRANSFEE;
     @JsonProperty("MEDIATYPE")

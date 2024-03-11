@@ -1,6 +1,6 @@
 package info.nemoworks.highlink.kafka;
 
-import info.nemoworks.highlink.dataflow.PrepareDateFromFiles;
+import info.nemoworks.highlink.dataflow.old.PrepareDateFromFiles;
 import lombok.SneakyThrows;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 

@@ -1,7 +1,7 @@
 package info.nemoworks.highlink.functions;
 
 import info.nemoworks.highlink.model.exitTransaction.ExitRawTransaction;
-import info.nemoworks.highlink.model.PathTransaction;
+import info.nemoworks.highlink.model.pathTransaction.PathTransaction;
 import org.apache.flink.streaming.api.windowing.triggers.Trigger;
 import org.apache.flink.streaming.api.windowing.triggers.TriggerResult;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;

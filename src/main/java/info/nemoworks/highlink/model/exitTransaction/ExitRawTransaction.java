@@ -1,7 +1,7 @@
 package info.nemoworks.highlink.model.exitTransaction;
 
 import info.nemoworks.highlink.model.HighwayTransaction;
-import info.nemoworks.highlink.model.PathTransaction;
+import info.nemoworks.highlink.model.pathTransaction.PathTransaction;
 import info.nemoworks.highlink.model.mapper.BinaryToHexDeserializer;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -392,12 +392,12 @@ public class ExitRawTransaction implements HighwayTransaction, PathTransaction {
         return "09".equals(this.getTRANSTYPE());
     }
 
-    public boolean isEtc() {
+    public boolean isOBU() {
         return this.getMEDIATYPE() != 1;
     }
 
     public boolean isPayWithEtc() {
-        return this.getPAYTYPE() == 3;
+        return this.getPAYTYPE() == 4;
     }
 
     public boolean isLocal() {
