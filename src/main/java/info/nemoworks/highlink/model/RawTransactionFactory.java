@@ -1,5 +1,6 @@
 package info.nemoworks.highlink.model;
 
+import info.nemoworks.highlink.model.entryTransaction.EntryRawTransaction;
 import info.nemoworks.highlink.model.exitTransaction.ExitRawTransaction;
 import info.nemoworks.highlink.model.extendTransaction.ParkTransWasteRec;
 import info.nemoworks.highlink.model.gantryTransaction.GantryRawTransaction;

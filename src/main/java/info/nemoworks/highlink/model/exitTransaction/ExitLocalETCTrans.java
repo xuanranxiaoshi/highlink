@@ -1,12 +1,13 @@
 package info.nemoworks.highlink.model.exitTransaction;
 
 import info.nemoworks.highlink.model.HighwayTransaction;
+import info.nemoworks.highlink.model.pathTransaction.PathTransaction;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
 
 @Data
-public class ExitLocalETCTrans implements HighwayTransaction{
+public class ExitLocalETCTrans implements HighwayTransaction, PathTransaction {
     @JsonProperty("ID")
     public String iD;
     @JsonProperty("MODIFYFLAG")
@@ -287,4 +288,9 @@ public class ExitLocalETCTrans implements HighwayTransaction{
     public int vACCINEFLAG;
     @JsonProperty("APPOINTID")
     public String aPPOINTID;
+
+    @Override
+    public String getTime() {
+        return this.getEXTIME();
+    }
 }

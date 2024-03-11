@@ -1,6 +1,6 @@
 package info.nemoworks.highlink.sink;
 
-import info.nemoworks.highlink.model.PathTransaction;
+import info.nemoworks.highlink.model.pathTransaction.PathTransaction;
 import org.apache.flink.connector.jdbc.JdbcSink;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.slf4j.Logger;

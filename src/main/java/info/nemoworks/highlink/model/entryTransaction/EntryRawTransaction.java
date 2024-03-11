@@ -1,6 +1,8 @@
-package info.nemoworks.highlink.model;
+package info.nemoworks.highlink.model.entryTransaction;
 
+import info.nemoworks.highlink.model.HighwayTransaction;
 import info.nemoworks.highlink.model.mapper.BinaryToHexDeserializer;
+import info.nemoworks.highlink.model.pathTransaction.PathTransaction;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;

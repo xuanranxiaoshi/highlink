@@ -1,6 +1,6 @@
 package info.nemoworks.highlink.model.mapper;
 
-import info.nemoworks.highlink.model.TollChangeTransactions;
+import info.nemoworks.highlink.model.tollChangeTransaction.TollChangeTransactions;
 import info.nemoworks.highlink.model.extendTransaction.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;

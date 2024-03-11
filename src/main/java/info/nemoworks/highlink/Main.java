@@ -1,14 +1,11 @@
 package info.nemoworks.highlink;
 
-import info.nemoworks.highlink.dataflow.*;
+import info.nemoworks.highlink.dataflow.old.PrepareGantryFromKafka;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.contrib.streaming.state.EmbeddedRocksDBStateBackend;
 import org.apache.flink.streaming.api.CheckpointingMode;
-import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-
-import java.time.Duration;
 
 public class Main {
 
@@ -18,8 +15,6 @@ public class Main {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment(new Configuration());
         // 本地 web-ui 显示方式
         // StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(new Configuration());
-
-        // env.setParallelism(1);
 
         // 2. 配置检查点
         String checkPath = "file:///WDC/users/chensc/modules/flink-1.18.0/checkpoints";
@@ -32,7 +27,6 @@ public class Main {
 
 
         // 3. 读入数据进行预处理
-        // PrepareDateFromFiles.start(env);
         PrepareGantryFromKafka.start(env);
 
 

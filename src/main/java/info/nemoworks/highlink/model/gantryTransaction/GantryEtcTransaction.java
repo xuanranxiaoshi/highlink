@@ -17,7 +17,7 @@ public class GantryEtcTransaction implements HighwayTransaction {
     @JsonProperty("DIRECTION")
     public int dIRECTION;
     @JsonProperty("DISCOUNTFEE")
-    public int dISCOUNTFEE;
+    public String dISCOUNTFEE;
     @JsonProperty("DISCOUNTTYPE")
     public String dISCOUNTTYPE;
     @JsonProperty("ELECTRICALPERCENTAGE")
@@ -37,9 +37,9 @@ public class GantryEtcTransaction implements HighwayTransaction {
     @JsonProperty("ETCCARDTYPE")
     public int eTCCARDTYPE;
     @JsonProperty("FEE")
-    public int fEE;
+    public String fEE;
     @JsonProperty("FEECALCSPECIALS")
-    public int fEECALCSPECIALS;
+    public String fEECALCSPECIALS;
     @JsonProperty("GANTRYHEX")
     public String gANTRYHEX;
     @JsonProperty("GANTRYKEY")
@@ -83,7 +83,7 @@ public class GantryEtcTransaction implements HighwayTransaction {
     @JsonProperty("PASSID")
     public String pASSID;
     @JsonProperty("PAYFEE")
-    public int pAYFEE;
+    public String pAYFEE;
     @JsonProperty("PROVINCECOUNT")
     public int pROVINCECOUNT;
     @JsonProperty("PROVINCEDISCOUNTFEE")

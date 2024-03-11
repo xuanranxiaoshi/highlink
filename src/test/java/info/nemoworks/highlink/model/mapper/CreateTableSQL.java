@@ -5,7 +5,7 @@ import info.nemoworks.highlink.model.exitTransaction.ExitForeignETCTrans;
 import info.nemoworks.highlink.model.exitTransaction.ExitForeignOtherTrans;
 import info.nemoworks.highlink.model.exitTransaction.ExitLocalETCTrans;
 import info.nemoworks.highlink.model.exitTransaction.ExitLocalOtherTrans;
-import info.nemoworks.highlink.model.TollChangeTransactions;
+import info.nemoworks.highlink.model.tollChangeTransaction.TollChangeTransactions;
 import info.nemoworks.highlink.model.extendTransaction.ExdForeignGasTransaction;
 import info.nemoworks.highlink.model.extendTransaction.ExdForeignMunicipalTransaction;
 import info.nemoworks.highlink.model.extendTransaction.ExdForeignParkTransaction;

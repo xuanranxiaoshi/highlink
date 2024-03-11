@@ -2,7 +2,7 @@ package info.nemoworks.highlink.model.mapper;
 
 import info.nemoworks.highlink.model.exitTransaction.*;
 import info.nemoworks.highlink.model.RawTransactionFactory;
-import info.nemoworks.highlink.model.TollChangeTransactions;
+import info.nemoworks.highlink.model.tollChangeTransaction.TollChangeTransactions;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
