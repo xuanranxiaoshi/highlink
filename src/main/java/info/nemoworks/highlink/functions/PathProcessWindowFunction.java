@@ -33,15 +33,9 @@ public class PathProcessWindowFunction extends ProcessWindowFunction<LinkedList<
         LinkedList<PathTransaction> transList = iterator.next();
 
         String pathData = getData(transList);
-        String pathOut = "[" + windowStart + "|" + windowEnd + "]" + s + "包含" + transList.size() + "条数据 " + pathData;
-
+        String pathOut = "[" + windowStart + "|" + windowEnd + "] " + s + " 包含" + transList.size() + "条数据 " + pathData;
 
         System.out.println(pathOut);
-        // todo: 构造 Path 信息
-
-
-        // todo: 输出到文件
-
 
         collector.collect(transList);
     }
@@ -54,11 +48,11 @@ public class PathProcessWindowFunction extends ProcessWindowFunction<LinkedList<
         for (int i = 0; i < transList.size(); i++) {
             PathTransaction pathTransaction = transList.get(i);
             if( pathTransaction instanceof EntryRawTransaction entryRawTransaction){
-                stringBuilder.append(" => (" + pathTransaction.getTime() +") " + entryRawTransaction.getENTOLLSTATIONHEX());
+                stringBuilder.append(" => (" + pathTransaction.peekTime() +") " + entryRawTransaction.getENTOLLSTATIONHEX());
             }else if (pathTransaction instanceof GantryRawTransaction gantryRawTransaction){
-                stringBuilder.append(" -> (" + pathTransaction.getTime() +") " + gantryRawTransaction.getGANTRYHEX());
+                stringBuilder.append(" -> (" + pathTransaction.peekTime() +") " + gantryRawTransaction.getGANTRYHEX());
             }else if (pathTransaction instanceof ExitRawTransaction exitRawTransaction){
-                stringBuilder.append("=> (" + pathTransaction.getTime() +") " + exitRawTransaction.getEXTOLLSTATIONHEX());
+                stringBuilder.append(" => (" + pathTransaction.peekTime() +") " + exitRawTransaction.getEXTOLLSTATIONHEX());
             }
         }
         stringBuilder.append("]");

@@ -173,7 +173,7 @@ public class PrepareGantryFromKafka {
                         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                         Date date = null;
                         try {
-                            date = dateFormat.parse(rawTransaction.getTime());
+                            date = dateFormat.parse(rawTransaction.peekTime());
                         } catch (ParseException e) {
                             throw new RuntimeException(e);
                         }
@@ -235,7 +235,7 @@ public class PrepareGantryFromKafka {
                                                ProcessFunction<GantryRawTransaction, GantryEtcTransaction>.Context ctx,
                                                Collector<GantryEtcTransaction> out) throws Exception {
                         // 处理逻辑 1：判断通行介质是否为OBU
-                        if (value.isEtc()) {    // 是：转化为门架ETC计费流水数据
+                        if (value.peekETC()) {    // 是：转化为门架ETC计费流水数据
                             ctx.output(ganCpcTag, GantryMapper.INSTANCE.gantryRawToCpcTransaction(value));
                         } else {                // 否：转化为门架CPC计费流水
                             out.collect(GantryMapper.INSTANCE.gantryRawToEtcTransaction(value));
@@ -317,24 +317,24 @@ public class PrepareGantryFromKafka {
         SingleOutputStreamOperator<ExitLocalETCTrans> exitAllSream = exitStream.process(new ProcessFunction<ExitRawTransaction, ExitLocalETCTrans>() {
                     @Override
                     public void processElement(ExitRawTransaction value, ProcessFunction<ExitRawTransaction, ExitLocalETCTrans>.Context ctx, Collector<ExitLocalETCTrans> collector) throws Exception {
-                        if (!value.isPrimaryTrans()) {    // 非原始类交易
-                            if (value.isPayWithEtc()) {
+                        if (!value.peekPrimaryTrans()) {    // 非原始类交易
+                            if (value.peekPayWithEtc()) {
                                 ctx.output(etcTollChange, ExitMapper.INSTANCE.exitRawToTollChangeTrans(value));
                             } else {
                                 ctx.output(otherTollChange, ExitMapper.INSTANCE.exitRawToTollChangeTrans(value));
                             }
                         } else {    // 原始类交易
-                            if (!value.isPayWithEtc()) {    // 非 ETC 支付
-                                if (value.isLocal()) {
+                            if (!value.peekPayWithEtc()) {    // 非 ETC 支付
+                                if (value.peekLocal()) {
                                     ctx.output(localOther, ExitMapper.INSTANCE.exitRawToExitLocalOther(value));
                                 } else {
                                     ctx.output(foreignOther, ExitMapper.INSTANCE.exitRawToExitForeignOther(value));
                                 }
                             } else {    // ETC 支付
-                                if (!value.isTruck() || !value.isOBU() || !value.isGreenCar()) { // 触发二次计算
+                                if (!value.peekTruck() || !value.peekOBU() || !value.peekGreenCar()) { // 触发二次计算
                                     value = reCompute(value);
                                 }
-                                if (!value.isLocal()) {
+                                if (!value.peekLocal()) {
                                     ctx.output(foreignETC, ExitMapper.INSTANCE.exitRawToExitForeignETC(value));
                                 } else {
                                     collector.collect(ExitMapper.INSTANCE.exitRawToExitLocalETC(value));
@@ -376,7 +376,6 @@ public class PrepareGantryFromKafka {
                 JdbcConnectorHelper.getJdbcExecutionOptions(),
                 JdbcConnectorHelper.getJdbcConnectionOptions()));
     }
-
     public static void addSinkToStream(DataStream dataStream, Class clazz, String name) {
         dataStream.addSink(new TransactionSinks.LogSink<>()).name(name);
 //        dataStream.addSink(JdbcSink.sink(

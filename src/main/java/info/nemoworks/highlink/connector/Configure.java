@@ -7,5 +7,5 @@ package info.nemoworks.highlink.connector;
  * @Copyright：
  */
 public class Configure {
-    public static String PRINT_FILENAME = "/WDC/users/chensc/modules/flink-1.18.0/pathData";
+    public static String DATA_PATH = "/WDC/users/chensc/modules/flink-1.18.0/data/";
 }

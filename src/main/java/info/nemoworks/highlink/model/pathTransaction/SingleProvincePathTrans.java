@@ -46,7 +46,7 @@ public class SingleProvincePathTrans {
             this.entryRawTransaction = entryRawTransaction;
             this.exitRawTransaction = exitRawTransaction;
         }else {
-            log.warn("SingleProvincePathETCTrans 构造异常： 路径首/尾不为 entry/exit 数据");
+            System.out.println("[Error] SingleProvincePathETCTrans 构造异常： 路径首/尾不为 entry/exit 数据, pathSize = " + pathTransactions.size() + ", passID = " + pathTransactions.get(0).getPASSID());
         }
 
         gantryRawTransactionList = new ArrayList<>();
@@ -54,7 +54,7 @@ public class SingleProvincePathTrans {
             if(pathTransactions.get(i) instanceof GantryRawTransaction gantryRawTransaction){
                 gantryRawTransactionList.add(gantryRawTransaction);
             }else{
-                log.warn("SingleProvincePathETCTrans 构造异常： 路径中心数据不为门架数据");
+                System.out.println("[Error] SingleProvincePathETCTrans 构造异常： 路径中心数据不为门架数据");
             }
         }
     }
@@ -64,7 +64,8 @@ public class SingleProvincePathTrans {
      * @return
      */
     public void splitCharge() {
-        int  exitfeetype = this.exitRawTransaction.getACTUALFEECLASS();
+        // fixme: 空指针异常
+        int exitfeetype = this.exitRawTransaction.getACTUALFEECLASS();
         if(exitfeetype == 1 || exitfeetype == 3){   // 计费方式 1\3
             for (int i = 0; i < gantryRawTransactionList.size(); i++) {
                 GantryRawTransaction gantryRawTransaction = gantryRawTransactionList.get(i);
@@ -90,7 +91,7 @@ public class SingleProvincePathTrans {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String proTime = sdf.format(new Date());
 
-        if(exitRawTransaction.isPayWithEtc()){  // 单省 ETC 流水
+        if(exitRawTransaction.peekPayWithEtc()){  // 单省 ETC 流水
             ExitLocalETCTrans exitLocalETCTrans = ExitMapper.INSTANCE.exitRawToExitLocalETC(exitRawTransaction);
             exitLocalETCTrans.setPROTIME(proTime);
             exitLocalETCTrans.setSPLITOWNERGROUP(chargeUnitesStr);

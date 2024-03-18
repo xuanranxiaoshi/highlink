@@ -1,10 +1,13 @@
 package info.nemoworks.highlink.dataflow;
 
 import info.nemoworks.highlink.connector.KafkaConnectorHelper;
+import info.nemoworks.highlink.dataflow.encoder.PathEncoder;
+import info.nemoworks.highlink.dataflow.utils.utils;
 import info.nemoworks.highlink.model.HighwayTransaction;
 import info.nemoworks.highlink.model.pathTransaction.PathTransaction;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -30,7 +33,16 @@ public class DataFlows {
         SingleOutputStreamOperator<LinkedList<PathTransaction>> aggregatePathStream =
                 PrepareFlow.flow(unionStream);
 
+        // 1.5 异常数据存储
+        DataStream<LinkedList<PathTransaction>> cleanPathFlow = ExceptionFlow.flow(aggregatePathStream);
+
+        // 输出清洗后的数据流
+        DataStream<LinkedList<PathTransaction>> cleanPathCopyFlow = cleanPathFlow.broadcast();
+        utils.addFileSinkToStream(cleanPathCopyFlow, "aggregatedPath", new PathEncoder());
+
         // 2. 拆分子系统：对车辆路径进行收费金额拆分
+        SplitDataFlow.flow(cleanPathFlow);
+
 
     }
 }

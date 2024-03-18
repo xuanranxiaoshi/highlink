@@ -290,7 +290,7 @@ public class ExitLocalETCTrans implements HighwayTransaction, PathTransaction {
     public String aPPOINTID;
 
     @Override
-    public String getTime() {
+    public String peekTime() {
         return this.getEXTIME();
     }
 }
