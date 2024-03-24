@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.io.*;
 
 /**
- * @description:
+ * @description: 为 json 注解，添加 access 属性
  * @author：jimi
  * @date: 2024/3/13
  * @Copyright：

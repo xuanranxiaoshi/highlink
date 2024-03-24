@@ -2,6 +2,7 @@ package info.nemoworks.highlink.dataflow.utils;
 
 import info.nemoworks.highlink.connector.Configure;
 import info.nemoworks.highlink.connector.JdbcConnectorHelper;
+import info.nemoworks.highlink.sink.MysqlSink;
 import info.nemoworks.highlink.sink.TransactionSinks;
 import org.apache.flink.api.common.serialization.Encoder;
 import org.apache.flink.connector.file.sink.FileSink;
@@ -32,12 +33,12 @@ public class utils {
     }
 
     public static void addSinkToStream(DataStream dataStream, Class clazz, String name) {
-        dataStream.addSink(new TransactionSinks.LogSink<>()).name(name);
-//        dataStream.addSink(JdbcSink.sink(
-//                JdbcConnectorHelper.getInsertTemplateString(clazz),
-//                JdbcConnectorHelper.getStatementBuilder(),
-//                JdbcConnectorHelper.getJdbcExecutionOptions(),
-//                JdbcConnectorHelper.getJdbcConnectionOptions())).name(name);
+        // dataStream.addSink(new TransactionSinks.LogSink<>()).name(name);
+        dataStream.addSink(JdbcSink.sink(
+                JdbcConnectorHelper.getInsertTemplateString(clazz),
+                JdbcConnectorHelper.getStatementBuilder(),
+                JdbcConnectorHelper.getJdbcExecutionOptions(),
+                JdbcConnectorHelper.getJdbcConnectionOptions())).name(name);
     }
 
     public static void addFileSinkToStream(DataStream dataStream, String filename, Encoder encoder){
@@ -57,6 +58,6 @@ public class utils {
                                 .build())
                 .withOutputFileConfig(config)
                 .build();
-        dataStream.sinkTo(fileSink);
+        dataStream.sinkTo(fileSink).name(filename);
     }
 }

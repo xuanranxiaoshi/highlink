@@ -1,11 +1,13 @@
 package info.nemoworks.highlink.model.pathTransaction;
 
+import info.nemoworks.highlink.connector.JdbcConnectorHelper;
 import info.nemoworks.highlink.model.HighwayTransaction;
 import info.nemoworks.highlink.model.RawTransactionFactory;
 import info.nemoworks.highlink.model.entryTransaction.EntryRawTransaction;
 import info.nemoworks.highlink.model.exitTransaction.ExitLocalETCTrans;
 import info.nemoworks.highlink.model.exitTransaction.ExitRawTransaction;
 import info.nemoworks.highlink.model.extendTransaction.ParkTransWasteRec;
+import info.nemoworks.highlink.model.gantryTransaction.GantryCpcTransaction;
 import info.nemoworks.highlink.model.gantryTransaction.GantryRawTransaction;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
@@ -24,6 +26,7 @@ import java.util.Map;
  * @Copyright：
  */
 public class TestSingleProvincePathTrans {
+    ObjectMapper mapper = new ObjectMapper();
 
     @Test
     public  void testETC() {
@@ -66,7 +69,7 @@ public class TestSingleProvincePathTrans {
 
     @Test
     public void testPathMapper() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
+
 
         EntryRawTransaction entryRawTransaction = mapper.readValue(TestSingleProvincePathTrans.class.getClassLoader().getResourceAsStream("onejson/EnWasteRec.json"), EntryRawTransaction.class);
         GantryRawTransaction gantry1 = mapper.readValue(TestSingleProvincePathTrans.class.getClassLoader().getResourceAsStream("onejson/GantryWasteRec.json"), GantryRawTransaction.class);

@@ -63,15 +63,18 @@ public class ExceptionFlow {
                         isExitData(pathTransactionLinkedList.get(pathTransactionLinkedList.size() - 1))) { // 正常数据
                     System.out.println("[Info] 正常数据： " + pathTransactionLinkedList.get(0).getPASSID());
                     out.collect(pathTransactionLinkedList);
-                } else if(!isExitData(pathTransactionLinkedList.get(pathTransactionLinkedList.size()-1))){    //  1. path 不以出口结尾：超时数据
+                } else if(!isExitData(pathTransactionLinkedList.get(pathTransactionLinkedList.size()-1))){    //  1. path 不以出口(eixt、省界出口门架)结尾：超时数据
                     LinkedList<PathTransaction> mergeList = mergeFromRedis(pathTransactionLinkedList);
                     System.out.println("[Error] 超时数据：" + pathTransactionLinkedList.get(0).getPASSID());
                     ctx.output(overTimePath, mergeList);
                 } else if(isExitData(pathTransactionLinkedList.get(pathTransactionLinkedList.size()-1))) {    //  2. path 以出口结尾：迟到数据, 直接触发计算
                     LinkedList<PathTransaction> mergeList = mergeFromRedis(pathTransactionLinkedList);
-                    // todo: remove passID
-                    System.out.println("[Error] 迟到数据: " + pathTransactionLinkedList.get(pathTransactionLinkedList.size()-1).getPASSID());
-                    ctx.output(latePath, mergeList);
+                    if(removePath(mergeList.get(0).getPASSID())) {
+                        System.out.println("[Error] 迟到数据(deleted): " + pathTransactionLinkedList.get(pathTransactionLinkedList.size()-1).getPASSID());
+                        ctx.output(latePath, mergeList);
+                    }else{
+                        System.out.println("[Error] 迟到数据: " + pathTransactionLinkedList.get(pathTransactionLinkedList.size()-1).getPASSID());
+                    }
                 }else{
                     System.out.println("[Info] 乱序数据：" + pathTransactionLinkedList.get(0).getPASSID());
                     ctx.output(unOrderedPath, pathTransactionLinkedList);
@@ -85,7 +88,7 @@ public class ExceptionFlow {
         SideOutputDataStream<LinkedList<PathTransaction>> latePathFlow = cleanPathFlow.getSideOutput(latePath);
 
         // 1. 超时数据接 redis 暂存
-        overTimePathStream.addSink(new RedisSink());
+        overTimePathStream.addSink(new RedisSink()).name("overTimePath");
         // 2. latePathFlow 读取 redis 数据重新计算
         DataStream<LinkedList<PathTransaction>> completeStream = cleanPathFlow.union(latePathFlow);
         // 3. 记录计算错误数据
@@ -111,6 +114,11 @@ public class ExceptionFlow {
             return true;
         }
         return pathTransaction instanceof GantryRawTransaction gantryRawTransaction && gantryRawTransaction.getGANTRYTYPE() == 2;
+    }
+
+    private static boolean removePath(String passID){
+        long del = jedis.del(passID);
+        return del != 0;
     }
 
     private static LinkedList<PathTransaction> mergeFromRedis(LinkedList<PathTransaction> pathTransactionLinkedList) throws JsonProcessingException {

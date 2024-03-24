@@ -396,7 +396,7 @@ public class ExitRawTransaction implements HighwayTransaction, PathTransaction {
     }
 
     public boolean peekLocal() {
-        return this.getIDENTIFYVLP().contains("鲁");
+        return this.getMULTIPROVINCE() == 0;
     }
 
     public boolean peekGreenCar() {

@@ -1,6 +1,7 @@
 package info.nemoworks.highlink.model.mapper;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 import info.nemoworks.highlink.model.gantryTransaction.GantryCpcTransaction;

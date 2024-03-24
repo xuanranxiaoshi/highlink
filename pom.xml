@@ -134,7 +134,16 @@
             <version>RELEASE</version>
             <scope>compile</scope>
         </dependency>
-
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.27</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid</artifactId>
+            <version>1.2.6</version>
+        </dependency>
 
     </dependencies>
 
@@ -160,10 +169,6 @@
                         </path>
                     </annotationProcessorPaths>
                     <encoding>UTF-8</encoding>
-                    <!--                    <compilerArgs>-->
-                    <!--                        <arg>&#45;&#45;add-opens java.base/java.lang=ALL-UNNAMED</arg>-->
-                    <!--                        <arg>&#45;&#45;add-opens java.base/java.util=ALL-UNNAMED</arg>-->
-                    <!--                    </compilerArgs>-->
                 </configuration>
             </plugin>
 
@@ -180,7 +185,7 @@
                             <archive>
                                 <manifest>
                                     <mainClass>
-                                        info.nemoworks.highlink.TransactionJob
+                                        info.nemoworks.highlink.Main
                                     </mainClass>
                                 </manifest>
                             </archive>
