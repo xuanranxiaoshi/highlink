@@ -13,7 +13,7 @@ import lombok.Data;
 @Data
 public class ExdForeignMunicipalTransaction implements HighwayTransaction{
     @JsonProperty("ID")
-    public double iD;
+    public String iD;
     @JsonProperty("MESSAGEID")
     public long mESSAGEID;
     @JsonProperty("ISSUERID")
@@ -99,7 +99,4 @@ public class ExdForeignMunicipalTransaction implements HighwayTransaction{
     @JsonProperty("VEHICLETYPE")
     public int vEHICLETYPE;
 
-    public String getID(){
-        return String.valueOf(this.iD);
-    }
 }

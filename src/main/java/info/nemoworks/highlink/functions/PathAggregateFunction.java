@@ -22,21 +22,23 @@ public class PathAggregateFunction implements AggregateFunction<PathTransaction,
 
     @Override
     public LinkedList<PathTransaction> add(PathTransaction pathTransaction, LinkedList<PathTransaction> pathTransactions) {
+        pathTransactions.add(pathTransaction);
+
         if(pathTransaction instanceof EntryRawTransaction){
-            System.out.println("Entry { passId: " + pathTransaction.getPASSID() + ", time: " + pathTransaction.getTime() +"}");
+            System.out.println("Entry { passId: " + pathTransaction.getPASSID() + ", time: " + pathTransaction.peekTime() +", size: " + pathTransactions.size()  + "}");
         }else if(pathTransaction instanceof GantryRawTransaction){
-            System.out.println("Gantry { passId: " + pathTransaction.getPASSID() + ", time: " + pathTransaction.getTime() +"}");
+            System.out.println("Gantry { passId: " + pathTransaction.getPASSID() + ", time: " + pathTransaction.peekTime() +", size: " + pathTransactions.size()  + "}");
         }else if(pathTransaction instanceof ExitRawTransaction){
-            System.out.println("Exit { passId: " + pathTransaction.getPASSID() + ", time: " + pathTransaction.getTime() +"}");
+            System.out.println("Exit { passId: " + pathTransaction.getPASSID() + ", time: " + pathTransaction.peekTime() +", size: " + pathTransactions.size()  + "}");
         }
 
-        pathTransactions.add(pathTransaction);
+
         return pathTransactions;
     }
 
     @Override
     public LinkedList<PathTransaction> getResult(LinkedList<PathTransaction> pathTransactions) {
-        System.out.println("================= Path [" +pathTransactions.get(0).getPASSID() + "] end =====================！");
+        // System.out.println("================= Path [" +pathTransactions.get(0).getPASSID() + "] end =====================！");
         return pathTransactions;
     }
 

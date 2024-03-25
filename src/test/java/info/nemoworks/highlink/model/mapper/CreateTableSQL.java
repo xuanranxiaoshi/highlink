@@ -5,6 +5,8 @@ import info.nemoworks.highlink.model.exitTransaction.ExitForeignETCTrans;
 import info.nemoworks.highlink.model.exitTransaction.ExitForeignOtherTrans;
 import info.nemoworks.highlink.model.exitTransaction.ExitLocalETCTrans;
 import info.nemoworks.highlink.model.exitTransaction.ExitLocalOtherTrans;
+import info.nemoworks.highlink.model.multiProvince.ETCSplitResultExit;
+import info.nemoworks.highlink.model.multiProvince.ETCSplitResultGantry;
 import info.nemoworks.highlink.model.tollChangeTransaction.TollChangeTransactions;
 import info.nemoworks.highlink.model.extendTransaction.ExdForeignGasTransaction;
 import info.nemoworks.highlink.model.extendTransaction.ExdForeignMunicipalTransaction;
@@ -14,7 +16,6 @@ import info.nemoworks.highlink.model.gantryTransaction.GantryCpcTransaction;
 import info.nemoworks.highlink.model.gantryTransaction.GantryEtcTransaction;
 
 public class CreateTableSQL {
-
 
     public static void main(String[] args) {
         System.out.println("出口交易数据的建表语句: ");
@@ -36,7 +37,10 @@ public class CreateTableSQL {
         System.out.println("通行费变更数据的建表语句: ");
         JdbcConnectorHelper.getCreateTableString(TollChangeTransactions.class);
 
-
+        System.out.println("跨省数据的建表语句: ");
+        JdbcConnectorHelper.getCreateTableString(ETCSplitResultExit.class);
+        JdbcConnectorHelper.getCreateTableString(ETCSplitResultGantry.class);
 
     }
+
 }

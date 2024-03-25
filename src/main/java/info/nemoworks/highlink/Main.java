@@ -1,5 +1,6 @@
 package info.nemoworks.highlink;
 
+import info.nemoworks.highlink.dataflow.DataFlows;
 import info.nemoworks.highlink.dataflow.old.PrepareGantryFromKafka;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.contrib.streaming.state.EmbeddedRocksDBStateBackend;
@@ -27,15 +28,15 @@ public class Main {
 
 
         // 3. 读入数据进行预处理
-        PrepareGantryFromKafka.start(env);
+        // PrepareGantryFromKafka.start(env);
 
+        // 4. 进入业务数据流
+        DataFlows.start(env);
 
         env.execute();
     }
 
     public static void setCheckPoint(String path, StreamExecutionEnvironment env){
-
-
 
         // 配置检查点信息
         env.enableCheckpointing(20000, CheckpointingMode.EXACTLY_ONCE);

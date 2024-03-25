@@ -159,8 +159,4 @@ public class GantryEtcTransaction implements HighwayTransaction {
     @JsonProperty("VLPC")
     public int vLPC;
 
-    @Override
-    public String getID() {
-        return this.iD;
-    }
 }

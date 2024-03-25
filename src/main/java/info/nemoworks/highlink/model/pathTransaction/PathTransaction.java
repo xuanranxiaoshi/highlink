@@ -11,5 +11,5 @@ import info.nemoworks.highlink.model.HighwayTransaction;
 public interface PathTransaction extends HighwayTransaction {
     public String getPASSID();
 
-    public String getTime();
+    public String peekTime();
 }

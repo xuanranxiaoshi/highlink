@@ -2,7 +2,9 @@ package info.nemoworks.highlink.connector;
 
 import info.nemoworks.highlink.kafka.HighwayTransDeSerializer;
 import info.nemoworks.highlink.kafka.JsonDeSerializer;
+import info.nemoworks.highlink.kafka.ProvinceTransDeSerializer;
 import info.nemoworks.highlink.model.HighwayTransaction;
+import info.nemoworks.highlink.model.multiProvince.ProvinceTransaction;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 
@@ -45,6 +47,16 @@ public class KafkaConnectorHelper {
                 .setGroupId("flink")
                 .setTopics(topic)
                 .setValueOnlyDeserializer(new HighwayTransDeSerializer())
+                .setStartingOffsets(OffsetsInitializer.latest())
+                .build();
+    }
+
+    public static KafkaSource getKafkaProvinceTransSource(String topic){
+        return KafkaSource.<ProvinceTransaction>builder()
+                .setProperties(KafkaConnectorHelper.getKafkaProperties())
+                .setGroupId("province")
+                .setTopics(topic)
+                .setValueOnlyDeserializer(new ProvinceTransDeSerializer())
                 .setStartingOffsets(OffsetsInitializer.latest())
                 .build();
     }

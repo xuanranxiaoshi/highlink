@@ -14,7 +14,7 @@ import lombok.Data;
 @Data
 public class ExdForeignGasTransaction implements HighwayTransaction {
     @JsonProperty("ID")
-    public double iD;
+    public String iD;
     @JsonProperty("GASSTATIONOPERATORID")
     public int gASSTATIONOPERATORID;
     @JsonProperty("ISSUERID")
@@ -104,7 +104,4 @@ public class ExdForeignGasTransaction implements HighwayTransaction {
     @JsonProperty("MANAGEID")
     public String mANAGEID;
 
-    public String getID(){
-        return String.valueOf(this.iD);
-    }
 }

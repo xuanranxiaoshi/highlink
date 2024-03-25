@@ -1,5 +1,6 @@
 package info.nemoworks.highlink.dataflow;
 
+import info.nemoworks.highlink.dataflow.encoder.PathEncoder;
 import info.nemoworks.highlink.dataflow.utils.utils;
 import info.nemoworks.highlink.functions.PathAggregateFunction;
 import info.nemoworks.highlink.functions.PathProcessWindowFunction;
@@ -123,13 +124,15 @@ public class PrepareFlow {
         return value;
     }
 
-    private static SingleOutputStreamOperator<LinkedList<PathTransaction>> processPath(DataStream<GantryRawTransaction> gantryStream, DataStream<EntryRawTransaction> entryCopyStream, DataStream<ExitRawTransaction> exitCopyStream) {
+    private static SingleOutputStreamOperator<LinkedList<PathTransaction>> processPath(DataStream<GantryRawTransaction> gantryStream,
+                                                                                       DataStream<EntryRawTransaction> entryCopyStream,
+                                                                                       DataStream<ExitRawTransaction> exitCopyStream) {
 
         // 0. 参数设置
         // 乱序等待 gap
         Duration OutOfOrderGap = Duration.ofMinutes(1);
         // 会话超时时间
-        Time sessionGap = Time.minutes(15);
+        Time sessionGap = Time.minutes(10);
 
         // 1. 合并 entry, gantry, exit 数据流
         DataStream<GantryRawTransaction> gantryCopyStream = gantryStream.broadcast();
@@ -160,14 +163,15 @@ public class PrepareFlow {
         // 2. 定义 Watermark 策略: 采用事件语义，提取 enTime 作为逻辑时间
         WatermarkStrategy<PathTransaction> watermarkStrategy = WatermarkStrategy
                 // 数据的乱序程度
-                .<PathTransaction>forBoundedOutOfOrderness(OutOfOrderGap)
+//                .<PathTransaction>forBoundedOutOfOrderness(OutOfOrderGap)
+                .<PathTransaction>forMonotonousTimestamps()
                 .withTimestampAssigner(new SerializableTimestampAssigner<PathTransaction>() {
                     @Override
                     public long extractTimestamp(PathTransaction rawTransaction, long l) {
                         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                         Date date = null;
                         try {
-                            date = dateFormat.parse(rawTransaction.getTime());
+                            date = dateFormat.parse(rawTransaction.peekTime());
                         } catch (ParseException e) {
                             throw new RuntimeException(e);
                         }
@@ -191,29 +195,9 @@ public class PrepareFlow {
                 .trigger(new PathTrigger())
                 .aggregate(new PathAggregateFunction(), new PathProcessWindowFunction())
                 .setParallelism(12);
+
+        // 4. 返回聚合路径
         return aggregatePathStream;
-
-        // 将聚合的路径信息输出到文件
-//        SingleOutputStreamOperator<String> aggregateCpaStream = pathTransWithWatermark
-//                .keyBy(PathTransaction::getPASSID)
-//                .window(EventTimeSessionWindows.withGap(sessionGap))
-//                .trigger(new PathTrigger())
-//                .aggregate(new PathAggregateFunction(), new PathProcessWindowFunction2())
-//                .setParallelism(12);
-//
-//        aggregateCpaStream.addSink(StreamingFileSink.forRowFormat(new Path(Configure.PRINT_FILENAME),
-//                        new SimpleStringEncoder<String>("UTF-8"))
-//                .withRollingPolicy(
-//                        DefaultRollingPolicy.builder()
-//                                //文件滚动间隔 每隔多久（指定）时间生成一个新文件
-//                                .withRolloverInterval(TimeUnit.MINUTES.toMillis(1))
-//                                //数据不活动时间 每隔多久（指定）未来活动数据，则将上一段时间（无数据时间段）也生成一个文件
-//                                .withInactivityInterval(TimeUnit.MINUTES.toMillis(5))
-//                                // 文件最大容量
-//                                .withMaxPartSize(200 * 1024 * 1024)
-//                                .build())
-//                .build());
-
     }
 
     private static void processGantryTrans(DataStream<GantryRawTransaction> gantryStream) {
@@ -229,7 +213,7 @@ public class PrepareFlow {
                                                ProcessFunction<GantryRawTransaction, GantryEtcTransaction>.Context ctx,
                                                Collector<GantryEtcTransaction> out) throws Exception {
                         // 处理逻辑 1：判断通行介质是否为OBU
-                        if (value.isEtc()) {    // 是：转化为门架ETC计费流水数据
+                        if (value.peekETC()) {    // 是：转化为门架ETC计费流水数据
                             ctx.output(ganCpcTag, GantryMapper.INSTANCE.gantryRawToCpcTransaction(value));
                         } else {                // 否：转化为门架CPC计费流水
                             out.collect(GantryMapper.INSTANCE.gantryRawToEtcTransaction(value));
@@ -311,24 +295,24 @@ public class PrepareFlow {
         SingleOutputStreamOperator<ExitLocalETCTrans> exitAllSream = exitStream.process(new ProcessFunction<ExitRawTransaction, ExitLocalETCTrans>() {
                     @Override
                     public void processElement(ExitRawTransaction value, ProcessFunction<ExitRawTransaction, ExitLocalETCTrans>.Context ctx, Collector<ExitLocalETCTrans> collector) throws Exception {
-                        if (!value.isPrimaryTrans()) {    // 非原始类交易
-                            if (value.isPayWithEtc()) {
+                        if (!value.peekPrimaryTrans()) {    // 非原始类交易
+                            if (value.peekPayWithEtc()) {
                                 ctx.output(etcTollChange, ExitMapper.INSTANCE.exitRawToTollChangeTrans(value));
                             } else {
                                 ctx.output(otherTollChange, ExitMapper.INSTANCE.exitRawToTollChangeTrans(value));
                             }
                         } else {    // 原始类交易
-                            if (!value.isPayWithEtc()) {    // 非 ETC 支付
-                                if (value.isLocal()) {
+                            if (!value.peekPayWithEtc()) {    // 非 ETC 支付
+                                if (value.peekLocal()) {
                                     ctx.output(localOther, ExitMapper.INSTANCE.exitRawToExitLocalOther(value));
                                 } else {
                                     ctx.output(foreignOther, ExitMapper.INSTANCE.exitRawToExitForeignOther(value));
                                 }
                             } else {    // ETC 支付
-                                if (!value.isTruck() || !value.isOBU() || !value.isGreenCar()) { // 触发二次计算
+                                if (!value.peekTruck() || !value.peekOBU() || !value.peekGreenCar()) { // 触发二次计算
                                     value = reCompute(value);
                                 }
-                                if (!value.isLocal()) {
+                                if (!value.peekLocal()) {
                                     ctx.output(foreignETC, ExitMapper.INSTANCE.exitRawToExitForeignETC(value));
                                 } else {
                                     collector.collect(ExitMapper.INSTANCE.exitRawToExitLocalETC(value));

@@ -13,7 +13,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonPro
 @Data
 public class ETCGantryPicWaste implements HighwayTransaction {
     @JsonProperty("PICID")
-    private String picid;
+    private String iD;
     @JsonProperty("GANTRYID")
     private String gantryid;
     @JsonProperty("GANTRYHEX")
@@ -101,8 +101,4 @@ public class ETCGantryPicWaste implements HighwayTransaction {
     @JsonProperty("REMARK")
     private String remark;
 
-    @Override
-    public String getID() {
-        return picid;
-    }
 }

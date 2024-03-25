@@ -14,7 +14,7 @@ import lombok.Data;
 @Data
 public class ParkTransWasteRec implements HighwayTransaction {
     @JsonProperty("ID")
-    private double iD;
+    private String iD;
     @JsonProperty("PARKOPERATORID")
     private int pARKOPERATORID;
     @JsonProperty("ISSUERID")
@@ -87,11 +87,6 @@ public class ParkTransWasteRec implements HighwayTransaction {
     private int mODIFYFLAG;
     @JsonProperty("SOURCEID")
     private String sOURCEID;
-
-    @Override
-    public String getID() {
-        return String.valueOf(this.iD);
-    }
 
     public boolean isPrimaryTrans() {
         return "09".equals(this.getTRANSTYPE());
