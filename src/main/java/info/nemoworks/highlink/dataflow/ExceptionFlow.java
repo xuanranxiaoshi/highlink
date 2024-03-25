@@ -8,7 +8,8 @@ import info.nemoworks.highlink.model.exitTransaction.ExitRawTransaction;
 import info.nemoworks.highlink.model.gantryTransaction.GantryRawTransaction;
 import info.nemoworks.highlink.model.mapper.LocalObjectMapper;
 import info.nemoworks.highlink.model.pathTransaction.PathTransaction;
-import info.nemoworks.highlink.sink.RedisSink;
+import info.nemoworks.highlink.sink.PathListRedisSink;
+import info.nemoworks.highlink.sink.WriteOnlyAnnotationIntrospector;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,6 +44,7 @@ public class ExceptionFlow {
     static {
         jedis = JedisConnectorHelper.getRedis();
         objectMapper = LocalObjectMapper.getObjectMapper();
+        objectMapper.setAnnotationIntrospector(new WriteOnlyAnnotationIntrospector());
     }
     public static DataStream<LinkedList<PathTransaction>> flow(DataStream<LinkedList<PathTransaction>> aggregatePathStream){
 
@@ -88,7 +90,7 @@ public class ExceptionFlow {
         SideOutputDataStream<LinkedList<PathTransaction>> latePathFlow = cleanPathFlow.getSideOutput(latePath);
 
         // 1. 超时数据接 redis 暂存
-        overTimePathStream.addSink(new RedisSink()).name("overTimePath");
+        overTimePathStream.addSink(new PathListRedisSink()).name("overTimePath");
         // 2. latePathFlow 读取 redis 数据重新计算
         DataStream<LinkedList<PathTransaction>> completeStream = cleanPathFlow.union(latePathFlow);
         // 3. 记录计算错误数据

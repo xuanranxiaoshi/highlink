@@ -73,6 +73,11 @@ public class JdbcConnectorHelper {
         return query;
     }
 
+    // todo: update 语句
+    public static <T> String getUpdateTemplateString(Class<T> clazz){
+        return null;
+    }
+
     public static <T> JdbcStatementBuilder<T> getStatementBuilder() {
         return new JdbcStatementBuilder<T>() {
 

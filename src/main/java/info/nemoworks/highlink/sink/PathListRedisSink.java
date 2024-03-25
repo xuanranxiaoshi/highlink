@@ -15,7 +15,7 @@ import java.util.LinkedList;
  * @date: 2024/3/13
  * @Copyright：
  */
-public class RedisSink  extends RichSinkFunction<LinkedList<PathTransaction>> {
+public class PathListRedisSink extends RichSinkFunction<LinkedList<PathTransaction>> {
     private transient Jedis jedis;
     private transient ObjectMapper objectMapper;
 
