@@ -18,8 +18,7 @@ public class Main {
         // StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(new Configuration());
 
         // 2. 配置检查点
-        String checkPath = "file:///WDC/users/chensc/modules/flink-1.18.0/checkpoints";
-        // String checkPath = "file:///tmp/flinkCheckPoints";
+        String checkPath = "file:///home/chensc/modules/flink-1.18.0/checkpoints";
         setCheckPoint(checkPath, env);
 
         // 3. 设置状态后端
