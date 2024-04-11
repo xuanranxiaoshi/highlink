@@ -23,15 +23,22 @@ public class BinaryToHexDeserializer extends StdDeserializer<String> {
     @Override
     public String deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JacksonException {
         JsonNode node = jsonParser.getCodec().readTree(jsonParser);
-        String binaryString = node.asText();
+        String inputString = node.asText();
 
-        // 将二进制字符串转换为 BigInteger
-        BigInteger bigInteger = new BigInteger(binaryString, 2);
+        // 检查输入字符串是否是二进制字符串
+        if (isBinaryString(inputString)) {
+            // 将二进制字符串转换为 BigInteger
+            BigInteger bigInteger = new BigInteger(inputString, 2);
+            // 将 BigInteger 转换为 16 进制字符串
+            return bigInteger.toString(16).toUpperCase();
+        } else {
+            // 如果输入的不是二进制字符串，则直接返回原始字符串
+            return inputString;
+        }
+    }
 
-        // 将 BigInteger 转换为 16 进制字符串
-        String hexString = bigInteger.toString(16);
-
-        return hexString.toUpperCase();
-
+    private boolean isBinaryString(String str) {
+        // 二进制字符串只包含 '0' 和 '1'，因此可以使用正则表达式进行匹配
+        return str.matches("[01]+");
     }
 }

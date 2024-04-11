@@ -68,9 +68,6 @@ public class RunKafkaProducer {
             // 1. 配置 kafka
             // 设置参数
             Properties props = new Properties();
-            // todo：修改 kafka 连接地址
-//        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "192.168.80.188:9092");
-//        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "hadoop105:9092");
             InputStream input = KafkaProducerEmulator.class.getClassLoader().getResourceAsStream("kafkaBasic.properties");
             props.load(input);
 

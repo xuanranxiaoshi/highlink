@@ -21,7 +21,6 @@ public class PathTrigger extends Trigger<PathTransaction, TimeWindow> {
         if (window.maxTimestamp() <= ctx.getCurrentWatermark()) {
             return TriggerResult.FIRE;
         }
-        // fixme: 对于乱序 exit 数据可能会导致路径缺失
         else if( element instanceof ExitRawTransaction ){
             return TriggerResult.FIRE;
         }

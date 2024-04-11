@@ -11,376 +11,376 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.annotatio
 @Data
 public class ExitRawTransaction implements HighwayTransaction, PathTransaction {
 
-    @JsonProperty(value = "ID", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "ID"  )
     private String iD;
-    @JsonProperty(value = "MODIFYFLAG", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "MODIFYFLAG"  )
     private int mODIFYFLAG;
-    @JsonProperty(value = "SOURCEID", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "SOURCEID"  )
     private String sOURCEID;
-    @JsonProperty(value = "PAYFEE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "PAYFEE"  )
     private int pAYFEE;
-    @JsonProperty(value = "TRANSCODE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "TRANSCODE"  )
     private String tRANSCODE;
-    @JsonProperty(value = "LDATE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "LDATE"  )
     private String lDATE;
-    @JsonProperty(value = "SHIFT", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "SHIFT"  )
     private String sHIFT;
-    @JsonProperty(value = "BATCHNUM", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "BATCHNUM"  )
     private String bATCHNUM;
-    @JsonProperty(value = "LOGINTIME", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "LOGINTIME"  )
     private String lOGINTIME;
-    @JsonProperty(value = "TRIGGERTIME", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "TRIGGERTIME"  )
     private String tRIGGERTIME;
-    @JsonProperty(value = "OPERID", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "OPERID"  )
     private int oPERID;
-    @JsonProperty(value = "OPERNAME", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "OPERNAME"  )
     private String oPERNAME;
-    @JsonProperty(value = "MONITOR", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "MONITOR"  )
     private int mONITOR;
-    @JsonProperty(value = "MONITORNAME", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "MONITORNAME"  )
     private String mONITORNAME;
-    @JsonProperty(value = "MONITORTIME", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "MONITORTIME"  )
     private String mONITORTIME;
-    @JsonProperty(value = "LANEAPPVER", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "LANEAPPVER"  )
     private String lANEAPPVER;
-    @JsonProperty(value = "ENWEIGHT", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "ENWEIGHT"  )
     private int eNWEIGHT;
-    @JsonProperty(value = "ENAXLECOUNT", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "ENAXLECOUNT"  )
     private int eNAXLECOUNT;
-    @JsonProperty(value = "ENTOLLSTATION", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "ENTOLLSTATION"  )
     private String eNTOLLSTATION;
-    @JsonProperty(value = "ENTOLLLANE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "ENTOLLLANE"  )
     private String eNTOLLLANE;
-    @JsonProperty(value = "ENTOLLSTATIONHEX", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "ENTOLLSTATIONHEX"  )
     private String eNTOLLSTATIONHEX;
-    @JsonProperty(value = "ENTOLLLANEHEX", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "ENTOLLLANEHEX"  )
     private String eNTOLLLANEHEX;
-    @JsonProperty(value = "ENTOLLSTATIONID", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "ENTOLLSTATIONID"  )
     private String eNTOLLSTATIONID;
-    @JsonProperty(value = "ENTOLLLANEID", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "ENTOLLLANEID"  )
     private String eNTOLLLANEID;
-    @JsonProperty(value = "ENTIME", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "ENTIME"  )
     private String eNTIME;
-    @JsonProperty(value = "ENTRYOPERATORID", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "ENTRYOPERATORID"  )
     private int eNTRYOPERATORID;
-    @JsonProperty(value = "LANETYPE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "LANETYPE"  )
     private int lANETYPE;
-    @JsonProperty(value = "EXTOLLSTATION", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "EXTOLLSTATION"  )
     private String eXTOLLSTATION;
-    @JsonProperty(value = "EXTOLLLANE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "EXTOLLLANE"  )
     private String eXTOLLLANE;
-    @JsonProperty(value = "EXTOLLSTATIONHEX", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "EXTOLLSTATIONHEX"  )
     private String eXTOLLSTATIONHEX;
-    @JsonProperty(value = "EXTOLLLANEHEX", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "EXTOLLLANEHEX"  )
     private String eXTOLLLANEHEX;
-    @JsonProperty(value = "EXTOLLSTATIONID", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "EXTOLLSTATIONID"  )
     private String eXTOLLSTATIONID;
-    @JsonProperty(value = "EXTOLLLANEID", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "EXTOLLLANEID"  )
     private String eXTOLLLANEID;
-    @JsonProperty(value = "EXTIME", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "EXTIME"  )
     private String eXTIME;
-    @JsonProperty(value = "BL_SUBCENTER", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "BL_SUBCENTER"  )
     private int bL_SUBCENTER;
-    @JsonProperty(value = "BL_CENTER", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "BL_CENTER"  )
     private int bL_CENTER;
-    @JsonProperty(value = "MEDIATYPE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "MEDIATYPE"  )
     private int mEDIATYPE;
-    @JsonProperty(value = "MEDIANO", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "MEDIANO"  )
     private long mEDIANO;
-    @JsonProperty(value = "OBUSIGN", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "OBUSIGN" )
     private String oBUSIGN;
-    @JsonProperty(value = "OBUISSUEFLAG", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "OBUISSUEFLAG"  )
     private String oBUISSUEFLAG;
-    @JsonProperty(value = "OBUID", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "OBUID"  )
     private String oBUID;
-    @JsonProperty(value = "CARDCNT", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "CARDCNT"  )
     private int cARDCNT;
-    @JsonProperty(value = "VCOUNT", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "VCOUNT"  )
     private int vCOUNT;
-    @JsonProperty(value = "INDUCTCNT", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "INDUCTCNT"  )
     private int iNDUCTCNT;
-    @JsonProperty(value = "ENVLP", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "ENVLP"  )
     private String eNVLP;
-    @JsonProperty(value = "ENVLPC", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "ENVLPC"  )
     private int eNVLPC;
-    @JsonProperty(value = "EXVLP", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "EXVLP"  )
     private String eXVLP;
-    @JsonProperty(value = "EXVLPC", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "EXVLPC"  )
     private int eXVLPC;
-    @JsonProperty(value = "IDENTIFYVLP", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "IDENTIFYVLP"  )
     private String iDENTIFYVLP;
-    @JsonProperty(value = "IDENTIFYVLPC", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "IDENTIFYVLPC"  )
     private int iDENTIFYVLPC;
-    @JsonProperty(value = "ENVEHICLETYPE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "ENVEHICLETYPE"  )
     private int eNVEHICLETYPE;
-    @JsonProperty(value = "EXVEHICLETYPE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "EXVEHICLETYPE"  )
     private int eXVEHICLETYPE;
-    @JsonProperty(value = "ENVEHICLECLASS", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "ENVEHICLECLASS"  )
     private int eNVEHICLECLASS;
-    @JsonProperty(value = "EXVEHICLECLASS", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "EXVEHICLECLASS"  )
     private int eXVEHICLECLASS;
-    @JsonProperty(value = "EXWEIGHT", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "EXWEIGHT"  )
     private int eXWEIGHT;
-    @JsonProperty(value = "AXISINFO", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "AXISINFO"  )
     private long aXISINFO;
-    @JsonProperty(value = "LIMITWEIGHT", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "LIMITWEIGHT"  )
     private int lIMITWEIGHT;
-    @JsonProperty(value = "OVERWEIGHTRATE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "OVERWEIGHTRATE"  )
     private int oVERWEIGHTRATE;
-    @JsonProperty(value = "AXLECOUNT", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "AXLECOUNT"  )
     private int aXLECOUNT;
-    @JsonProperty(value = "ELECTRICALPERCENTAGE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "ELECTRICALPERCENTAGE"  )
     private int eLECTRICALPERCENTAGE;
-    @JsonProperty(value = "TAC", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "TAC"  )
     private String tAC;
-    @JsonProperty(value = "TRANSTYPE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "TRANSTYPE"  )
     private String tRANSTYPE;
-    @JsonProperty(value = "TERMINALTRANSNO", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "TERMINALTRANSNO"  )
     private String tERMINALTRANSNO;
-    @JsonProperty(value = "TERMINALNO", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "TERMINALNO"  )
     private String tERMINALNO;
-    @JsonProperty(value = "SERVICETYPE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "SERVICETYPE"  )
     private int sERVICETYPE;
-    @JsonProperty(value = "ALGORITHMIDENTIFIER", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "ALGORITHMIDENTIFIER"  )
     private int aLGORITHMIDENTIFIER;
-    @JsonProperty(value = "TOLLDISTANCE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "TOLLDISTANCE"  )
     private int tOLLDISTANCE;
-    @JsonProperty(value = "REALDISTANCE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "REALDISTANCE"  )
     private int rEALDISTANCE;
-    @JsonProperty(value = "VSPEED", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "VSPEED"  )
     private int vSPEED;
-    @JsonProperty(value = "OVERTIME", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "OVERTIME"  )
     private int oVERTIME;
-    @JsonProperty(value = "FREETYPE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "FREETYPE"  )
     private int fREETYPE;
-    @JsonProperty(value = "FREEMODE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "FREEMODE"  )
     private String fREEMODE;
-    @JsonProperty(value = "FREEINFO", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "FREEINFO"  )
     private String fREEINFO;
-    @JsonProperty(value = "BALANCEBEFORE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "BALANCEBEFORE"  )
     private long bALANCEBEFORE;
-    @JsonProperty(value = "BALANCEAFTER", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "BALANCEAFTER"  )
     private long bALANCEAFTER;
-    @JsonProperty(value = "FEE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "FEE"  )
     private int fEE;
-    @JsonProperty(value = "COLLECTFEE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "COLLECTFEE"  )
     private int cOLLECTFEE;
-    @JsonProperty(value = "DISCOUNTFEE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "DISCOUNTFEE"  )
     private int dISCOUNTFEE;
-    @JsonProperty(value = "REBATEMONEY", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "REBATEMONEY"  )
     private int rEBATEMONEY;
-    @JsonProperty(value = "CARDCOSTFEE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "CARDCOSTFEE"  )
     private int cARDCOSTFEE;
-    @JsonProperty(value = "UNPAYFEE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "UNPAYFEE"  )
     private int uNPAYFEE;
-    @JsonProperty(value = "UNPAYFLAG", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "UNPAYFLAG"  )
     private int uNPAYFLAG;
-    @JsonProperty(value = "UNPAYCARDCOST", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "UNPAYCARDCOST"  )
     private int uNPAYCARDCOST;
-    @JsonProperty(value = "TICKETFEE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "TICKETFEE"  )
     private int tICKETFEE;
-    @JsonProperty(value = "UNIFIEDFEE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "UNIFIEDFEE"  )
     private int uNIFIEDFEE;
-    @JsonProperty(value = "ENTOLLMONEY", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "ENTOLLMONEY"  )
     private int eNTOLLMONEY;
-    @JsonProperty(value = "ENFREEMONEY", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "ENFREEMONEY"  )
     private int eNFREEMONEY;
-    @JsonProperty(value = "ENLASTMONEY", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "ENLASTMONEY"  )
     private int eNLASTMONEY;
-    @JsonProperty(value = "RETURNMONEYSN", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "RETURNMONEYSN"  )
     private String rETURNMONEYSN;
-    @JsonProperty(value = "PAYCARDTYPE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "PAYCARDTYPE"  )
     private String pAYCARDTYPE;
-    @JsonProperty(value = "PAYCARDNET", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "PAYCARDNET"  )
     private String pAYCARDNET;
-    @JsonProperty(value = "PAYCARDID", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "PAYCARDID"  )
     private String pAYCARDID;
-    @JsonProperty(value = "PAYCARDTRANSN", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "PAYCARDTRANSN"  )
     private int pAYCARDTRANSN;
-    @JsonProperty(value = "PAYTYPE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "PAYTYPE"  )
     private int pAYTYPE;
-    @JsonProperty(value = "PAYORDERNUM", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "PAYORDERNUM"  )
     private String pAYORDERNUM;
-    @JsonProperty(value = "PAYREBATE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "PAYREBATE"  )
     private int pAYREBATE;
-    @JsonProperty(value = "IDENTIFICATION", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "IDENTIFICATION"  )
     private int iDENTIFICATION;
-    @JsonProperty(value = "INVOICETYPE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "INVOICETYPE"  )
     private int iNVOICETYPE;
-    @JsonProperty(value = "INVOICECODE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "INVOICECODE"  )
     private String iNVOICECODE;
-    @JsonProperty(value = "INVOICEID", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "INVOICEID"  )
     private String iNVOICEID;
-    @JsonProperty(value = "INVOICECNT", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "INVOICECNT"  )
     private int iNVOICECNT;
-    @JsonProperty(value = "SIGNSTATUS", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "SIGNSTATUS"  )
     private int sIGNSTATUS;
-    @JsonProperty(value = "SPECIALTYPE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "SPECIALTYPE"  )
     private String sPECIALTYPE;
-    @JsonProperty(value = "LANESPINFO", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "LANESPINFO"  )
     private double lANESPINFO;
-    @JsonProperty(value = "SPINFO", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "SPINFO"  )
     @JsonDeserialize(using = BinaryToHexDeserializer.class)
     private String sPINFO;
-    @JsonProperty(value = "VEHICLESIGNID", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "VEHICLESIGNID"  )
     private String vEHICLESIGNID;
-    @JsonProperty(value = "MULTIPROVINCE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "MULTIPROVINCE"  )
     private int mULTIPROVINCE;
-    @JsonProperty(value = "KEYNUM", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "KEYNUM"  )
     private int kEYNUM;
-    @JsonProperty(value = "KEYPRESSINFO", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "KEYPRESSINFO"  )
     private String kEYPRESSINFO;
-    @JsonProperty(value = "PARAVER", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "PARAVER"  )
     private String pARAVER;
-    @JsonProperty(value = "PROVINCEGROUP", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "PROVINCEGROUP"  )
     private int pROVINCEGROUP;
-    @JsonProperty(value = "GANTRYIDGROUP", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "GANTRYIDGROUP"  )
     private String gANTRYIDGROUP;
-    @JsonProperty(value = "TOLLINTERVALSCOUNT", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "TOLLINTERVALSCOUNT"  )
     private int tOLLINTERVALSCOUNT;
-    @JsonProperty(value = "TOLLINTERVALSGROUP", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "TOLLINTERVALSGROUP"  )
     private String tOLLINTERVALSGROUP;
-    @JsonProperty(value = "TRANSTIMEGROUP", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "TRANSTIMEGROUP"  )
     private String tRANSTIMEGROUP;
-    @JsonProperty(value = "CHARGEFEEGROUP", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "CHARGEFEEGROUP"  )
     private String cHARGEFEEGROUP;
-    @JsonProperty(value = "CHARGEDISCOUNTGROUP", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "CHARGEDISCOUNTGROUP"  )
     private String cHARGEDISCOUNTGROUP;
-    @JsonProperty(value = "RATEMODEVERSIONGROUP", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "RATEMODEVERSIONGROUP"  )
     private String rATEMODEVERSIONGROUP;
-    @JsonProperty(value = "RATEPARAVERSIONGROUP", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "RATEPARAVERSIONGROUP"  )
     private String rATEPARAVERSIONGROUP;
-    @JsonProperty(value = "TOLLFEEGROUP", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "TOLLFEEGROUP"  )
     private int tOLLFEEGROUP;
-    @JsonProperty(value = "PASSID", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "PASSID"  )
     private String pASSID;
-    @JsonProperty(value = "STATIONRECEIVETIME", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "STATIONRECEIVETIME"  )
     private String sTATIONRECEIVETIME;
-    @JsonProperty(value = "RECEIVETIME", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "RECEIVETIME"  )
     private String rECEIVETIME;
-    @JsonProperty(value = "VERIFYCODE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "VERIFYCODE"  )
     private String vERIFYCODE;
-    @JsonProperty(value = "VERIFYFLAG", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "VERIFYFLAG"  )
     private int vERIFYFLAG;
-    @JsonProperty(value = "TRANSFLAG", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "TRANSFLAG"  )
     private int tRANSFLAG;
-    @JsonProperty(value = "REMARKS", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "REMARKS"  )
     private String rEMARKS;
-    @JsonProperty(value = "SPARE1", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "SPARE1"  )
     private String sPARE1;
-    @JsonProperty(value = "SPARE2", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "SPARE2"  )
     private String sPARE2;
-    @JsonProperty(value = "SPARE3", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "SPARE3"  )
     private String sPARE3;
-    @JsonProperty(value = "SPARE4", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "SPARE4"  )
     private String sPARE4;
-    @JsonProperty(value = "SPARE5", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "SPARE5"  )
     private String sPARE5;
-    @JsonProperty(value = "SUPPLIERID", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "SUPPLIERID"  )
     private int sUPPLIERID;
-    @JsonProperty(value = "ROADTYPE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "ROADTYPE"  )
     private int rOADTYPE;
-    @JsonProperty(value = "ENTOLLSTATIONNAME", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "ENTOLLSTATIONNAME"  )
     private String eNTOLLSTATIONNAME;
-    @JsonProperty(value = "EXTOLLSTATIONNAME", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "EXTOLLSTATIONNAME"  )
     private String eXTOLLSTATIONNAME;
-    @JsonProperty(value = "SECTIONGROUP", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "SECTIONGROUP"  )
     private String sECTIONGROUP;
-    @JsonProperty(value = "GANTRYPASSCOUNT", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "GANTRYPASSCOUNT"  )
     private String gANTRYPASSCOUNT;
-    @JsonProperty(value = "GANTRYPASSINFO", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "GANTRYPASSINFO"  )
     private String gANTRYPASSINFO;
-    @JsonProperty(value = "FEEPROVINFO", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "FEEPROVINFO"  )
     private String fEEPROVINFO;
-    @JsonProperty(value = "PAYCODE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "PAYCODE"  )
     private String pAYCODE;
-    @JsonProperty(value = "DESCRIPTION", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "DESCRIPTION"  )
     private int dESCRIPTION;
-    @JsonProperty(value = "VERIFYPASSTIME", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "VERIFYPASSTIME"  )
     private String vERIFYPASSTIME;
-    @JsonProperty(value = "VEHICLESIGN", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "VEHICLESIGN"  )
     private String vEHICLESIGN;
-    @JsonProperty(value = "CHECKSIGN", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "CHECKSIGN"  )
     private int cHECKSIGN;
-    @JsonProperty(value = "OBUVERSION", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "OBUVERSION"  )
     private int oBUVERSION;
-    @JsonProperty(value = "CARDVERSION", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "CARDVERSION"  )
     private int cARDVERSION;
-    @JsonProperty(value = "SHORTFEE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "SHORTFEE"  )
     private int sHORTFEE;
-    @JsonProperty(value = "ACTUALFEECLASS", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "ACTUALFEECLASS"  )
     private int aCTUALFEECLASS;
-    @JsonProperty(value = "OBUTOTALCOUNT", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "OBUTOTALCOUNT"  )
     private int oBUTOTALCOUNT;
-    @JsonProperty(value = "NOCARDCOUNT", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "NOCARDCOUNT"  )
     private int nOCARDCOUNT;
-    @JsonProperty(value = "ETCTOTALAMOUNT", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "ETCTOTALAMOUNT"  )
     private int eTCTOTALAMOUNT;
-    @JsonProperty(value = "FEEBOARDPLAY", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "FEEBOARDPLAY"  )
     private int fEEBOARDPLAY;
-    @JsonProperty(value = "SPCRATEVERSION", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "SPCRATEVERSION"  )
     private int sPCRATEVERSION;
-    @JsonProperty(value = "CHARGEMODE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "CHARGEMODE"  )
     private int cHARGEMODE;
-    @JsonProperty(value = "TRANSPAYTYPE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "TRANSPAYTYPE"  )
     private int tRANSPAYTYPE;
-    @JsonProperty(value = "FEEMILEAGE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "FEEMILEAGE"  )
     private int fEEMILEAGE;
-    @JsonProperty(value = "PROVFEE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "PROVFEE"  )
     private int pROVFEE;
-    @JsonProperty(value = "PROVTRANSCOUNT", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "PROVTRANSCOUNT"  )
     private int pROVTRANSCOUNT;
-    @JsonProperty(value = "PROVINCECOUNT", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "PROVINCECOUNT"  )
     private int pROVINCECOUNT;
-    @JsonProperty(value = "PROVINCETRANSGROUP", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "PROVINCETRANSGROUP"  )
     private String pROVINCETRANSGROUP;
-    @JsonProperty(value = "TRANSFEE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "TRANSFEE"  )
     private int tRANSFEE;
-    @JsonProperty(value = "OBUPAYFEE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "OBUPAYFEE"  )
     private String oBUPAYFEE;
-    @JsonProperty(value = "OBUDISCOUNTFEE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "OBUDISCOUNTFEE"  )
     private String oBUDISCOUNTFEE;
-    @JsonProperty(value = "SHORTFEEMILEAGE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "SHORTFEEMILEAGE"  )
     private int sHORTFEEMILEAGE;
-    @JsonProperty(value = "OBUTOTALAMOUNT", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "OBUTOTALAMOUNT"  )
     private String oBUTOTALAMOUNT;
-    @JsonProperty(value = "OBUTOTALDISCOUNTAMOUNT", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "OBUTOTALDISCOUNTAMOUNT"  )
     private String oBUTOTALDISCOUNTAMOUNT;
-    @JsonProperty(value = "TOLLPROVINCEID", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "TOLLPROVINCEID"  )
     private int tOLLPROVINCEID;
-    @JsonProperty(value = "OPENTYPE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "OPENTYPE"  )
     private int oPENTYPE;
-    @JsonProperty(value = "DISCOUNTTYPE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "DISCOUNTTYPE"  )
     private String dISCOUNTTYPE;
-    @JsonProperty(value = "PROVINCEDISCOUNTFEE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "PROVINCEDISCOUNTFEE"  )
     private int pROVINCEDISCOUNTFEE;
-    @JsonProperty(value = "ORIGINFEE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "ORIGINFEE"  )
     private int oRIGINFEE;
-    @JsonProperty(value = "FEERATE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "FEERATE"  )
     private int fEERATE;
-    @JsonProperty(value = "DISPUTEDSTATUS", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "DISPUTEDSTATUS"  )
     private int dISPUTEDSTATUS;
-    @JsonProperty(value = "DISPUTETIME", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "DISPUTETIME"  )
     private String dISPUTETIME;
-    @JsonProperty(value = "LETGOFLAG", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "LETGOFLAG"  )
     private int lETGOFLAG;
-    @JsonProperty(value = "VACCINEFLAG", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "VACCINEFLAG"  )
     private int vACCINEFLAG;
-    @JsonProperty(value = "WASTESPARE1", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "WASTESPARE1"  )
     private String wASTESPARE1;
-    @JsonProperty(value = "WASTESPARE2", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "WASTESPARE2"  )
     private String wASTESPARE2;
-    @JsonProperty(value = "WASTESPARE3", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "WASTESPARE3"  )
     private String wASTESPARE3;
-    @JsonProperty(value = "WASTESPARE4", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "WASTESPARE4"  )
     private String wASTESPARE4;
-    @JsonProperty(value = "WASTESPARE5", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "WASTESPARE5"  )
     private int wASTESPARE5;
-    @JsonProperty(value = "APPOINTID", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "APPOINTID"  )
     private String aPPOINTID;
-    @JsonProperty(value = "ORIGINALFLAG", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "ORIGINALFLAG"  )
     private int oRIGINALFLAG;
-    @JsonProperty(value = "EXINDISPUTEDTYPE", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "EXINDISPUTEDTYPE"  )
     private int eXINDISPUTEDTYPE;
 
     public boolean peekPrimaryTrans() {

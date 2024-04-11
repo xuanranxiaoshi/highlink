@@ -4,7 +4,7 @@ import info.nemoworks.highlink.connector.JedisConnectorHelper;
 import info.nemoworks.highlink.model.entryTransaction.EntryRawTransaction;
 import info.nemoworks.highlink.model.exitTransaction.ExitRawTransaction;
 import info.nemoworks.highlink.model.gantryTransaction.GantryRawTransaction;
-import info.nemoworks.highlink.model.mapper.LocalObjectMapper;
+import info.nemoworks.highlink.utils.SimpleContainer;
 import info.nemoworks.highlink.model.pathTransaction.PathTransaction;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,7 +27,7 @@ public class OutOfTimePathProcessFunction extends ProcessFunction<LinkedList<Pat
 
     public OutOfTimePathProcessFunction(){
         jedis = JedisConnectorHelper.getRedis();
-        objectMapper = LocalObjectMapper.getObjectMapper();
+        objectMapper = SimpleContainer.getObjectMapper();
     }
 
     @Override

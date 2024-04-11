@@ -1,7 +1,6 @@
 package info.nemoworks.highlink.dataflow;
 
-import info.nemoworks.highlink.dataflow.encoder.PathEncoder;
-import info.nemoworks.highlink.dataflow.utils.utils;
+import info.nemoworks.highlink.utils.SinkUtils;
 import info.nemoworks.highlink.functions.PathAggregateFunction;
 import info.nemoworks.highlink.functions.PathProcessWindowFunction;
 import info.nemoworks.highlink.functions.PathTrigger;
@@ -100,15 +99,16 @@ public class PrepareFlow {
         // 3.2 出口数据预处理
         processExitTrans(rawExitTrans);
 
+
         // 3.3 入口流水
-        entryStream.addSink(new TransactionSinks.LogSink<>());
+        DataStream<EntryRawTransaction> entryCopyStream = entryStream.broadcast();
+        SinkUtils.addSinkToStream(entryStream, EntryRawTransaction.class, "entryRawStream");
 
         // 3.4 门架数据预处理:
         // (1) 原始数据预处理
         processGantryTrans(rawGantryTrans);
 
         // (2) 门架路径聚合
-        DataStream<EntryRawTransaction> entryCopyStream = entryStream.broadcast();
         DataStream<GantryRawTransaction> gantryCopyStream = gantryStream.broadcast();
         DataStream<ExitRawTransaction> exitCopyStream = exitStream.broadcast();
 
@@ -116,7 +116,6 @@ public class PrepareFlow {
                 processPath(gantryCopyStream, entryCopyStream, exitCopyStream);
 
         return aggregatePathStream;
-
     }
 
 
@@ -194,7 +193,7 @@ public class PrepareFlow {
                 .window(EventTimeSessionWindows.withGap(sessionGap))
                 .trigger(new PathTrigger())
                 .aggregate(new PathAggregateFunction(), new PathProcessWindowFunction())
-                .setParallelism(12);
+                .setParallelism(2);
 
         // 4. 返回聚合路径
         return aggregatePathStream;
@@ -229,8 +228,8 @@ public class PrepareFlow {
 
 
         // 3. 分别对两类数据进行记录
-        utils.addSinkToStream(gantryCpcStream, GantryCpcTransaction.class, "gantryCpcStream");
-        utils.addSinkToStream(gantryEtcStream, GantryEtcTransaction.class, "gantryEtcStream");
+        SinkUtils.addSinkToStream(gantryCpcStream, GantryCpcTransaction.class, "gantryCpcStream");
+        SinkUtils.addSinkToStream(gantryEtcStream, GantryEtcTransaction.class, "gantryEtcStream");
     }
 
     private static void processExdTrans(DataStream<ParkTransWasteRec> parkStream) {
@@ -272,11 +271,11 @@ public class PrepareFlow {
         DataStream<ExdForeignMunicipalTransaction> extForeignMunicipalStream = allTransStream.getSideOutput(extForeignMunicipalTag).map(new LinkCounter<>("extForeignMunicipalCounter")).name("extForeignMunicipalCounter");
         DataStream<ExdLocalTransaction> extLocalTransStream = allTransStream.map(new LinkCounter<>("extLocalTransCounter")).name("extLocalTransCounter");
 
-        utils.addSinkToStream(exchangeStream, TollChangeTransactions.class, "exchangeStream");
-        utils.addSinkToStream(extForeignGasStream, ExdForeignGasTransaction.class, "extForeignGasStream");
-        utils.addSinkToStream(extForeignParkStream, ExdForeignParkTransaction.class, "extForeignParkStream");
-        utils.addSinkToStream(extForeignMunicipalStream, ExdForeignMunicipalTransaction.class, "extForeignMunicipalStream");
-        utils.addSinkToStream(extLocalTransStream, ExdLocalTransaction.class, "extLocalTransStream");
+        SinkUtils.addSinkToStream(exchangeStream, TollChangeTransactions.class, "exchangeStream");
+        SinkUtils.addSinkToStream(extForeignGasStream, ExdForeignGasTransaction.class, "extForeignGasStream");
+        SinkUtils.addSinkToStream(extForeignParkStream, ExdForeignParkTransaction.class, "extForeignParkStream");
+        SinkUtils.addSinkToStream(extForeignMunicipalStream, ExdForeignMunicipalTransaction.class, "extForeignMunicipalStream");
+        SinkUtils.addSinkToStream(extLocalTransStream, ExdLocalTransaction.class, "extLocalTransStream");
 
     }
 
@@ -333,12 +332,12 @@ public class PrepareFlow {
         DataStream<ExitForeignETCTrans> foreignETCTrans = exitAllSream.getSideOutput(foreignETC).map(new LinkCounter<>("foreignETCTransCounter")).name("foreignETCTransCounter");
         DataStream<ExitLocalETCTrans> localETCTrans = exitAllSream.map(new LinkCounter<>("localETCTransCounter")).name("localETCTransCounter");
 
-        utils.addSinkToStream(etcTollChangeTrans, TollChangeTransactions.class, "etcTollChangeTrans");
-        utils.addSinkToStream(otherTollChangeTrans, TollChangeTransactions.class, "otherTollChangeTrans");
-        utils.addSinkToStream(localOtherTrans, ExitLocalOtherTrans.class, "localOtherTrans");
-        utils.addSinkToStream(foreignOtherTrans, ExitForeignOtherTrans.class, "foreignOtherTrans");
-        utils.addSinkToStream(foreignETCTrans, ExitForeignETCTrans.class, "foreignETCTrans");
-        utils.addSinkToStream(localETCTrans, ExitLocalETCTrans.class, "localETCTrans");
+        SinkUtils.addSinkToStream(etcTollChangeTrans, TollChangeTransactions.class, "etcTollChangeTrans");
+        SinkUtils.addSinkToStream(otherTollChangeTrans, TollChangeTransactions.class, "otherTollChangeTrans");
+        SinkUtils.addSinkToStream(localOtherTrans, ExitLocalOtherTrans.class, "localOtherTrans");
+        SinkUtils.addSinkToStream(foreignOtherTrans, ExitForeignOtherTrans.class, "foreignOtherTrans");
+        SinkUtils.addSinkToStream(foreignETCTrans, ExitForeignETCTrans.class, "foreignETCTrans");
+        SinkUtils.addSinkToStream(localETCTrans, ExitLocalETCTrans.class, "localETCTrans");
     }
 
 

@@ -1,6 +1,7 @@
 package info.nemoworks.highlink.model.pathTransaction;
 
 import info.nemoworks.highlink.connector.JdbcConnectorHelper;
+import info.nemoworks.highlink.dao.CacheDao;
 import info.nemoworks.highlink.model.HighwayTransaction;
 import info.nemoworks.highlink.model.RawTransactionFactory;
 import info.nemoworks.highlink.model.entryTransaction.EntryRawTransaction;
@@ -9,6 +10,7 @@ import info.nemoworks.highlink.model.exitTransaction.ExitRawTransaction;
 import info.nemoworks.highlink.model.extendTransaction.ParkTransWasteRec;
 import info.nemoworks.highlink.model.gantryTransaction.GantryCpcTransaction;
 import info.nemoworks.highlink.model.gantryTransaction.GantryRawTransaction;
+import info.nemoworks.highlink.utils.SimpleContainer;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,7 +28,7 @@ import java.util.Map;
  * @Copyright：
  */
 public class TestSingleProvincePathTrans {
-    ObjectMapper mapper = new ObjectMapper();
+    ObjectMapper mapper = SimpleContainer.getObjectMapper();
 
     @Test
     public  void testETC() {
@@ -115,9 +117,9 @@ public class TestSingleProvincePathTrans {
             JsonNode json = jsonNode.get(i);
             PathTransaction pathTransaction;
             System.out.println(json.toString());
-            if (json.get("EXTOLLSTATION".toLowerCase()) != null) {
+            if (json.get("EXTOLLSTATION") != null) {
                 pathTransaction = mapper.treeToValue(json, ExitRawTransaction.class);
-            }else if (json.get("GANTRYID".toLowerCase()) != null) {
+            }else if (json.get("GANTRYID") != null) {
                 pathTransaction = mapper.treeToValue(json, GantryRawTransaction.class);
             }else{
                 pathTransaction = mapper.treeToValue(json, EntryRawTransaction.class);
@@ -126,6 +128,9 @@ public class TestSingleProvincePathTrans {
         }
 
         System.out.println(list2);
+//        CacheDao cacheDao = SimpleContainer.getCacheDao();
+//        cacheDao.set("test", pathStr);
+//        System.out.println("get: " + cacheDao.get("test"));
 
     }
 }
