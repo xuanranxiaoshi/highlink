@@ -16,13 +16,14 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Objects;
 
-public class H2Server {
+public class DataSourceUtils {
 
     private static final String PORT = "8082";
 
-    public static void startServer(){
+    private static final String SOURCE_TYPE = Config.getProperty("datasource.type");
+    public static void startH2Server(){
         try {
-            if(!"TRUE".equalsIgnoreCase(Config.getProperty("h2.console.enabled"))){
+            if(!"h2".equals(SOURCE_TYPE) || !"TRUE".equalsIgnoreCase(Config.getProperty("h2.console.enabled"))){
                 return;
             }
             String port = Config.getProperty("h2.console.port");
@@ -44,37 +45,38 @@ public class H2Server {
     }
 
     public static Connection getConnection() throws ClassNotFoundException, SQLException {
-        // 连接到H2数据库
-        Class.forName(Config.getProperty("datasource.driver-class-name"));
-        String dbUrl = Config.getProperty("datasource.url");
-        String username = Config.getProperty("datasource.username");
-        String password = Config.getProperty("datasource.password");
+        // 连接到数据库
+        Class.forName(Config.getProperty(SOURCE_TYPE + ".driver-class-name"));
+        String dbUrl = Config.getProperty(SOURCE_TYPE + ".url");
+        String username = Config.getProperty(SOURCE_TYPE + ".username");
+        String password = Config.getProperty(SOURCE_TYPE + ".password");
         return DriverManager.getConnection(dbUrl, username, password);
     }
 
     public static void initialize(){
-        String schemaLocation = Config.getProperty("datasource.schema");
+        String schemaLocation = Config.getProperty(SOURCE_TYPE + ".schema");
         if(schemaLocation == null){
-            schemaLocation = "db/h2/schema.sql";
+            schemaLocation = "db/mysql/schema.sql";
         }
         try(Connection connection = getConnection()) {
-            InputStream inputStream = H2Server.class.getClassLoader().getResourceAsStream(schemaLocation);
+            InputStream inputStream = DataSourceUtils.class.getClassLoader().getResourceAsStream(schemaLocation);
             executeSqlFile(connection, inputStream);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
     private static void executeSqlFile(Connection conn, InputStream inputStream) throws Exception {
-        System.out.println("H2 DataBase Initial!");
+        System.out.println(SOURCE_TYPE + " DataBase Initial!");
         StringBuilder sql = new StringBuilder();
         try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
             String line;
             while ((line = br.readLine()) != null) {
-                sql.append(line).append("\n");
+                sql.append(line);
             }
         }
 
         try (Statement stmt = conn.createStatement()) {
+            String s = sql.toString();
             stmt.execute(sql.toString());
         }
     }
@@ -87,9 +89,13 @@ public class H2Server {
             }
         }
         if (initializeFlag) {
-            H2Server.initialize();
+            DataSourceUtils.initialize();
         }
-        H2Server.startServer();
+        if("h2".equals(SOURCE_TYPE)){
+            DataSourceUtils.startH2Server();
+        }
+
+        initialize();
     }
 
 }

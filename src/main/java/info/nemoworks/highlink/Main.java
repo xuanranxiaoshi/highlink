@@ -2,9 +2,9 @@ package info.nemoworks.highlink;
 
 import info.nemoworks.highlink.dataflow.DataFlows;
 import info.nemoworks.highlink.utils.Config;
-import info.nemoworks.highlink.utils.H2Server;
+import info.nemoworks.highlink.utils.DataSourceUtils;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.contrib.streaming.state.RocksDBStateBackend;
+import org.apache.flink.contrib.streaming.state.EmbeddedRocksDBStateBackend;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -14,17 +14,11 @@ import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
 
 public class Main {
-
     public static void main(String[] args) throws Exception {
         printJvm();
+        DataSourceUtils.initialize();
 
-        H2Server.initialize();
-
-//        if ("h2".equals(Config.getProperty("datasource.type"))) {
-//            H2Server.startServer();
-//        }
-
-        // 1. 本地 web-ui 显示方式
+        // 1. 创建环境
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment(setConfig());
 
         // 2. 配置检查点
@@ -32,10 +26,7 @@ public class Main {
         setCheckPoint(checkPath, env);
 
         // 3. 设置状态后端
-        env.setStateBackend(new RocksDBStateBackend("file://" + Config.getProperty("flink.checkPointPath"), true));
-
-        // 3. 读入数据进行预处理
-        // PrepareGantryFromKafka.start(env);
+        env.setStateBackend(new EmbeddedRocksDBStateBackend());
 
         // 4. 进入业务数据流
         DataFlows.start(env);
@@ -93,9 +84,6 @@ public class Main {
         configuration.setString("taskmanager.memory.process.size", "6144m");
         configuration.setInteger("taskmanager.numberOfTaskSlots", 12);
         configuration.setInteger("parallelism.default", 1);
-//        configuration.setBoolean("state.backend.changelog.enabled", true);
-//        configuration.setString("state.backend.changelog.storage", "filesystem");
-//        configuration.setString("dstl.dfs.base-path", "file://" + Config.getProperty("flink.dstl.dfs.base-path"));
         configuration.setDouble("taskmanager.memory.managed.fraction", 0.4);
         configuration.setDouble("taskmanager.memory.network.fraction", 0.05);
         configuration.setInteger("rest.port", 8081);

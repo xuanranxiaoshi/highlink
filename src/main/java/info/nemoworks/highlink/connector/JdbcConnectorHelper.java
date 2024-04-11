@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Properties;
 
+import info.nemoworks.highlink.utils.Config;
 import org.apache.flink.connector.jdbc.JdbcConnectionOptions;
 import org.apache.flink.connector.jdbc.JdbcExecutionOptions;
 import org.apache.flink.connector.jdbc.JdbcStatementBuilder;
@@ -80,11 +81,12 @@ public class JdbcConnectorHelper {
     }
 
     public static JdbcConnectionOptions getJdbcConnectionOptions() {
+        String type = Config.getProperty( "datasource.type");
         return new JdbcConnectionOptions.JdbcConnectionOptionsBuilder()
-                .withUrl("jdbc:h2:~/highLinks")
-                .withDriverName("org.h2.Driver")
-                .withUsername("sa")
-                .withPassword("sa")
+                .withUrl(Config.getProperty(type + ".url"))
+                .withDriverName(Config.getProperty(type + ".driver-class-name"))
+                .withUsername(Config.getProperty(type + ".username"))
+                .withPassword(Config.getProperty(type + ".password"))
                 .build();
     }
 

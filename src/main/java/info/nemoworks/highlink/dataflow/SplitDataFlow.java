@@ -170,8 +170,8 @@ public class SplitDataFlow {
 
         SideOutputDataStream eTCSplitResultExitStream = ETCSplitResultGantryStream.getSideOutput(ETCSplitResultExitOutputTag);
 
-        SinkUtils.addSinkToStream(ETCSplitResultGantryStream, ETCSplitResultGantry.class, "ETCSplitResultGantry");
-        SinkUtils.addSinkToStream(eTCSplitResultExitStream, ETCSplitResultExit.class, "ETCSplitResultExit");
+        SinkUtils.addInsertSinkToStream(ETCSplitResultGantryStream, ETCSplitResultGantry.class, "ETCSplitResultGantry");
+        SinkUtils.addInsertSinkToStream(eTCSplitResultExitStream, ETCSplitResultExit.class, "ETCSplitResultExit");
     }
 
     /**
