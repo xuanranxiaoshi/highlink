@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Properties;
 
+import info.nemoworks.highlink.utils.Config;
 import org.apache.flink.connector.jdbc.JdbcConnectionOptions;
 import org.apache.flink.connector.jdbc.JdbcExecutionOptions;
 import org.apache.flink.connector.jdbc.JdbcStatementBuilder;
@@ -15,20 +16,6 @@ import com.alibaba.druid.pool.DruidDataSourceFactory;
 import javax.sql.DataSource;
 
 public class JdbcConnectorHelper {
-
-    public static DataSource dataSource;
-
-    static {
-        Properties properties = new Properties();
-        try {
-            properties.load(JdbcConnectorHelper.class.getClassLoader().getResourceAsStream("druid.properties"));
-            dataSource = DruidDataSourceFactory.createDataSource(properties);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-    }
-
     public static <T> String getCreateTableString(Class<T> clazz) {
         String query = "CREATE TABLE " + clazz.getSimpleName().toUpperCase() + "(";
         Field[] fields = clazz.getDeclaredFields();
@@ -73,11 +60,6 @@ public class JdbcConnectorHelper {
         return query;
     }
 
-    // todo: update 语句
-    public static <T> String getUpdateTemplateString(Class<T> clazz){
-        return null;
-    }
-
     public static <T> JdbcStatementBuilder<T> getStatementBuilder() {
         return new JdbcStatementBuilder<T>() {
 
@@ -99,12 +81,12 @@ public class JdbcConnectorHelper {
     }
 
     public static JdbcConnectionOptions getJdbcConnectionOptions() {
-        //todo: 修改数据库的连接地址
+        String type = Config.getProperty( "datasource.type");
         return new JdbcConnectionOptions.JdbcConnectionOptionsBuilder()
-                .withUrl("jdbc:mysql://localhost:3306/highLink")
-                .withDriverName("com.mysql.cj.jdbc.Driver")
-                .withUsername("root")
-                .withPassword("123456")
+                .withUrl(Config.getProperty(type + ".url"))
+                .withDriverName(Config.getProperty(type + ".driver-class-name"))
+                .withUsername(Config.getProperty(type + ".username"))
+                .withPassword(Config.getProperty(type + ".password"))
                 .build();
     }
 

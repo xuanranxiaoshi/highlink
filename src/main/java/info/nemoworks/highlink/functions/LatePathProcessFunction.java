@@ -1,7 +1,7 @@
 package info.nemoworks.highlink.functions;
 
 import info.nemoworks.highlink.connector.JedisConnectorHelper;
-import info.nemoworks.highlink.model.mapper.LocalObjectMapper;
+import info.nemoworks.highlink.utils.SimpleContainer;
 import info.nemoworks.highlink.model.pathTransaction.PathTransaction;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
@@ -23,7 +23,7 @@ public class LatePathProcessFunction extends ProcessFunction<LinkedList<PathTran
 
     public LatePathProcessFunction(){
         jedis = JedisConnectorHelper.getRedis();
-        objectMapper = LocalObjectMapper.getObjectMapper();
+        objectMapper = SimpleContainer.getObjectMapper();
     }
     @Override
     public void processElement(LinkedList<PathTransaction> value,

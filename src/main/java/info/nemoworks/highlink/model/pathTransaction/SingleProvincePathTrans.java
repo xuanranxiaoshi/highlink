@@ -64,7 +64,6 @@ public class SingleProvincePathTrans {
      * @return
      */
     public void splitCharge() {
-        // fixme: 空指针异常
         int exitfeetype = this.exitRawTransaction.getACTUALFEECLASS();
         if(exitfeetype == 1 || exitfeetype == 3){   // 计费方式 1\3
             for (int i = 0; i < gantryRawTransactionList.size(); i++) {

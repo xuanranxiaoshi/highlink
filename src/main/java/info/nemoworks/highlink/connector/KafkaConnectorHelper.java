@@ -54,7 +54,7 @@ public class KafkaConnectorHelper {
     public static KafkaSource getKafkaProvinceTransSource(String topic){
         return KafkaSource.<ProvinceTransaction>builder()
                 .setProperties(KafkaConnectorHelper.getKafkaProperties())
-                .setGroupId("province")
+                .setGroupId("flink")
                 .setTopics(topic)
                 .setValueOnlyDeserializer(new ProvinceTransDeSerializer())
                 .setStartingOffsets(OffsetsInitializer.latest())

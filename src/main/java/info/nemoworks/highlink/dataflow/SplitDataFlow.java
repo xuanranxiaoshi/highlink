@@ -1,20 +1,19 @@
 package info.nemoworks.highlink.dataflow;
 
-import info.nemoworks.highlink.connector.JedisConnectorHelper;
+import info.nemoworks.highlink.dao.CacheDao;
 import info.nemoworks.highlink.dataflow.encoder.ExitLocalETCEncoder;
 import info.nemoworks.highlink.dataflow.encoder.ExitLocalOthersEncoder;
-import info.nemoworks.highlink.dataflow.utils.utils;
+import info.nemoworks.highlink.sink.MultiProvincePathCacheSink;
+import info.nemoworks.highlink.utils.SinkUtils;
 import info.nemoworks.highlink.model.HighwayTransaction;
 import info.nemoworks.highlink.model.entryTransaction.EntryRawTransaction;
 import info.nemoworks.highlink.model.exitTransaction.ExitLocalETCTrans;
 import info.nemoworks.highlink.model.exitTransaction.ExitLocalOtherTrans;
-import info.nemoworks.highlink.model.mapper.LocalObjectMapper;
+import info.nemoworks.highlink.utils.SimpleContainer;
 import info.nemoworks.highlink.model.multiProvince.*;
 import info.nemoworks.highlink.model.pathTransaction.PathTransaction;
 import info.nemoworks.highlink.model.exitTransaction.ExitRawTransaction;
 import info.nemoworks.highlink.model.pathTransaction.SingleProvincePathTrans;
-import info.nemoworks.highlink.sink.MultiProvincePathRedisSink;
-import info.nemoworks.highlink.sink.WriteOnlyAnnotationIntrospector;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,7 +24,6 @@ import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
-import redis.clients.jedis.Jedis;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -38,8 +36,6 @@ import java.util.LinkedList;
  */
 public class SplitDataFlow {
 
-    private static Jedis jedis;
-    private static ObjectMapper mapper;
 
     private static final String A_PREFIX = "A:";
     private static final String B1_PREFIX = "B1:";
@@ -47,15 +43,10 @@ public class SplitDataFlow {
     private static final String B3_PREFIX = "B3:";
     private static final String B4_PREFIX = "B4:";
     private static final String G_PREFIX = "G:";
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static final CacheDao cacheDao = SimpleContainer.getCacheDao();
+    private static final ObjectMapper mapper = SimpleContainer.getObjectMapper();
 
-    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-
-    static {
-        jedis = JedisConnectorHelper.getRedis();
-        mapper = LocalObjectMapper.getObjectMapper();
-        mapper.setAnnotationIntrospector(new WriteOnlyAnnotationIntrospector());
-    }
 
 
     public static void flow(DataStream<LinkedList<PathTransaction>> aggregatePathStream, DataStreamSource provinceStream){
@@ -71,11 +62,11 @@ public class SplitDataFlow {
                                                Collector<SingleProvincePathTrans> out) throws Exception {
                         PathTransaction exitTrans = pathList.getLast();
                         PathTransaction entryTrans = pathList.get(0);
-                        // todo:                                        根据属性判断
+                        // todo: 根据属性判断
                         if (exitTrans instanceof ExitRawTransaction exitRawTransaction && entryTrans instanceof EntryRawTransaction) {
                             out.collect(new SingleProvincePathTrans(pathList)); // 单省数据
                         } else {
-                            System.out.println("[Error] 跨省数据（跨省入口|跨省出口|）, passID = "+ pathList.get(0).getPASSID());
+                            System.out.println("[Info] 跨省数据（跨省入口|跨省出口|）, passID = "+ pathList.get(0).getPASSID());
                             ctx.output(multiProvinceOutputTag, pathList);
                         }
                     }
@@ -85,7 +76,7 @@ public class SplitDataFlow {
         SideOutputDataStream<LinkedList<PathTransaction>> multiProvinceStream = singleProvinceSplitStream.getSideOutput(multiProvinceOutputTag);
 
         // 跨省聚合路径写入 redis 缓存
-        multiProvinceStream.addSink(new MultiProvincePathRedisSink()).name("multiProvincePath2Redis");
+        multiProvinceStream.addSink(new MultiProvincePathCacheSink()).name("multiProvincePath2Redis");
 
         // 2. 单省拆分逻辑
         processSingleProvince(singleProvinceSplitStream);
@@ -124,8 +115,8 @@ public class SplitDataFlow {
         SideOutputDataStream<ExitLocalOtherTrans> exitLocalOtherTransStream = exitLocalETCTransStream.getSideOutput(exitLocalOtherOutputTag);
 
         // todo: 重写更新数据库文件
-        utils.addFileSinkToStream(exitLocalETCTransStream, "exit_local_etc", new ExitLocalETCEncoder());
-        utils.addFileSinkToStream(exitLocalOtherTransStream, "exit_local_other", new ExitLocalOthersEncoder());
+        SinkUtils.addFileSinkToStream(exitLocalETCTransStream, "exit_local_etc", new ExitLocalETCEncoder());
+        SinkUtils.addFileSinkToStream(exitLocalOtherTransStream, "exit_local_other", new ExitLocalOthersEncoder());
     }
 
     /**
@@ -147,7 +138,7 @@ public class SplitDataFlow {
                 // 1. 查询
                 ProvinceTransaction queryRes = query(value);
                 if(queryRes == null){
-                    writeToRedis(value);
+                    writeToCache(value);
                 }
                 else{
                     // B1
@@ -179,8 +170,8 @@ public class SplitDataFlow {
 
         SideOutputDataStream eTCSplitResultExitStream = ETCSplitResultGantryStream.getSideOutput(ETCSplitResultExitOutputTag);
 
-        utils.addSinkToStream(ETCSplitResultGantryStream, ETCSplitResultGantry.class, "ETCSplitResultGantry");
-        utils.addSinkToStream(eTCSplitResultExitStream, ETCSplitResultExit.class, "ETCSplitResultExit");
+        SinkUtils.addInsertSinkToStream(ETCSplitResultGantryStream, ETCSplitResultGantry.class, "ETCSplitResultGantry");
+        SinkUtils.addInsertSinkToStream(eTCSplitResultExitStream, ETCSplitResultExit.class, "ETCSplitResultExit");
     }
 
     /**
@@ -216,12 +207,12 @@ public class SplitDataFlow {
      * @param value
      * @throws JsonProcessingException
      */
-    private static void writeToRedis(ProvinceTransaction value) throws JsonProcessingException {
+    private static void writeToCache(ProvinceTransaction value) throws JsonProcessingException {
         // B1
         if(value instanceof ETCSplitResultGantry etcSplitResultGantry){
             String id = etcSplitResultGantry.getID();
-            String set = jedis.set(B1_PREFIX + id, mapper.writeValueAsString(etcSplitResultGantry));
-            System.out.println("write B1 to Redis: " + set);
+            String set = cacheDao.set(B1_PREFIX + id, mapper.writeValueAsString(etcSplitResultGantry));
+            System.out.println("write B1 to Cache: " + set);
         }
         // B2
         else if(value instanceof ETCSplitResultExit etcSplitResultExit){
@@ -242,8 +233,8 @@ public class SplitDataFlow {
         // A
         else if(value instanceof SerTollSum serTollSum){
             String id = serTollSum.getID();
-            String set = jedis.set(A_PREFIX + id, mapper.writeValueAsString(serTollSum));
-            System.out.println("write A to Redis: " + set);
+            String set = cacheDao.set(A_PREFIX + id, mapper.writeValueAsString(serTollSum));
+            System.out.println("write A to Cache: " + set);
         }
 
     }
@@ -257,7 +248,7 @@ public class SplitDataFlow {
         // B1
         if(value instanceof ETCSplitResultGantry etcSplitResultGantry){
             String id = etcSplitResultGantry.getID();
-            String connectA = jedis.get(A_PREFIX + id);
+            String connectA = cacheDao.get(A_PREFIX + id);
             if(connectA == null) {
                 System.out.println("[INFO] can't find [" + A_PREFIX + id + "]");
                 return null;
@@ -286,7 +277,7 @@ public class SplitDataFlow {
         // A
         else if(value instanceof SerTollSum serTollSum){
             String id = serTollSum.getID();
-            String connectA = jedis.get(B1_PREFIX + id);
+            String connectA = cacheDao.get(B1_PREFIX + id);
             if(connectA == null) {
                 System.out.println("[INFO] can't find [" + B1_PREFIX + id + "]");
                 return null;
@@ -299,10 +290,6 @@ public class SplitDataFlow {
 
         return null;
     }
-
-
-
-
 
 
 }

@@ -1,15 +1,14 @@
 package info.nemoworks.highlink.dataflow;
 
-import info.nemoworks.highlink.connector.JedisConnectorHelper;
+import info.nemoworks.highlink.dao.CacheDao;
 import info.nemoworks.highlink.dataflow.encoder.PathEncoder;
-import info.nemoworks.highlink.dataflow.utils.utils;
+import info.nemoworks.highlink.sink.PathListCacheSink;
+import info.nemoworks.highlink.utils.SinkUtils;
 import info.nemoworks.highlink.model.entryTransaction.EntryRawTransaction;
 import info.nemoworks.highlink.model.exitTransaction.ExitRawTransaction;
 import info.nemoworks.highlink.model.gantryTransaction.GantryRawTransaction;
-import info.nemoworks.highlink.model.mapper.LocalObjectMapper;
+import info.nemoworks.highlink.utils.SimpleContainer;
 import info.nemoworks.highlink.model.pathTransaction.PathTransaction;
-import info.nemoworks.highlink.sink.PathListRedisSink;
-import info.nemoworks.highlink.sink.WriteOnlyAnnotationIntrospector;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,7 +18,6 @@ import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
-import redis.clients.jedis.Jedis;
 
 import java.util.LinkedList;
 
@@ -38,14 +36,14 @@ import java.util.LinkedList;
  */
 public class ExceptionFlow {
 
-    private static Jedis jedis;
+    private static CacheDao cacheDao;
     private static ObjectMapper objectMapper;
 
-    static {
-        jedis = JedisConnectorHelper.getRedis();
-        objectMapper = LocalObjectMapper.getObjectMapper();
-        objectMapper.setAnnotationIntrospector(new WriteOnlyAnnotationIntrospector());
+    static  {
+        cacheDao = SimpleContainer.getCacheDao();
+        objectMapper = SimpleContainer.getObjectMapper();
     }
+
     public static DataStream<LinkedList<PathTransaction>> flow(DataStream<LinkedList<PathTransaction>> aggregatePathStream){
 
         final OutputTag<LinkedList<PathTransaction>> unOrderedPath = new OutputTag<>("unOrderedPath"){};
@@ -90,19 +88,17 @@ public class ExceptionFlow {
         SideOutputDataStream<LinkedList<PathTransaction>> latePathFlow = cleanPathFlow.getSideOutput(latePath);
 
         // 1. 超时数据接 redis 暂存
-        overTimePathStream.addSink(new PathListRedisSink()).name("overTimePath");
+        overTimePathStream.addSink(new PathListCacheSink()).name("overTimePath");
         // 2. latePathFlow 读取 redis 数据重新计算
         DataStream<LinkedList<PathTransaction>> completeStream = cleanPathFlow.union(latePathFlow);
         // 3. 记录计算错误数据
-        utils.addFileSinkToStream(unOrderedPathFlow, "unOrderedPath", new PathEncoder());
+        SinkUtils.addFileSinkToStream(unOrderedPathFlow, "unOrderedPath", new PathEncoder());
 
         return completeStream;
     }
 
     /**
      * 判断是否为出口或者省界出口数据
-     * @param pathTransaction
-     * @return
      */
     private static boolean isExitData(PathTransaction pathTransaction){
         if(pathTransaction instanceof ExitRawTransaction) {
@@ -111,7 +107,7 @@ public class ExceptionFlow {
         return (pathTransaction instanceof GantryRawTransaction gantryRawTransaction) && gantryRawTransaction.getGANTRYTYPE() == 3;
     }
 
-    private static  boolean isEntryData(PathTransaction pathTransaction){
+    private static boolean isEntryData(PathTransaction pathTransaction){
         if(pathTransaction instanceof EntryRawTransaction){
             return true;
         }
@@ -119,14 +115,14 @@ public class ExceptionFlow {
     }
 
     private static boolean removePath(String passID){
-        long del = jedis.del(passID);
+        long del = cacheDao.del(passID);
         return del != 0;
     }
 
     private static LinkedList<PathTransaction> mergeFromRedis(LinkedList<PathTransaction> pathTransactionLinkedList) throws JsonProcessingException {
         PathTransaction pathTransaction = pathTransactionLinkedList.get(0);
         String passID = pathTransaction.getPASSID();
-        String s = jedis.get(passID);
+        String s = cacheDao.get(passID);
         // 1. redis 不存在记录直接返回
         if(s == null){
             System.out.println("[Info] First write: " + passID);
@@ -140,9 +136,9 @@ public class ExceptionFlow {
             PathTransaction curPathTrans;
             for (int i = 0; i < jsonNode.size(); i++) {
                 curNode = jsonNode.get(i);
-                if (curNode.get("EXTOLLSTATION".toLowerCase()) != null) {
+                if (curNode.get("EXTOLLSTATION") != null) {
                     curPathTrans = objectMapper.treeToValue(curNode, ExitRawTransaction.class);
-                }else if (curNode.get("GANTRYID".toLowerCase()) != null) {
+                }else if (curNode.get("GANTRYID") != null) {
                     curPathTrans = objectMapper.treeToValue(curNode, GantryRawTransaction.class);
                 }else{
                     curPathTrans = objectMapper.treeToValue(curNode, EntryRawTransaction.class);
