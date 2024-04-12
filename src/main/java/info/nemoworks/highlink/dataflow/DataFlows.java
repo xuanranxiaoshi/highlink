@@ -27,14 +27,16 @@ public class DataFlows {
         // 0.1 预处理系统输入
         DataStreamSource unionStream = env.fromSource(KafkaConnectorHelper.getKafkaHighWayTransSource("HighLink"),
                 WatermarkStrategy.noWatermarks(),
-                "HighLinkSource",
-                TypeInformation.of(HighwayTransaction.class));
+                "预处理接收流水",
+                TypeInformation.of(HighwayTransaction.class))
+                .setParallelism(1);
 
         // 0.2 拆分子系统输入
         DataStreamSource provinceStream = env.fromSource(KafkaConnectorHelper.getKafkaProvinceTransSource("Province"),
                 WatermarkStrategy.noWatermarks(),
-                "ProvinceSource",
-                TypeInformation.of(ProvinceTransaction.class));
+                "部中心接收流水",
+                TypeInformation.of(ProvinceTransaction.class))
+                .setParallelism(1);
 
         // 1. 预处理子系统: 对输入数据流进行拆分预处理、返回聚合的路径数据
         SingleOutputStreamOperator<LinkedList<PathTransaction>> aggregatePathStream =

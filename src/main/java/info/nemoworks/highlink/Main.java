@@ -82,8 +82,8 @@ public class Main {
     public static Configuration setConfig(){
         Configuration configuration = new Configuration();
         configuration.setString("taskmanager.memory.process.size", "6144m");
-        configuration.setInteger("taskmanager.numberOfTaskSlots", 12);
-        configuration.setInteger("parallelism.default", 1);
+        configuration.setInteger("taskmanager.numberOfTaskSlots", 8);
+        configuration.setInteger("parallelism.default", 8);
         configuration.setDouble("taskmanager.memory.managed.fraction", 0.4);
         configuration.setDouble("taskmanager.memory.network.fraction", 0.05);
         configuration.setInteger("rest.port", 8081);

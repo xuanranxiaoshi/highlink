@@ -75,21 +75,20 @@ public class PrepareFlow {
                         }
                     }
                 })
-                .name("UnionStreamSplit")
-                .setParallelism(2);
+                .name("分拣").setParallelism(4);
 
         // 2. 将数据流按规则进行拆分
         DataStream<GantryRawTransaction> gantryStream = mainDataStream.getSideOutput(gantryTrans);
         DataStream<ExitRawTransaction> exitStream = mainDataStream.getSideOutput(exitTrans);
         DataStream<ParkTransWasteRec> extendStream = mainDataStream.getSideOutput(extendTrans);
-        DataStream<EntryRawTransaction> entryStream = mainDataStream.map(new LinkCounter<>("RawEntryTransCounter")).name("RawEntryTransCounter");
+        DataStream<EntryRawTransaction> entryStream = mainDataStream.map(new LinkCounter<>("RawEntryTransCounter")).name("出口接收流水").setParallelism(1);
 
 
-        SingleOutputStreamOperator<GantryRawTransaction> rawGantryTrans = gantryStream.map(new LinkCounter<>("RawGantryTransCounter")).name("RawGantryTransCounter");
+        SingleOutputStreamOperator<GantryRawTransaction> rawGantryTrans = gantryStream.map(new LinkCounter<>("RawGantryTransCounter")).name("门架接收流水").setParallelism(1);
 
-        SingleOutputStreamOperator<ExitRawTransaction> rawExitTrans = exitStream.map(new LinkCounter<>("RawExitTransCounter")).name("RawExitTransCounter");
+        SingleOutputStreamOperator<ExitRawTransaction> rawExitTrans = exitStream.map(new LinkCounter<>("RawExitTransCounter")).name("出口接收流水").setParallelism(1);
 
-        SingleOutputStreamOperator<ParkTransWasteRec> rawExdTrans = extendStream.map(new LinkCounter<>("RawExdTransCounter")).name("RawExdTransCounter");
+        SingleOutputStreamOperator<ParkTransWasteRec> rawExdTrans = extendStream.map(new LinkCounter<>("RawExdTransCounter")).name("拓展交易流水").setParallelism(1);
 
 
         // 3.1 拓展数据预处理
@@ -144,7 +143,7 @@ public class PrepareFlow {
             public PathTransaction map1(GantryRawTransaction rawTransaction) throws Exception {
                 return (PathTransaction) rawTransaction;
             }
-        });
+        }).setParallelism(1).name("聚合");
         SingleOutputStreamOperator<PathTransaction> pathTransStream = connetStream.connect(exitCopyStream).map(new CoMapFunction<PathTransaction, ExitRawTransaction, PathTransaction>() {
             @Override
             public PathTransaction map1(PathTransaction pathTransaction) throws Exception {
@@ -155,7 +154,7 @@ public class PrepareFlow {
             public PathTransaction map2(ExitRawTransaction exitRawTransaction) throws Exception {
                 return (PathTransaction) exitRawTransaction;
             }
-        });
+        }).setParallelism(1).name("聚合");
 
 
         // 2. 定义 Watermark 策略: 采用事件语义，提取 enTime 作为逻辑时间
@@ -192,7 +191,8 @@ public class PrepareFlow {
                 .window(EventTimeSessionWindows.withGap(sessionGap))
                 .trigger(new PathTrigger())
                 .aggregate(new PathAggregateFunction(), new PathProcessWindowFunction())
-                .setParallelism(2);
+                .name("路径聚合")
+                ;
 
         // 4. 返回聚合路径
         return aggregatePathStream;
@@ -218,8 +218,7 @@ public class PrepareFlow {
                         }
                     }
                 })
-                .name("GantryTransProcess")
-                .setParallelism(2);
+                .name("GantryTransProcess");
 
         // 2. 通过判断逻辑拆分数据流
         DataStream<GantryCpcTransaction> gantryCpcStream = gantryAllStream.getSideOutput(ganCpcTag).map(new LinkCounter<>("gantryCpcCounter")).name("gantryCpcCounter");
@@ -260,8 +259,7 @@ public class PrepareFlow {
                         }
                     }
                 })
-                .name("ExdTransProcess")
-                .setParallelism(2);
+                .name("分拣拓展交易流水");
 
 
         DataStream<TollChangeTransactions> exchangeStream = allTransStream.getSideOutput(exdChangeTag).map(new LinkCounter<>("extChangeCounter")).name("extChangeCounter");
@@ -319,8 +317,7 @@ public class PrepareFlow {
                         }
                     }
                 })
-                .name("ExitTransProcess")
-                .setParallelism(2);
+                .name("分拣出口交易流水");
 //                .map(new LinkCounter<>("processExitTrans"));
 
 

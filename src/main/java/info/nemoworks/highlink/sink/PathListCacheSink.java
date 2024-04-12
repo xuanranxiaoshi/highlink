@@ -25,7 +25,7 @@ public class PathListCacheSink extends RichSinkFunction<LinkedList<PathTransacti
     public void open(Configuration config) {
         // 从配置文件中读取具体实现类的类名
         String cacheDaoImplClassName = Config.getProperty("cache.dao.impl");
-        cacheDao = SimpleContainer.getCacheDao();
+        cacheDao = SimpleContainer.getCachePool().getDaoImp();
         objectMapper = SimpleContainer.getObjectMapper();
     }
 

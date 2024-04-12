@@ -1,6 +1,7 @@
 package info.nemoworks.highlink.dataflow;
 
 import info.nemoworks.highlink.dao.CacheDao;
+import info.nemoworks.highlink.dao.CachePool;
 import info.nemoworks.highlink.dataflow.encoder.ExitLocalETCEncoder;
 import info.nemoworks.highlink.dataflow.encoder.ExitLocalOthersEncoder;
 import info.nemoworks.highlink.sink.MultiProvincePathCacheSink;
@@ -44,8 +45,9 @@ public class SplitDataFlow {
     private static final String B4_PREFIX = "B4:";
     private static final String G_PREFIX = "G:";
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    private static final CacheDao cacheDao = SimpleContainer.getCacheDao();
     private static final ObjectMapper mapper = SimpleContainer.getObjectMapper();
+
+    private static final CachePool cachePool = SimpleContainer.getCachePool();
 
 
 
@@ -71,12 +73,12 @@ public class SplitDataFlow {
                         }
                     }
                 }
-        );
+        ).setParallelism(1).name("单/多省通行记录划分");
 
         SideOutputDataStream<LinkedList<PathTransaction>> multiProvinceStream = singleProvinceSplitStream.getSideOutput(multiProvinceOutputTag);
 
         // 跨省聚合路径写入 redis 缓存
-        multiProvinceStream.addSink(new MultiProvincePathCacheSink()).name("multiProvincePath2Redis");
+        multiProvinceStream.addSink(new MultiProvincePathCacheSink()).name("多省通行记录暂存").setParallelism(1);
 
         // 2. 单省拆分逻辑
         processSingleProvince(singleProvinceSplitStream);
@@ -110,7 +112,7 @@ public class SplitDataFlow {
                     ctx.output(exitLocalOtherOutputTag, exitLocalOtherTrans);
                 }
             }
-        });
+        }).name("单省拆分");
 
         SideOutputDataStream<ExitLocalOtherTrans> exitLocalOtherTransStream = exitLocalETCTransStream.getSideOutput(exitLocalOtherOutputTag);
 
@@ -166,7 +168,7 @@ public class SplitDataFlow {
                     }
                 }
             }
-        });
+        }).name("多省拆分");
 
         SideOutputDataStream eTCSplitResultExitStream = ETCSplitResultGantryStream.getSideOutput(ETCSplitResultExitOutputTag);
 
@@ -208,35 +210,42 @@ public class SplitDataFlow {
      * @throws JsonProcessingException
      */
     private static void writeToCache(ProvinceTransaction value) throws JsonProcessingException {
-        // B1
-        if(value instanceof ETCSplitResultGantry etcSplitResultGantry){
-            String id = etcSplitResultGantry.getID();
-            String set = cacheDao.set(B1_PREFIX + id, mapper.writeValueAsString(etcSplitResultGantry));
-            System.out.println("write B1 to Cache: " + set);
-        }
-        // B2
-        else if(value instanceof ETCSplitResultExit etcSplitResultExit){
+        CacheDao cacheDao = null;
+        try {
+            cacheDao = cachePool.getDaoImp();
+            // B1
+            if (value instanceof ETCSplitResultGantry etcSplitResultGantry) {
+                String id = etcSplitResultGantry.getID();
+                String set = cacheDao.set(B1_PREFIX + id, mapper.writeValueAsString(etcSplitResultGantry));
+                System.out.println("write B1 to Cache: " + set);
+            }
+            // B2
+            else if (value instanceof ETCSplitResultExit etcSplitResultExit) {
 
-        }
-        // B3
-        else if(value instanceof OtherSplitResultGantry otherSplitResultGantry){
+            }
+            // B3
+            else if (value instanceof OtherSplitResultGantry otherSplitResultGantry) {
 
-        }
-        // B4
-        else if(value instanceof OtherSplitResultExit otherSplitResultExit){
+            }
+            // B4
+            else if (value instanceof OtherSplitResultExit otherSplitResultExit) {
 
-        }
-        // 明细表
-        else if(value instanceof SplitDetailExit splitDetailExit){
+            }
+            // 明细表
+            else if (value instanceof SplitDetailExit splitDetailExit) {
 
+            }
+            // A
+            else if (value instanceof SerTollSum serTollSum) {
+                String id = serTollSum.getID();
+                String set = cacheDao.set(A_PREFIX + id, mapper.writeValueAsString(serTollSum));
+                System.out.println("write A to Cache: " + set);
+            }
+        }finally {
+            if(cacheDao != null) {
+                cacheDao.close();
+            }
         }
-        // A
-        else if(value instanceof SerTollSum serTollSum){
-            String id = serTollSum.getID();
-            String set = cacheDao.set(A_PREFIX + id, mapper.writeValueAsString(serTollSum));
-            System.out.println("write A to Cache: " + set);
-        }
-
     }
 
     /**
@@ -245,49 +254,56 @@ public class SplitDataFlow {
      * @return
      */
     private static ProvinceTransaction query(ProvinceTransaction value) throws JsonProcessingException {
-        // B1
-        if(value instanceof ETCSplitResultGantry etcSplitResultGantry){
-            String id = etcSplitResultGantry.getID();
-            String connectA = cacheDao.get(A_PREFIX + id);
-            if(connectA == null) {
-                System.out.println("[INFO] can't find [" + A_PREFIX + id + "]");
-                return null;
-            }else{
-                JsonNode jsonNode = mapper.readTree(connectA);
-                System.out.println("[INFO] find [" + A_PREFIX + id + "]");
-                return mapper.treeToValue(jsonNode, SerTollSum.class);
+        CacheDao cacheDao = null;
+        try{
+            cacheDao = cachePool.getDaoImp();
+            // B1
+            if(value instanceof ETCSplitResultGantry etcSplitResultGantry){
+                String id = etcSplitResultGantry.getID();
+                String connectA = cacheDao.get(A_PREFIX + id);
+                if(connectA == null) {
+                    System.out.println("[INFO] can't find [" + A_PREFIX + id + "]");
+                    return null;
+                }else{
+                    JsonNode jsonNode = mapper.readTree(connectA);
+                    System.out.println("[INFO] find [" + A_PREFIX + id + "]");
+                    return mapper.treeToValue(jsonNode, SerTollSum.class);
+                }
+            }
+            // B2
+            else if(value instanceof ETCSplitResultExit etcSplitResultExit){
+
+            }
+            // B3
+            else if(value instanceof OtherSplitResultGantry otherSplitResultGantry){
+
+            }
+            // B4
+            else if(value instanceof OtherSplitResultExit otherSplitResultExit){
+
+            }
+            // 明细表
+            else if(value instanceof SplitDetailExit splitDetailExit){
+
+            }
+            // A
+            else if(value instanceof SerTollSum serTollSum){
+                String id = serTollSum.getID();
+                String connectA = cacheDao.get(B1_PREFIX + id);
+                if(connectA == null) {
+                    System.out.println("[INFO] can't find [" + B1_PREFIX + id + "]");
+                    return null;
+                }else{
+                    JsonNode jsonNode = mapper.readTree(connectA);
+                    System.out.println("[INFO] find [" + B1_PREFIX + id + "]");
+                    return mapper.treeToValue(jsonNode, ETCSplitResultGantry.class);
+                }
+            }
+        }finally {
+            if(cacheDao != null) {
+                cacheDao.close();
             }
         }
-        // B2
-        else if(value instanceof ETCSplitResultExit etcSplitResultExit){
-
-        }
-        // B3
-        else if(value instanceof OtherSplitResultGantry otherSplitResultGantry){
-
-        }
-        // B4
-        else if(value instanceof OtherSplitResultExit otherSplitResultExit){
-
-        }
-        // 明细表
-        else if(value instanceof SplitDetailExit splitDetailExit){
-
-        }
-        // A
-        else if(value instanceof SerTollSum serTollSum){
-            String id = serTollSum.getID();
-            String connectA = cacheDao.get(B1_PREFIX + id);
-            if(connectA == null) {
-                System.out.println("[INFO] can't find [" + B1_PREFIX + id + "]");
-                return null;
-            }else{
-                JsonNode jsonNode = mapper.readTree(connectA);
-                System.out.println("[INFO] find [" + B1_PREFIX + id + "]");
-                return mapper.treeToValue(jsonNode, ETCSplitResultGantry.class);
-            }
-        }
-
         return null;
     }
 

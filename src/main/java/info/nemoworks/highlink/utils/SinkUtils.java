@@ -34,7 +34,7 @@ public class SinkUtils {
                 JdbcConnectorHelper.getInsertTemplateString(clazz),
                 JdbcConnectorHelper.getStatementBuilder(),
                 JdbcConnectorHelper.getJdbcExecutionOptions(),
-                JdbcConnectorHelper.getJdbcConnectionOptions())).name(name);
+                JdbcConnectorHelper.getJdbcConnectionOptions())).name(name).setParallelism(1);
     }
     public static void addFileSinkToStream(DataStream dataStream, String filename, Encoder encoder){
 
@@ -53,6 +53,6 @@ public class SinkUtils {
                                 .build())
                 .withOutputFileConfig(config)
                 .build();
-        dataStream.sinkTo(fileSink).name(filename);
+        dataStream.sinkTo(fileSink).name(filename).setParallelism(1);
     }
 }

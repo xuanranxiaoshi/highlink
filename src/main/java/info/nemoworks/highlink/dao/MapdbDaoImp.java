@@ -13,23 +13,18 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class MapdbDaoImp implements CacheDao{
 
-    private final DB mapdb;
     private final ConcurrentMap<String, String> map;
 
-    public MapdbDaoImp(){
-        mapdb = DBMaker.memoryDB().make();
-        map = (ConcurrentMap<String, String>) mapdb.hashMap("map").createOrOpen();
-        System.out.println("mapdb open!");
+    public MapdbDaoImp(ConcurrentMap<String, String> map){
+        this.map = map;
     }
     @Override
     public String get(String key) {
-        System.out.println("mapdb get(" + key + ")");
         return map.get(key);
     }
 
     @Override
     public String set(String key, String value) {
-        System.out.println("mapdb set(" + key + ")");
         map.put(key, value);
         return value;
     }
@@ -45,7 +40,5 @@ public class MapdbDaoImp implements CacheDao{
 
     @Override
     public void close() {
-//        mapdb.close();
-//        System.out.println("mapdb closed!");
     }
 }

@@ -1,6 +1,7 @@
 package info.nemoworks.highlink.dataflow;
 
 import info.nemoworks.highlink.dao.CacheDao;
+import info.nemoworks.highlink.dao.CachePool;
 import info.nemoworks.highlink.dataflow.encoder.PathEncoder;
 import info.nemoworks.highlink.sink.PathListCacheSink;
 import info.nemoworks.highlink.utils.SinkUtils;
@@ -36,12 +37,12 @@ import java.util.LinkedList;
  */
 public class ExceptionFlow {
 
-    private static CacheDao cacheDao;
     private static ObjectMapper objectMapper;
+    private static CachePool cachePool;
 
     static  {
-        cacheDao = SimpleContainer.getCacheDao();
         objectMapper = SimpleContainer.getObjectMapper();
+        cachePool = SimpleContainer.getCachePool();
     }
 
     public static DataStream<LinkedList<PathTransaction>> flow(DataStream<LinkedList<PathTransaction>> aggregatePathStream){
@@ -65,22 +66,23 @@ public class ExceptionFlow {
                     out.collect(pathTransactionLinkedList);
                 } else if(!isExitData(pathTransactionLinkedList.get(pathTransactionLinkedList.size()-1))){    //  1. path 不以出口(eixt、省界出口门架)结尾：超时数据
                     LinkedList<PathTransaction> mergeList = mergeFromRedis(pathTransactionLinkedList);
-                    System.out.println("[Error] 超时数据：" + pathTransactionLinkedList.get(0).getPASSID());
+                    System.out.println("[Info] 超时数据：" + pathTransactionLinkedList.get(0).getPASSID());
                     ctx.output(overTimePath, mergeList);
                 } else if(isExitData(pathTransactionLinkedList.get(pathTransactionLinkedList.size()-1))) {    //  2. path 以出口结尾：迟到数据, 直接触发计算
                     LinkedList<PathTransaction> mergeList = mergeFromRedis(pathTransactionLinkedList);
-                    if(removePath(mergeList.get(0).getPASSID())) {
-                        System.out.println("[Error] 迟到数据(deleted): " + pathTransactionLinkedList.get(pathTransactionLinkedList.size()-1).getPASSID());
+                    if(removePath(mergeList.get(0).getPASSID())) {  // 删除缓存中的超时数据
+                        System.out.println("[Info] 迟到数据(deleted): " + pathTransactionLinkedList.get(pathTransactionLinkedList.size()-1).getPASSID());
                         ctx.output(latePath, mergeList);
                     }else{
-                        System.out.println("[Error] 迟到数据: " + pathTransactionLinkedList.get(pathTransactionLinkedList.size()-1).getPASSID());
+                        // fixme : 不完整的迟到数据怎么办？
+                        System.out.println("[Info] 迟到数据: " + pathTransactionLinkedList.get(pathTransactionLinkedList.size()-1).getPASSID());
                     }
                 }else{
                     System.out.println("[Info] 乱序数据：" + pathTransactionLinkedList.get(0).getPASSID());
                     ctx.output(unOrderedPath, pathTransactionLinkedList);
                 }
             }
-        });
+        }).name("异常路径清理");
 
         // 1. 异常分流
         SideOutputDataStream<LinkedList<PathTransaction>> unOrderedPathFlow = cleanPathFlow.getSideOutput(unOrderedPath);
@@ -88,7 +90,7 @@ public class ExceptionFlow {
         SideOutputDataStream<LinkedList<PathTransaction>> latePathFlow = cleanPathFlow.getSideOutput(latePath);
 
         // 1. 超时数据接 redis 暂存
-        overTimePathStream.addSink(new PathListCacheSink()).name("overTimePath");
+        overTimePathStream.addSink(new PathListCacheSink()).name("overTimePath").setParallelism(1);
         // 2. latePathFlow 读取 redis 数据重新计算
         DataStream<LinkedList<PathTransaction>> completeStream = cleanPathFlow.union(latePathFlow);
         // 3. 记录计算错误数据
@@ -115,39 +117,56 @@ public class ExceptionFlow {
     }
 
     private static boolean removePath(String passID){
-        long del = cacheDao.del(passID);
-        return del != 0;
+        CacheDao cacheDao = null;
+        try {
+            cacheDao = cachePool.getDaoImp();
+            long del = cacheDao.del(passID);
+            return del != 0;
+        }finally {
+            if(cacheDao != null){
+                cacheDao.close();
+            }
+        }
     }
 
     private static LinkedList<PathTransaction> mergeFromRedis(LinkedList<PathTransaction> pathTransactionLinkedList) throws JsonProcessingException {
         PathTransaction pathTransaction = pathTransactionLinkedList.get(0);
         String passID = pathTransaction.getPASSID();
-        String s = cacheDao.get(passID);
-        // 1. redis 不存在记录直接返回
-        if(s == null){
-            System.out.println("[Info] First write: " + passID);
-            return pathTransactionLinkedList;
-        }
-        // 1. redis 中已有数据，则取出进行合并
-        else{
-            JsonNode jsonNode = objectMapper.readTree(s);
-            LinkedList<PathTransaction> preList = new LinkedList<>();
-            JsonNode curNode;
-            PathTransaction curPathTrans;
-            for (int i = 0; i < jsonNode.size(); i++) {
-                curNode = jsonNode.get(i);
-                if (curNode.get("EXTOLLSTATION") != null) {
-                    curPathTrans = objectMapper.treeToValue(curNode, ExitRawTransaction.class);
-                }else if (curNode.get("GANTRYID") != null) {
-                    curPathTrans = objectMapper.treeToValue(curNode, GantryRawTransaction.class);
-                }else{
-                    curPathTrans = objectMapper.treeToValue(curNode, EntryRawTransaction.class);
-                }
-                preList.add(curPathTrans);
+        CacheDao cacheDao = null;
+        try {
+            cacheDao = cachePool.getDaoImp();
+            String s = cacheDao.get(passID);
+            // 1. redis 不存在记录直接返回
+            if(s == null){
+                System.out.println("[Info] First write: " + passID);
+                return pathTransactionLinkedList;
             }
-            preList.addAll(pathTransactionLinkedList);
-            System.out.println("[Info] Merge : " + passID);
-            return preList;
+            // 1. redis 中已有数据，则取出进行合并
+            else{
+                JsonNode jsonNode = objectMapper.readTree(s);
+                LinkedList<PathTransaction> preList = new LinkedList<>();
+                JsonNode curNode;
+                PathTransaction curPathTrans;
+                for (int i = 0; i < jsonNode.size(); i++) {
+                    curNode = jsonNode.get(i);
+                    if (curNode.get("EXTOLLSTATION") != null) {
+                        curPathTrans = objectMapper.treeToValue(curNode, ExitRawTransaction.class);
+                    }else if (curNode.get("GANTRYID") != null) {
+                        curPathTrans = objectMapper.treeToValue(curNode, GantryRawTransaction.class);
+                    }else{
+                        curPathTrans = objectMapper.treeToValue(curNode, EntryRawTransaction.class);
+                    }
+                    preList.add(curPathTrans);
+                }
+                preList.addAll(pathTransactionLinkedList);
+                System.out.println("[Info] Merge : " + passID);
+                return preList;
+            }
+        }finally {
+            if(cacheDao != null){
+                cacheDao.close();
+            }
         }
+
     }
 }

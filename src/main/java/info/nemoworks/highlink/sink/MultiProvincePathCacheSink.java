@@ -24,7 +24,7 @@ public class MultiProvincePathCacheSink extends RichSinkFunction<LinkedList<Path
 
     @Override
     public void open(Configuration config) {
-        cacheDao = SimpleContainer.getCacheDao();
+        cacheDao = SimpleContainer.getCachePool().getDaoImp();
         objectMapper = SimpleContainer.getObjectMapper();
     }
 

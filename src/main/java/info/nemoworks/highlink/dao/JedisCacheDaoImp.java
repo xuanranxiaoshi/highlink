@@ -18,30 +18,14 @@ import java.util.Properties;
  */
 public class JedisCacheDaoImp implements CacheDao {
 
-    private volatile static JedisPool pool;
+    private  JedisPool pool;
 
     private Jedis jedis;
 
-    public JedisCacheDaoImp(){
-
-        if (pool == null) {
-            synchronized (JedisCacheDaoImp.class) {
-                if (pool == null) {
-                    //创建连接池的配置对象
-                    JedisPoolConfig config = new JedisPoolConfig();
-                    //设置最大链接数
-                    config.setMaxTotal(Integer.parseInt(Config.getProperty("redis.maxTotal")));
-                    //设置空闲连接数  "3"
-                    config.setMaxIdle(Integer.parseInt(Config.getProperty("redis.maxIdle")));
-                    //创建连接池
-                    pool = new JedisPool(config, Config.getProperty("redis.url"), Integer.parseInt(Config.getProperty("redis.port")));
-                }
-            }
-        }
-
-        jedis = pool.getResource();
+    public JedisCacheDaoImp(Jedis jedis, JedisPool pool){
+        this.jedis = jedis;
+        this.pool = pool;
     }
-
     @Override
     public String get(String key) {
         return jedis.get(key);
@@ -49,7 +33,8 @@ public class JedisCacheDaoImp implements CacheDao {
 
     @Override
     public String set(String key, String value) {
-        return jedis.set(key, value);
+        jedis.set(key, value);
+        return value;
     }
 
     @Override
@@ -59,6 +44,9 @@ public class JedisCacheDaoImp implements CacheDao {
 
     @Override
     public void close() {
-        JedisConnectorHelper.close(jedis);
+        if(jedis != null){
+            pool.returnResource(jedis);
+        }
     }
+
 }
