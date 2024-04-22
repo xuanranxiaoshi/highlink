@@ -34,6 +34,15 @@ import java.util.LinkedList;
  * @author：jimi 拆分子系统
  * @date: 2024/3/5
  * @Copyright：
+ * @Description:
+ *    1. B1：计费方式只有 1， 根据 A 进行拆分
+ *    2. B2/details: 计费方式有3、4、5、6，分别根据 F2、E 进行拆分
+ *    3. B3: 计费方式只有 1, 根据 A 进行拆分
+ *    4. B4/details: 计费方式有3、4、5、6，分别根据 F2、E 进行拆分
+ *
+ *
+ *    实现方式一：统一的 query 函数、calculate 函数，内部进行类型判断
+ *    实现方式二：query 只是工具类，每类具有单独的 calculate 函数
  */
 public class SplitDataFlow {
 
@@ -68,8 +77,8 @@ public class SplitDataFlow {
                         if (exitTrans instanceof ExitRawTransaction exitRawTransaction && entryTrans instanceof EntryRawTransaction) {
                             out.collect(new SingleProvincePathTrans(pathList)); // 单省数据
                         } else {
-                            System.out.println("[Info] 跨省数据（跨省入口|跨省出口|）, passID = "+ pathList.get(0).getPASSID());
-                            ctx.output(multiProvinceOutputTag, pathList);
+//                            System.out.println("[Info] 跨省数据（跨省入口|跨省出口|）, passID = "+ pathList.get(0).getPASSID());
+                            ctx.output(multiProvinceOutputTag, pathList);   // 跨省数据
                         }
                     }
                 }
@@ -142,6 +151,7 @@ public class SplitDataFlow {
                 if(queryRes == null){
                     writeToCache(value);
                 }
+                // 2. 进行拆分
                 else{
                     // B1
                     if(value instanceof ETCSplitResultGantry etcSplitResultGantry){
@@ -155,7 +165,7 @@ public class SplitDataFlow {
                     }
                     // B2
                     else if(value instanceof ETCSplitResultExit etcSplitResultExit){
-                        ctx.output(ETCSplitResultExitOutputTag, etcSplitResultExit);
+
                     }
                     // B3
                     else if(value instanceof OtherSplitResultGantry otherSplitResultGantry){

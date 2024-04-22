@@ -50,6 +50,6 @@ public class DataFlows {
         SinkUtils.addFileSinkToStream(cleanPathCopyFlow, "aggregatedPath", new PathEncoder());
 
         // 2. 拆分子系统：对车辆路径进行收费金额拆分
-        SplitDataFlow.flow(cleanPathFlow, provinceStream);
+        SplitDataFlowDev.flow(cleanPathFlow, provinceStream);
     }
 }

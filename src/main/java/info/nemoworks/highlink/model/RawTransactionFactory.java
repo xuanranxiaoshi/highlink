@@ -44,6 +44,9 @@ public class RawTransactionFactory {
         if(json.size() == 59){
             return mapper.treeToValue(json, ETCSplitResultGantry.class);
         }
+        if(json.size() == 24){
+            return mapper.treeToValue(json, ExitWaste.class);
+        }
         if(json.size() == 84){
             return mapper.treeToValue(json, OtherSplitResultExit.class);
         }
