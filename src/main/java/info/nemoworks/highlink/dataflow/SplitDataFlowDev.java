@@ -207,8 +207,13 @@ public class SplitDataFlowDev {
                     // 2.1 计费方式 3， 根据 F2:门架数据拆分
                     if(feeType == 3){
                         String f2_str = query(F2_PREFIX + passId);
-                        OtherSplitResultExit otherSplitResultExit = calculateB4_F(b4, f2_str);
-                        ctx.output(OtherSplitResultExitOutputTag, otherSplitResultExit);
+                        if(f2_str != null){
+                            OtherSplitResultExit otherSplitResultExit = calculateB4_F(b4, f2_str);
+                            ctx.output(OtherSplitResultExitOutputTag, otherSplitResultExit);
+                        }
+                        else{
+                            writeToCache(B4_PREFIX + id, b4);
+                        }
                     }
                     // 2.2 计费方式 4/5，根据 E:出口附属交易数据拆分
                     else if(feeType == 4 || feeType == 5){
@@ -361,6 +366,7 @@ public class SplitDataFlowDev {
 
     private static OtherSplitResultExit calculateB4_F(OtherSplitResultExit b4, String f2Str) throws JsonProcessingException {
 
+        // fixme:
         if(f2Str == null){
             System.out.println("[Split Error] Can't find F2 data: " + b4.getPASSID());
             return null;
