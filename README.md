@@ -109,3 +109,18 @@ state.backend.changelog.periodic-materialize.interval: 3 min
 - 查看 checkpoint 保存情况：定时、通用增量式存储; CheckPointed Data Size 为当前检查点相对于上一轮新增的数据，Full Checkpoint Data Size 为检查点当前的数据总量
   ![checkpoints.png](src%2Fmain%2Fresources%2Fstatic%2Fcheckpoints.png)
 
+
+### 4. H2 数据库访问
+
+- 修改 H2 数据库的配置文件
+  - 修改 config.properties 数据库的存储地址(修改 ~/highLinks 即可)
+  ```shell
+  h2.url=jdbc:h2:tcp://localhost:3306/~/highLinks
+  ```
+  - 修改 web console 的端口号，默认为 8084
+  ```shell
+  h2.console.port=8084
+  ```
+- 启动程序后即可浏览器访问 `localhost:8084` 看到 H2 数据库的 web 界面
+- 本机访问服务器上 H2 数据库的 web 方案（备用）
+  - 通过 vscode 的 Remote-SSH 插件，连接到服务器，添加转发规则，在本地浏览器访问 `localhost:8084` 即可看到 H2 数据库的 web 界面

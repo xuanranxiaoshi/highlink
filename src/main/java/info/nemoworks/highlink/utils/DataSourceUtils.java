@@ -29,13 +29,15 @@ public class DataSourceUtils {
             String port = Config.getProperty("h2.console.port");
 
             // 启动H2控制台服务
-            Server h2Server = Server.createWebServer("-tcp", "-tcpAllowOthers", "-tcpPort", "3306", "-webAllowOthers", "-web", "-webPort", Objects.requireNonNullElse(port, PORT)).start();
+            Server h2Server = Server.createTcpServer("-tcpAllowOthers", "-tcpPort", "3306").start();
+            Server h2WebServer = Server.createWebServer("-webAllowOthers", "-webPort", Objects.requireNonNullElse(port, PORT)).start();
             System.out.println("H2 server started.");
 
             // 注册关闭钩子
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 System.out.println("Shutting down H2 server...");
                 h2Server.stop();
+                h2WebServer.stop();
                 System.out.println("H2 server stopped.");
             }));
 
@@ -95,7 +97,6 @@ public class DataSourceUtils {
             DataSourceUtils.startH2Server();
         }
 
-        initialize();
     }
 
 }

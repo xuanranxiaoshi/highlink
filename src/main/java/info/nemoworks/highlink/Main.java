@@ -16,6 +16,10 @@ import java.lang.management.MemoryUsage;
 public class Main {
     public static void main(String[] args) throws Exception {
         printJvm();
+
+        if( "h2".equals(Config.getProperty("datasource.type"))){
+            DataSourceUtils.startH2Server();
+        }
         DataSourceUtils.initialize();
 
         // 1. 创建环境
