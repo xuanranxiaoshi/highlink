@@ -40,7 +40,7 @@ taskmanager.numberOfTaskSlots: 12
 ```agsl
 localhost
 ```
-- 修改 workers 文件，指定主节点
+- 修改 masters 文件，指定主节点
 ```agsl
 localhost:8081
 ```
