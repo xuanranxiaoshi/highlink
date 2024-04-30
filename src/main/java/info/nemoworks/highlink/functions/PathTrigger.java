@@ -14,18 +14,21 @@ import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
  */
 public class PathTrigger extends Trigger<PathTransaction, TimeWindow> {
 
+    private String passId;
 
     @Override
     public TriggerResult onElement(PathTransaction element, long timestamp, TimeWindow window, TriggerContext ctx) throws Exception {
         // 超时或者 exit 数据到达，则窗口结束
         if (window.maxTimestamp() <= ctx.getCurrentWatermark()) {
             return TriggerResult.FIRE;
-        }
-        else if( element instanceof ExitRawTransaction ){
-            return TriggerResult.FIRE;
+        } else if (element instanceof ExitRawTransaction) {
+            // System.out.println("[Trigger] 出口触发：" + element.getPASSID());
+            passId = element.getPASSID();
+            return TriggerResult.FIRE_AND_PURGE;
         }
         // 更新超时时间
         else {
+            // System.out.println("[Trigger: "+ element.getPASSID() +"] 更新时间：" + DateFormatUtils.format(window.maxTimestamp(), "yyyy-MM-dd HH:mm:ss.SSS"));
             ctx.registerEventTimeTimer(window.maxTimestamp());
             return TriggerResult.CONTINUE;
         }
@@ -38,7 +41,12 @@ public class PathTrigger extends Trigger<PathTransaction, TimeWindow> {
 
     @Override
     public TriggerResult onEventTime(long time, TimeWindow window, TriggerContext ctx) throws Exception {
-        return time == window.maxTimestamp() ? TriggerResult.FIRE : TriggerResult.CONTINUE;
+        if (time == window.maxTimestamp()) {
+            System.out.println("[Trigger] 定时器触发: " + passId + " time: " + time + ", wmt: " + window.maxTimestamp());
+            return TriggerResult.FIRE;
+        } else {
+            return TriggerResult.CONTINUE;
+        }
     }
 
     @Override
