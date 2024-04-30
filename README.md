@@ -66,6 +66,20 @@ localhost:8081
   * `flink.fileDataPath`: 系统文件数据的输出路径
   * `flink.checkPointPath`:  系统检查点的保存路径
 
+* H2 数据库配置
+  * 修改文件存储路径（`jdbc:h2:tcp://localhost:3306/` 后的内容，如下面的储存路径为 `~/highLinks`）
+    ```properties
+     h2.url=jdbc:h2:tcp://localhost:3306/~/highLinks
+    ```
+  - 修改 web console 的端口号，默认为 8084
+    ```properties
+      h2.console.port=8084
+    ```
+  - 修改 web console 的远程访问地址，请修改为自己 H2 服务器的 ip 地址
+    ```properties
+      h2.webExternalNames={ip}
+    ```
+  以h2数据库模式运行程序后，则可浏览器访问 `http://{ip}:8084` 登录 H2 数据库 Web 界面
 ### 2. 提交任务至服务器运行
 
 - 将程序打包，将 jar 包（highlink-0.0.1-SNAPSHOT-jar-with-dependencies.jar）上传到 flink 安装目录下
@@ -78,9 +92,11 @@ taskmanager.memory.network.fraction: 0.05
 # 启用状态后端的通用增量 checkpoint
 state.backend.changelog.enabled: true
 state.backend.changelog.storage: filesystem
+
 # ！！！修改为相应路径
 dstl.dfs.base-path: file:///WDC/users/chensc/modules/flink-1.18.0/changeLog/
 state.backend.changelog.periodic-materialize.interval: 3 min
+
 ```
 - 启动集群
 ```
@@ -110,17 +126,3 @@ state.backend.changelog.periodic-materialize.interval: 3 min
   ![checkpoints.png](src%2Fmain%2Fresources%2Fstatic%2Fcheckpoints.png)
 
 
-### 4. H2 数据库访问
-
-- 修改 H2 数据库的配置文件
-  - 修改 config.properties 数据库的存储地址(修改 ~/highLinks 即可)
-  ```shell
-  h2.url=jdbc:h2:tcp://localhost:3306/~/highLinks
-  ```
-  - 修改 web console 的端口号，默认为 8084
-  ```shell
-  h2.console.port=8084
-  ```
-- 启动程序后即可浏览器访问 `localhost:8084` 看到 H2 数据库的 web 界面
-- 本机访问服务器上 H2 数据库的 web 方案（备用）
-  - 通过 vscode 的 Remote-SSH 插件，连接到服务器，添加转发规则，在本地浏览器访问 `localhost:8084` 即可看到 H2 数据库的 web 界面
