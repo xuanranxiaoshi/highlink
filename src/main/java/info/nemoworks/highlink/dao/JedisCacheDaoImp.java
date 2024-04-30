@@ -1,14 +1,10 @@
 package info.nemoworks.highlink.dao;
 
-import info.nemoworks.highlink.connector.JedisConnectorHelper;
-import info.nemoworks.highlink.utils.Config;
+
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
+import redis.clients.jedis.params.ScanParams;
+import redis.clients.jedis.resps.ScanResult;
 
 /**
  * @description:
@@ -47,6 +43,15 @@ public class JedisCacheDaoImp implements CacheDao {
         if(jedis != null){
             pool.returnResource(jedis);
         }
+    }
+
+    public ScanResult<String> scan(String cursor, String pattern, Integer count){
+        // 创建 ScanParams 对象，设置模式
+        ScanParams scanParams = new ScanParams();
+        scanParams.match(pattern);
+        scanParams.count(count);
+
+        return jedis.scan(cursor, scanParams);
     }
 
 }

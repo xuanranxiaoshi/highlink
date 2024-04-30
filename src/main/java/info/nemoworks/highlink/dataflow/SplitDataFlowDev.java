@@ -66,7 +66,7 @@ public class SplitDataFlowDev {
 
 
 
-    public static void flow(DataStream<LinkedList<PathTransaction>> aggregatePathStream, DataStreamSource provinceStream){
+    public static void flow(DataStream<LinkedList<PathTransaction>> aggregatePathStream, DataStream provinceStream){
 
         final OutputTag<LinkedList<PathTransaction>> multiProvinceOutputTag = new OutputTag<>("multiProvince") {};
 
@@ -140,7 +140,7 @@ public class SplitDataFlowDev {
      * 多省拆分业务处理
      * @param provinceStream
      */
-    private static void processMultiProvince(DataStreamSource provinceStream){
+    private static void processMultiProvince(DataStream provinceStream){
         final OutputTag<ETCSplitResultExit> ETCSplitResultExitOutputTag = new OutputTag<ETCSplitResultExit>("ETCSplitResultExitOutputTag") {};
         final OutputTag<OtherSplitResultGantry> OtherSplitResultGantryOutputTag = new OutputTag<OtherSplitResultGantry>("OtherSplitResultGantryOutputTag") {};
         final OutputTag<OtherSplitResultExit> OtherSplitResultExitOutputTag = new OutputTag<OtherSplitResultExit>("OtherSplitResultExitOutputTag") {};
@@ -160,6 +160,7 @@ public class SplitDataFlowDev {
                     if(connectedA != null){
                         ETCSplitResultGantry etcSplitResultGantry = calculateB1(b1, (SerTollSum) connectedA);
                         out.collect(etcSplitResultGantry);
+
                     }else{
                         writeToCache(B1_PREFIX + b1.getID(), b1);
                     }
@@ -172,8 +173,13 @@ public class SplitDataFlowDev {
                     // 2.1 计费方式 3， 根据 F2:门架数据拆分
                     if(feeType == 3){
                         String f2_str = query(F2_PREFIX + passId);
-                        ETCSplitResultExit etcSplitResultExit = calculateB2_F(b2, f2_str);
-                        ctx.output(ETCSplitResultExitOutputTag, etcSplitResultExit);
+                        if(f2_str != null){
+                            ETCSplitResultExit etcSplitResultExit = calculateB2_F(b2, f2_str);
+                            ctx.output(ETCSplitResultExitOutputTag, etcSplitResultExit);
+                        }else{
+                            writeToCache(B2_PREFIX + F2_PREFIX + id, b2);
+                            System.out.println("[Cache Info] B2 Can't find [" + F2_PREFIX + passId + "]");
+                        }
                     }
                     // 2.2 计费方式 4/5，根据 E:出口附属交易数据拆分
                     else if(feeType == 4 || feeType == 5){
@@ -212,7 +218,8 @@ public class SplitDataFlowDev {
                             ctx.output(OtherSplitResultExitOutputTag, otherSplitResultExit);
                         }
                         else{
-                            writeToCache(B4_PREFIX + id, b4);
+                            writeToCache(B4_PREFIX + F2_PREFIX + id, b4);
+                            System.out.println("[Cache Info] B4 Can't find [" + F2_PREFIX + passId + "]");
                         }
                     }
                     // 2.2 计费方式 4/5，根据 E:出口附属交易数据拆分
@@ -268,15 +275,10 @@ public class SplitDataFlowDev {
         SideOutputDataStream otherSplitResultExitStream = ETCSplitResultGantryStream.getSideOutput(OtherSplitResultExitOutputTag);
 
 
-//        SinkUtils.addInsertSinkToStream(ETCSplitResultGantryStream, ETCSplitResultGantry.class, "ETCSplitResultGantry");
-//        SinkUtils.addInsertSinkToStream(eTCSplitResultExitStream, ETCSplitResultExit.class, "ETCSplitResultExit");
-//        SinkUtils.addInsertSinkToStream(otherSplitResultGantryStream, OtherSplitResultGantry.class, "OtherSplitResultGantry");
-//        SinkUtils.addInsertSinkToStream(otherSplitResultExitStream, OtherSplitResultExit.class, "OtherSplitResultExit");
-        SinkUtils.addFileSinkToStream(ETCSplitResultGantryStream, "ETCSplitResultGantry",new SimpleStringEncoder());
-        SinkUtils.addFileSinkToStream(eTCSplitResultExitStream, "ETCSplitResultExit",new SimpleStringEncoder());
-        SinkUtils.addFileSinkToStream(otherSplitResultGantryStream, "OtherSplitResultGantry",new SimpleStringEncoder());
-        SinkUtils.addFileSinkToStream(otherSplitResultExitStream,"OtherSplitResultExit",new SimpleStringEncoder());
-//        otherSplitResultExitStream.print();
+        SinkUtils.addInsertSinkToStream(ETCSplitResultGantryStream, ETCSplitResultGantry.class, "ETCSplitResultGantry");
+        SinkUtils.addInsertSinkToStream(eTCSplitResultExitStream, ETCSplitResultExit.class, "ETCSplitResultExit");
+        SinkUtils.addInsertSinkToStream(otherSplitResultGantryStream, OtherSplitResultGantry.class, "OtherSplitResultGantry");
+        SinkUtils.addInsertSinkToStream(otherSplitResultExitStream, OtherSplitResultExit.class, "OtherSplitResultExit");
     }
 
     private static ETCSplitResultGantry calculateB1(ETCSplitResultGantry b1, SerTollSum a) throws JsonProcessingException {
@@ -347,6 +349,7 @@ public class SplitDataFlowDev {
         b3.setSPLITOWNERDISFEEGROUP(tollIntervalDiscountFee);
         return b3;
     }
+
     private static OtherSplitResultExit calculateB4_E(OtherSplitResultExit b4, ExitWaste e) {
         if(e == null){
             System.out.println("[Split Error] Can't find E data: " + b4.getPASSID());
@@ -414,7 +417,9 @@ public class SplitDataFlowDev {
                 return null;
             } else {
                 JsonNode jsonNode = mapper.readTree(res);
-                System.out.println("[Cache Info] Find [" + key + "]");
+                System.out.println("[Cache Info] Find & Del [" + key + "]");
+                // 删除读取的数据
+//                cacheDao.del(key);
                 return (ProvinceTransaction) mapper.treeToValue(jsonNode, clazz);
             }
         } finally {
@@ -428,7 +433,14 @@ public class SplitDataFlowDev {
         CacheDao cacheDao = null;
         try{
             cacheDao = cachePool.getDaoImp();
-            return cacheDao.get(key);
+            String res = cacheDao.get(key);
+            if(res == null){
+                System.out.println("[Cache Info] Can't find [" + key + "]");
+            }else{
+                cacheDao.del(key);
+                System.out.println("[Cache Info] Find & Del [" + key + "]");
+            }
+            return res;
         }finally {
             if(cacheDao != null) {
                 cacheDao.close();

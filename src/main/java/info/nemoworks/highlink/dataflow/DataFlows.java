@@ -5,6 +5,8 @@ import info.nemoworks.highlink.dataflow.encoder.PathEncoder;
 import info.nemoworks.highlink.model.HighwayTransaction;
 import info.nemoworks.highlink.model.multiProvince.ProvinceTransaction;
 import info.nemoworks.highlink.model.pathTransaction.PathTransaction;
+import info.nemoworks.highlink.source.ProvinceRedisSource;
+import info.nemoworks.highlink.utils.Config;
 import info.nemoworks.highlink.utils.SinkUtils;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -38,6 +40,16 @@ public class DataFlows {
                 TypeInformation.of(ProvinceTransaction.class))
                 .setParallelism(1);
 
+        DataStream provinceUnionStream = provinceStream;
+        if("redis".equals(Config.getProperty("cache.dao.impl"))){
+            // 0.3 缓存数据输入
+            String pattern = "B*:" + SplitDataFlowDev.F2_PREFIX + "*";
+            SingleOutputStreamOperator<ProvinceTransaction> provinceCacheStream = env.addSource(new ProvinceRedisSource(pattern, 100))
+                    .setParallelism(1).name("缓存数据接收流水");
+            provinceUnionStream = provinceStream.union(provinceCacheStream);
+        }
+
+
         // 1. 预处理子系统: 对输入数据流进行拆分预处理、返回聚合的路径数据
         SingleOutputStreamOperator<LinkedList<PathTransaction>> aggregatePathStream =
                 PrepareFlow.flow(unionStream);
@@ -50,6 +62,6 @@ public class DataFlows {
         SinkUtils.addFileSinkToStream(cleanPathCopyFlow, "aggregatedPath", new PathEncoder());
 
         // 2. 拆分子系统：对车辆路径进行收费金额拆分
-        SplitDataFlowDev.flow(cleanPathFlow, provinceStream);
+        SplitDataFlowDev.flow(cleanPathFlow, provinceUnionStream);
     }
 }

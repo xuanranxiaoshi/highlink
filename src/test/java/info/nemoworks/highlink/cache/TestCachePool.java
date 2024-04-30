@@ -2,13 +2,10 @@ package info.nemoworks.highlink.cache;
 
 import info.nemoworks.highlink.dao.CacheDao;
 import info.nemoworks.highlink.dao.CachePool;
-import info.nemoworks.highlink.dao.JedisCacheDaoImp;
 import info.nemoworks.highlink.utils.SimpleContainer;
 import org.junit.jupiter.api.Test;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
-import org.mapdb.Serializer;
-import redis.clients.jedis.JedisPool;
 
 import java.util.concurrent.ConcurrentMap;
 
@@ -18,9 +15,9 @@ import java.util.concurrent.ConcurrentMap;
  * @date: 2024/4/2
  * @Copyright：
  */
-public class TestCache {
+public class TestCachePool {
     @Test
-    public void TestRocksDB() {
+    public void TestCachePool() {
         CachePool cachePool = SimpleContainer.getCachePool();
         CacheDao cacheDao = cachePool.getDaoImp();
         String set = cacheDao.set("student:name", "zhangsan");

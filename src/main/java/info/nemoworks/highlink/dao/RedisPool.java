@@ -4,13 +4,15 @@ import info.nemoworks.highlink.utils.Config;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
+import java.io.Serializable;
+
 /**
  * @description:
  * @author：jimi
  * @date: 2024/4/12
  * @Copyright：
  */
-public class RedisPool implements CachePool{
+public class RedisPool implements CachePool, Serializable{
     private volatile static JedisPool pool;
 
     public RedisPool(){
