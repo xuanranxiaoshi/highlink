@@ -206,7 +206,7 @@ public class ClearDataFlow {
         return clearResults;
     }
 
-    private LinkedList<CashClearResult> split2ClearDetials(String splitownergroup,
+    private static LinkedList<CashClearResult> split2ClearDetials(String splitownergroup,
                                                           String splitownerfeegroup,
                                                           String splitownerpayfeegroup,
                                                           String splitownerdisfeegroup,
