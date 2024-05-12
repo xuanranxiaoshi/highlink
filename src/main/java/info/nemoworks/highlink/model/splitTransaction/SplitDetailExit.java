@@ -1,9 +1,9 @@
-package info.nemoworks.highlink.model.multiProvince;
+package info.nemoworks.highlink.model.splitTransaction;
 
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 /**
- * @description:
+ * @description: 拆分明细数据，对应数据表：tbl_OtherSplitDetail_Ext 和 tbl_ETCSplitDetail_Ext
  * @author：jimi
  * @date: 2024/3/24
  * @Copyright：

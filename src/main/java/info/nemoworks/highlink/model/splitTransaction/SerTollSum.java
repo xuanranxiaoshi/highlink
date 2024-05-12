@@ -1,9 +1,9 @@
-package info.nemoworks.highlink.model.multiProvince;
+package info.nemoworks.highlink.model.splitTransaction;
 
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 /**
- * @description:
+ * @description: 通行省门架记录汇总数据，定义数据表：tbl_SerTollSum
  * @author：jimi
  * @date: 2024/3/21
  * @Copyright：

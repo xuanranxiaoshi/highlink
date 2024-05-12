@@ -1,4 +1,4 @@
-package info.nemoworks.highlink.model.multiProvince;
+package info.nemoworks.highlink.model.splitTransaction;
 
 /**
  * @description:
@@ -10,7 +10,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonPro
 import lombok.Data;
 
 @Data
-public class OtherSplitResultExit implements  ProvinceTransaction{
+public class OtherSplitResultExit implements  ProvinceTransaction, SplitResult{
     @JsonProperty("ID")
     public String iD;
     @JsonProperty("TOLLPROVINCEID")

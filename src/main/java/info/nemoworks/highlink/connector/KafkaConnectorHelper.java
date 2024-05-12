@@ -4,7 +4,7 @@ import info.nemoworks.highlink.kafka.HighwayTransDeSerializer;
 import info.nemoworks.highlink.kafka.JsonDeSerializer;
 import info.nemoworks.highlink.kafka.ProvinceTransDeSerializer;
 import info.nemoworks.highlink.model.HighwayTransaction;
-import info.nemoworks.highlink.model.multiProvince.ProvinceTransaction;
+import info.nemoworks.highlink.model.splitTransaction.ProvinceTransaction;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 

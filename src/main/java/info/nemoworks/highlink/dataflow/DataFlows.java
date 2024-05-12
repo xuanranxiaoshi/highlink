@@ -3,7 +3,7 @@ package info.nemoworks.highlink.dataflow;
 import info.nemoworks.highlink.connector.KafkaConnectorHelper;
 import info.nemoworks.highlink.dataflow.encoder.PathEncoder;
 import info.nemoworks.highlink.model.HighwayTransaction;
-import info.nemoworks.highlink.model.multiProvince.ProvinceTransaction;
+import info.nemoworks.highlink.model.splitTransaction.ProvinceTransaction;
 import info.nemoworks.highlink.model.pathTransaction.PathTransaction;
 import info.nemoworks.highlink.source.ProvinceRedisSource;
 import info.nemoworks.highlink.utils.Config;
@@ -41,6 +41,7 @@ public class DataFlows {
                 .setParallelism(1);
 
         DataStream provinceUnionStream = provinceStream;
+        // fixme: 目前只实现从 redis 中读入缓存数据作为数据源输入
         if("redis".equals(Config.getProperty("cache.dao.impl"))){
             // 0.3 缓存数据输入
             String pattern = "B*:" + SplitDataFlowDev.F2_PREFIX + "*";
@@ -54,14 +55,16 @@ public class DataFlows {
         SingleOutputStreamOperator<LinkedList<PathTransaction>> aggregatePathStream =
                 PrepareFlow.flow(unionStream);
 
-        // 1.5 异常数据存储
+        // 1.5 异常数据存储：对异常路径进行清洗
         DataStream<LinkedList<PathTransaction>> cleanPathFlow = ExceptionFlow.flow(aggregatePathStream);
 
-        // 输出清洗后的数据流
+        // 输出清洗后的数据流； 备份一份，输出到文件，方便查看聚合结果
         DataStream<LinkedList<PathTransaction>> cleanPathCopyFlow = cleanPathFlow.broadcast();
         SinkUtils.addFileSinkToStream(cleanPathCopyFlow, "aggregatedPath", new PathEncoder());
 
         // 2. 拆分子系统：对车辆路径进行收费金额拆分
         SplitDataFlowDev.flow(cleanPathFlow, provinceUnionStream);
+
+        // 3. 清分子系统：对拆分后的数据进行入库；
     }
 }

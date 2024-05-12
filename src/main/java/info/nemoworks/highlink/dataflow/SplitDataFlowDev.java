@@ -9,19 +9,17 @@ import info.nemoworks.highlink.model.entryTransaction.EntryRawTransaction;
 import info.nemoworks.highlink.model.exitTransaction.ExitLocalETCTrans;
 import info.nemoworks.highlink.model.exitTransaction.ExitLocalOtherTrans;
 import info.nemoworks.highlink.model.exitTransaction.ExitRawTransaction;
-import info.nemoworks.highlink.model.multiProvince.*;
+import info.nemoworks.highlink.model.splitTransaction.*;
 import info.nemoworks.highlink.model.pathTransaction.MultiProvincePathTrans;
 import info.nemoworks.highlink.model.pathTransaction.PathTransaction;
 import info.nemoworks.highlink.model.pathTransaction.SingleProvincePathTrans;
 import info.nemoworks.highlink.sink.MultiProvincePathCacheSink;
 import info.nemoworks.highlink.utils.SimpleContainer;
 import info.nemoworks.highlink.utils.SinkUtils;
-import org.apache.flink.api.common.serialization.SimpleStringEncoder;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SideOutputDataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
@@ -33,18 +31,16 @@ import java.util.Date;
 import java.util.LinkedList;
 
 /**
- * @author：jimi 拆分子系统
+ * @author：jimi 拆分业务处理
  * @date: 2024/3/5
  * @Copyright：
  * @Description:
+ *   交易拆分类别:
  *    1. B1：计费方式只有 1， 根据 A 进行拆分
  *    2. B2/details: 计费方式有3、4、5、6，分别根据 F2、E 进行拆分
  *    3. B3: 计费方式只有 1, 根据 A 进行拆分
  *    4. B4/details: 计费方式有3、4、5、6，分别根据 F2、E 进行拆分
  *
- *
- *    实现方式一：统一的 query 函数、calculate 函数，内部进行类型判断
- *    实现方式二：query 只是工具类，每类具有单独的 calculate 函数
  */
 public class SplitDataFlowDev {
 
@@ -61,7 +57,6 @@ public class SplitDataFlowDev {
 
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private static final ObjectMapper mapper = SimpleContainer.getObjectMapper();
-
     private static final CachePool cachePool = SimpleContainer.getCachePool();
 
 
@@ -81,6 +76,7 @@ public class SplitDataFlowDev {
                         PathTransaction entryTrans = pathList.get(0);
                         // todo: 根据属性判断
                         if (exitTrans instanceof ExitRawTransaction exitRawTransaction && entryTrans instanceof EntryRawTransaction) {
+                            // 将路径数据转化为单省数据
                             out.collect(new SingleProvincePathTrans(pathList)); // 单省数据
                         } else {
                             ctx.output(multiProvinceOutputTag, pathList);   // 跨省数据
@@ -91,10 +87,10 @@ public class SplitDataFlowDev {
 
         SideOutputDataStream<LinkedList<PathTransaction>> multiProvinceStream = singleProvinceSplitStream.getSideOutput(multiProvinceOutputTag);
 
-        // 跨省聚合路径写入 redis 缓存
+        // 跨省拆分由部中心的消息触发，先将跨省聚合路径写入缓存
         multiProvinceStream.addSink(new MultiProvincePathCacheSink()).name("多省通行记录暂存").setParallelism(1);
 
-        // 2. 单省拆分逻辑
+        // 2. 单省拆分: 直接利用聚得到的路径数据进行拆分
         processSingleProvince(singleProvinceSplitStream);
 
         // 3. 多省拆分
@@ -131,13 +127,13 @@ public class SplitDataFlowDev {
 
         SideOutputDataStream<ExitLocalOtherTrans> exitLocalOtherTransStream = exitLocalETCTransStream.getSideOutput(exitLocalOtherOutputTag);
 
-        // todo: 重写更新数据库文件
+        // todo: 更新数据库文件
         SinkUtils.addFileSinkToStream(exitLocalETCTransStream, "exit_local_etc", new ExitLocalETCEncoder());
         SinkUtils.addFileSinkToStream(exitLocalOtherTransStream, "exit_local_other", new ExitLocalOthersEncoder());
     }
 
     /**
-     * 多省拆分业务处理
+     * 多省交易数据拆分业务处理
      * @param provinceStream
      */
     private static void processMultiProvince(DataStream provinceStream){
@@ -391,7 +387,7 @@ public class SplitDataFlowDev {
     }
 
     /**
-     * 将关联数据未到达的数据写入缓存
+     * 将关联数据还未到达的数据写入缓存
      * @param value
      * @throws JsonProcessingException
      */

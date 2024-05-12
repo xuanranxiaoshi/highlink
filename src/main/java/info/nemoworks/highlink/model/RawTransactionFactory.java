@@ -4,7 +4,7 @@ import info.nemoworks.highlink.model.entryTransaction.EntryRawTransaction;
 import info.nemoworks.highlink.model.exitTransaction.ExitRawTransaction;
 import info.nemoworks.highlink.model.extendTransaction.ParkTransWasteRec;
 import info.nemoworks.highlink.model.gantryTransaction.GantryRawTransaction;
-import info.nemoworks.highlink.model.multiProvince.*;
+import info.nemoworks.highlink.model.splitTransaction.*;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 

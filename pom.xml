@@ -139,6 +139,13 @@
             <version>3.0.7</version>
         </dependency>
 
+        <!-- clickHouse jdbc 依赖 -->
+        <dependency>
+            <groupId>com.clickhouse</groupId>
+            <artifactId>clickhouse-jdbc</artifactId>
+            <version>0.4.6</version>
+        </dependency>
+
     </dependencies>
 
     <build>

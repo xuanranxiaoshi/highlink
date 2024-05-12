@@ -1,7 +1,7 @@
-package info.nemoworks.highlink.model.multiProvince;
+package info.nemoworks.highlink.model.splitTransaction;
 
 /**
- * @description:
+ * @description: 对应出口站交易数据流水附属表（tbl_ExitWaste_Ext）
  * @author：jimi
  * @date: 2024/4/13
  * @Copyright：

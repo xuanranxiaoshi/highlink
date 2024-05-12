@@ -11,7 +11,7 @@ import info.nemoworks.highlink.model.entryTransaction.EntryRawTransaction;
 import info.nemoworks.highlink.model.exitTransaction.ExitLocalETCTrans;
 import info.nemoworks.highlink.model.exitTransaction.ExitLocalOtherTrans;
 import info.nemoworks.highlink.utils.SimpleContainer;
-import info.nemoworks.highlink.model.multiProvince.*;
+import info.nemoworks.highlink.model.splitTransaction.*;
 import info.nemoworks.highlink.model.pathTransaction.PathTransaction;
 import info.nemoworks.highlink.model.exitTransaction.ExitRawTransaction;
 import info.nemoworks.highlink.model.pathTransaction.SingleProvincePathTrans;

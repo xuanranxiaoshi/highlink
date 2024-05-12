@@ -1,8 +1,7 @@
 package info.nemoworks.highlink.kafka;
 
-import info.nemoworks.highlink.model.HighwayTransaction;
 import info.nemoworks.highlink.model.RawTransactionFactory;
-import info.nemoworks.highlink.model.multiProvince.ProvinceTransaction;
+import info.nemoworks.highlink.model.splitTransaction.ProvinceTransaction;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.json.JsonReadFeature;
