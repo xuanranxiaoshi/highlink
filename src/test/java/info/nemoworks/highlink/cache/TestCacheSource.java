@@ -1,13 +1,5 @@
 package info.nemoworks.highlink.cache;
 
-import info.nemoworks.highlink.dao.JedisCacheDaoImp;
-import info.nemoworks.highlink.dataflow.SplitDataFlowDev;
-import info.nemoworks.highlink.utils.SimpleContainer;
-import org.junit.jupiter.api.Test;
-import redis.clients.jedis.resps.ScanResult;
-
-import java.util.List;
-
 /**
  * @description: 测试多省缓存数据的定时读取功能
  * @author：jimi

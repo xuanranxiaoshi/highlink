@@ -3,7 +3,7 @@ package info.nemoworks.highlink.source;
 import java.util.concurrent.TimeUnit;
 import info.nemoworks.highlink.dao.CachePool;
 import info.nemoworks.highlink.dao.JedisCacheDaoImp;
-import info.nemoworks.highlink.dataflow.SplitDataFlowDev;
+import info.nemoworks.highlink.dataflow.SplitDataFlow;
 import info.nemoworks.highlink.model.RawTransactionFactory;
 import info.nemoworks.highlink.model.splitTransaction.ProvinceTransaction;
 import info.nemoworks.highlink.utils.SimpleContainer;
@@ -99,7 +99,7 @@ public class ProvinceRedisSource implements SourceFunction<ProvinceTransaction>{
             return false;
         }
         // 查询关联的 F2 数据
-        String s = dao.get(SplitDataFlowDev.F2_PREFIX + passID);
+        String s = dao.get(SplitDataFlow.F2_PREFIX + passID);
         return s != null;
     }
 }

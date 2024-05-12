@@ -1,7 +1,7 @@
 package info.nemoworks.highlink.sink;
 
 import info.nemoworks.highlink.dao.CacheDao;
-import info.nemoworks.highlink.dataflow.SplitDataFlowDev;
+import info.nemoworks.highlink.dataflow.SplitDataFlow;
 import info.nemoworks.highlink.model.pathTransaction.PathTransaction;
 import info.nemoworks.highlink.utils.SimpleContainer;
 import org.apache.flink.configuration.Configuration;
@@ -30,7 +30,7 @@ public class MultiProvincePathCacheSink extends RichSinkFunction<LinkedList<Path
     public void invoke(LinkedList<PathTransaction> pathTransactionLinkedList, Context context) throws Exception {
         PathTransaction pathTransaction = pathTransactionLinkedList.get(0);
         String passid = pathTransaction.getPASSID();
-        String key = SplitDataFlowDev.F2_PREFIX + passid;
+        String key = SplitDataFlow.F2_PREFIX + passid;
         String pathStr = objectMapper.writeValueAsString(pathTransactionLinkedList);
         cacheDao.set(key, pathStr);
     }

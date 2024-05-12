@@ -2,12 +2,13 @@ package info.nemoworks.highlink.model.exitTransaction;
 
 import info.nemoworks.highlink.model.HighwayTransaction;
 import info.nemoworks.highlink.model.pathTransaction.PathTransaction;
+import info.nemoworks.highlink.model.splitTransaction.SplitResult;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
 
 @Data
-public class ExitLocalETCTrans implements HighwayTransaction, PathTransaction {
+public class ExitLocalETCTrans implements HighwayTransaction, PathTransaction, SplitResult {
     @JsonProperty("ID")
     public String iD;
     @JsonProperty("MODIFYFLAG")

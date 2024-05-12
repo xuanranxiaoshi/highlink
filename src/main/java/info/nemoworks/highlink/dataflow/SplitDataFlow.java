@@ -42,7 +42,7 @@ import java.util.LinkedList;
  *    4. B4/details: 计费方式有3、4、5、6，分别根据 F2、E 进行拆分
  *
  */
-public class SplitDataFlowDev {
+public class SplitDataFlow {
 
 
     public static final String A_PREFIX = "A:";
@@ -61,7 +61,7 @@ public class SplitDataFlowDev {
 
 
 
-    public static void flow(DataStream<LinkedList<PathTransaction>> aggregatePathStream, DataStream provinceStream){
+    public static DataStream<SplitResult> flow(DataStream<LinkedList<PathTransaction>> aggregatePathStream, DataStream<ProvinceTransaction> provinceStream){
 
         final OutputTag<LinkedList<PathTransaction>> multiProvinceOutputTag = new OutputTag<>("multiProvince") {};
 
@@ -78,7 +78,8 @@ public class SplitDataFlowDev {
                         if (exitTrans instanceof ExitRawTransaction exitRawTransaction && entryTrans instanceof EntryRawTransaction) {
                             // 将路径数据转化为单省数据
                             out.collect(new SingleProvincePathTrans(pathList)); // 单省数据
-                        } else {
+                        }
+                        else {
                             ctx.output(multiProvinceOutputTag, pathList);   // 跨省数据
                         }
                     }
@@ -91,63 +92,78 @@ public class SplitDataFlowDev {
         multiProvinceStream.addSink(new MultiProvincePathCacheSink()).name("多省通行记录暂存").setParallelism(1);
 
         // 2. 单省拆分: 直接利用聚得到的路径数据进行拆分
-        processSingleProvince(singleProvinceSplitStream);
+        DataStream<SplitResult> singleProvinceSplitRes = processSingleProvince(singleProvinceSplitStream);
 
         // 3. 多省拆分
-        processMultiProvince(provinceStream);
+        DataStream<SplitResult> multiProvinceSplitRes = processMultiProvince(provinceStream);
 
+        DataStream<SplitResult> union = singleProvinceSplitRes.union(multiProvinceSplitRes);
 
+        return union;
     }
 
 
     /**
      * 单省拆分业务逻辑实现
+     *
      * @param singleProvinceSplitStream
+     * @return
      */
-    private static void processSingleProvince(DataStream<SingleProvincePathTrans> singleProvinceSplitStream){
+    private static DataStream<SplitResult> processSingleProvince(DataStream<SingleProvincePathTrans> singleProvinceSplitStream){
         final OutputTag<ExitLocalOtherTrans> exitLocalOtherOutputTag = new OutputTag<ExitLocalOtherTrans>("exitLocalOtherOutputTag") {};
+        final OutputTag<ExitLocalETCTrans> exitLocalETCOutputTag = new OutputTag<ExitLocalETCTrans>("exitLocalETCOutputTag") {};
 
-        SingleOutputStreamOperator<ExitLocalETCTrans> exitLocalETCTransStream = singleProvinceSplitStream.process(new ProcessFunction<SingleProvincePathTrans, ExitLocalETCTrans>() {
+        SingleOutputStreamOperator<SplitResult> splitResultStream = singleProvinceSplitStream.process(new ProcessFunction<SingleProvincePathTrans, SplitResult>() {
             @Override
             public void processElement(SingleProvincePathTrans value,
-                                       ProcessFunction<SingleProvincePathTrans, ExitLocalETCTrans>.Context ctx,
-                                       Collector<ExitLocalETCTrans> out) throws Exception {
+                                       ProcessFunction<SingleProvincePathTrans, SplitResult>.Context ctx,
+                                       Collector<SplitResult> out) throws Exception {
                 // 进行单省拆分
                 value.splitCharge();
                 HighwayTransaction exitTrans = value.getUpdateRes();
                 if (exitTrans instanceof ExitLocalETCTrans exitLocalETCTrans) {
                     // 单省 ETC
+                    ctx.output(exitLocalETCOutputTag, exitLocalETCTrans);
                     out.collect(exitLocalETCTrans);
-                } else if (exitTrans instanceof ExitLocalOtherTrans exitLocalOtherTrans) {
+                }
+                else if (exitTrans instanceof ExitLocalOtherTrans exitLocalOtherTrans) {
                     // 单省 CPC
                     ctx.output(exitLocalOtherOutputTag, exitLocalOtherTrans);
+                    out.collect(exitLocalOtherTrans);
                 }
             }
         }).name("单省拆分");
 
-        SideOutputDataStream<ExitLocalOtherTrans> exitLocalOtherTransStream = exitLocalETCTransStream.getSideOutput(exitLocalOtherOutputTag);
+        SideOutputDataStream<ExitLocalETCTrans> exitLocalETCTransStream = splitResultStream.getSideOutput(exitLocalETCOutputTag);
+        SideOutputDataStream<ExitLocalOtherTrans> exitLocalOtherTransStream = splitResultStream.getSideOutput(exitLocalOtherOutputTag);
+
 
         // todo: 更新数据库文件
         SinkUtils.addFileSinkToStream(exitLocalETCTransStream, "exit_local_etc", new ExitLocalETCEncoder());
         SinkUtils.addFileSinkToStream(exitLocalOtherTransStream, "exit_local_other", new ExitLocalOthersEncoder());
+
+        return splitResultStream;
     }
 
     /**
      * 多省交易数据拆分业务处理
+     *
      * @param provinceStream
+     * @return
      */
-    private static void processMultiProvince(DataStream provinceStream){
+    private static DataStream<SplitResult> processMultiProvince(DataStream<ProvinceTransaction> provinceStream){
+        final OutputTag<ETCSplitResultGantry> ETCSplitResultGantryOutputTag = new OutputTag<ETCSplitResultGantry>("ETCSplitResultGantryOutputTag") {};
         final OutputTag<ETCSplitResultExit> ETCSplitResultExitOutputTag = new OutputTag<ETCSplitResultExit>("ETCSplitResultExitOutputTag") {};
         final OutputTag<OtherSplitResultGantry> OtherSplitResultGantryOutputTag = new OutputTag<OtherSplitResultGantry>("OtherSplitResultGantryOutputTag") {};
         final OutputTag<OtherSplitResultExit> OtherSplitResultExitOutputTag = new OutputTag<OtherSplitResultExit>("OtherSplitResultExitOutputTag") {};
         final OutputTag<SplitDetailExit> SplitDetailExitOutputTag = new OutputTag<SplitDetailExit>("SplitDetailExitOutputTag") {};
         final OutputTag<SerTollSum> SerTollSumOutputTag = new OutputTag<SerTollSum>("SerTollSumOutputTag") {};
 
-        SingleOutputStreamOperator ETCSplitResultGantryStream = provinceStream.process(new ProcessFunction<ProvinceTransaction, ETCSplitResultGantry>() {
+        SingleOutputStreamOperator<SplitResult> splitStream = provinceStream.process(new ProcessFunction<ProvinceTransaction, SplitResult>() {
             @Override
             public void processElement(ProvinceTransaction value,
-                                       ProcessFunction<ProvinceTransaction, ETCSplitResultGantry>.Context ctx,
-                                       Collector<ETCSplitResultGantry> out) throws Exception {
+                                       ProcessFunction<ProvinceTransaction, SplitResult>.Context ctx,
+                                       Collector<SplitResult> out) throws Exception {
                 // 1. B1 数据拆分
                 if (value instanceof ETCSplitResultGantry b1){
                     String id = b1.getID();
@@ -155,8 +171,8 @@ public class SplitDataFlowDev {
                     ProvinceTransaction connectedA = query(A_PREFIX + id, SerTollSum.class);
                     if(connectedA != null){
                         ETCSplitResultGantry etcSplitResultGantry = calculateB1(b1, (SerTollSum) connectedA);
+                        ctx.output(ETCSplitResultGantryOutputTag, etcSplitResultGantry);
                         out.collect(etcSplitResultGantry);
-
                     }else{
                         writeToCache(B1_PREFIX + b1.getID(), b1);
                     }
@@ -172,6 +188,7 @@ public class SplitDataFlowDev {
                         if(f2_str != null){
                             ETCSplitResultExit etcSplitResultExit = calculateB2_F(b2, f2_str);
                             ctx.output(ETCSplitResultExitOutputTag, etcSplitResultExit);
+                            out.collect(etcSplitResultExit);
                         }else{
                             writeToCache(B2_PREFIX + F2_PREFIX + id, b2);
                             System.out.println("[Cache Info] B2 Can't find [" + F2_PREFIX + passId + "]");
@@ -184,6 +201,7 @@ public class SplitDataFlowDev {
                         if(connectedE != null){
                             ETCSplitResultExit etcSplitResultExit = calculateB2_E(b2, (ExitWaste) connectedE);
                             ctx.output(ETCSplitResultExitOutputTag, etcSplitResultExit);
+                            out.collect(etcSplitResultExit);
                         }else{
                             writeToCache(B2_PREFIX + id, b2);
                         }
@@ -197,6 +215,7 @@ public class SplitDataFlowDev {
                     if(connectedA != null){
                         OtherSplitResultGantry etcSplitResultGantry = calculateB3(b3, (SerTollSum) connectedA);
                         ctx.output(OtherSplitResultGantryOutputTag, etcSplitResultGantry);
+                        out.collect(etcSplitResultGantry);
                     }else{
                         writeToCache(B3_PREFIX + id, b3);
                     }
@@ -212,6 +231,7 @@ public class SplitDataFlowDev {
                         if(f2_str != null){
                             OtherSplitResultExit otherSplitResultExit = calculateB4_F(b4, f2_str);
                             ctx.output(OtherSplitResultExitOutputTag, otherSplitResultExit);
+                            out.collect(otherSplitResultExit);
                         }
                         else{
                             writeToCache(B4_PREFIX + F2_PREFIX + id, b4);
@@ -225,6 +245,7 @@ public class SplitDataFlowDev {
                         if(connectedE != null){
                             OtherSplitResultExit otherSplitResultExit = calculateB4_E(b4, (ExitWaste) connectedE);
                             ctx.output(OtherSplitResultExitOutputTag, otherSplitResultExit);
+                            out.collect(otherSplitResultExit);
                         }else{
                             writeToCache(B4_PREFIX + id, b4);
                         }
@@ -239,9 +260,11 @@ public class SplitDataFlowDev {
                     if(connectedB !=null){
                         ETCSplitResultGantry etcSplitResultGantry = calculateB1((ETCSplitResultGantry) connectedB, a);
                         out.collect(etcSplitResultGantry);
+                        out.collect(etcSplitResultGantry);
                     }else if(connectedB3 != null){
                         OtherSplitResultGantry otherSplitResultGantry = calculateB3((OtherSplitResultGantry) connectedB3, a);
                         ctx.output(OtherSplitResultGantryOutputTag, otherSplitResultGantry);
+                        out.collect(otherSplitResultGantry);
                     }else{
                         writeToCache(A_PREFIX + a.getID(), a);
                     }
@@ -255,9 +278,11 @@ public class SplitDataFlowDev {
                     if(connectedB !=null){
                         ETCSplitResultExit etcSplitResultExit = calculateB2_E((ETCSplitResultExit) connectedB, e);
                         ctx.output(ETCSplitResultExitOutputTag, etcSplitResultExit);
+                        out.collect(etcSplitResultExit);
                     }else if(connectedB4 != null){
                         OtherSplitResultExit otherSplitResultExit = calculateB4_E((OtherSplitResultExit) connectedB4, e);
                         ctx.output(OtherSplitResultExitOutputTag, otherSplitResultExit);
+                        out.collect(otherSplitResultExit);
                     }
                     else{
                         writeToCache(E_PREFIX + id, e);
@@ -266,15 +291,18 @@ public class SplitDataFlowDev {
             }
         }).setParallelism(1).name("多省拆分");
 
-        SideOutputDataStream eTCSplitResultExitStream = ETCSplitResultGantryStream.getSideOutput(ETCSplitResultExitOutputTag);
-        SideOutputDataStream otherSplitResultGantryStream = ETCSplitResultGantryStream.getSideOutput(OtherSplitResultGantryOutputTag);
-        SideOutputDataStream otherSplitResultExitStream = ETCSplitResultGantryStream.getSideOutput(OtherSplitResultExitOutputTag);
+        SideOutputDataStream<ETCSplitResultGantry> eTCSplitResultGantryStream = splitStream.getSideOutput(ETCSplitResultGantryOutputTag);
+        SideOutputDataStream<ETCSplitResultExit> eTCSplitResultExitStream = splitStream.getSideOutput(ETCSplitResultExitOutputTag);
+        SideOutputDataStream<OtherSplitResultGantry> otherSplitResultGantryStream = splitStream.getSideOutput(OtherSplitResultGantryOutputTag);
+        SideOutputDataStream<OtherSplitResultExit> otherSplitResultExitStream = splitStream.getSideOutput(OtherSplitResultExitOutputTag);
 
 
-        SinkUtils.addInsertSinkToStream(ETCSplitResultGantryStream, ETCSplitResultGantry.class, "ETCSplitResultGantry");
+        SinkUtils.addInsertSinkToStream(eTCSplitResultGantryStream, ETCSplitResultGantry.class, "ETCSplitResultGantry");
         SinkUtils.addInsertSinkToStream(eTCSplitResultExitStream, ETCSplitResultExit.class, "ETCSplitResultExit");
         SinkUtils.addInsertSinkToStream(otherSplitResultGantryStream, OtherSplitResultGantry.class, "OtherSplitResultGantry");
         SinkUtils.addInsertSinkToStream(otherSplitResultExitStream, OtherSplitResultExit.class, "OtherSplitResultExit");
+
+        return splitStream;
     }
 
     private static ETCSplitResultGantry calculateB1(ETCSplitResultGantry b1, SerTollSum a) throws JsonProcessingException {

@@ -44,7 +44,7 @@ public class DataFlows {
         // fixme: 目前只实现从 redis 中读入缓存数据作为数据源输入
         if("redis".equals(Config.getProperty("cache.dao.impl"))){
             // 0.3 缓存数据输入
-            String pattern = "B*:" + SplitDataFlowDev.F2_PREFIX + "*";
+            String pattern = "B*:" + SplitDataFlow.F2_PREFIX + "*";
             SingleOutputStreamOperator<ProvinceTransaction> provinceCacheStream = env.addSource(new ProvinceRedisSource(pattern, 100))
                     .setParallelism(1).name("缓存数据接收流水");
             provinceUnionStream = provinceStream.union(provinceCacheStream);
@@ -63,8 +63,9 @@ public class DataFlows {
         SinkUtils.addFileSinkToStream(cleanPathCopyFlow, "aggregatedPath", new PathEncoder());
 
         // 2. 拆分子系统：对车辆路径进行收费金额拆分
-        SplitDataFlowDev.flow(cleanPathFlow, provinceUnionStream);
+        DataStream splitResStream = SplitDataFlow.flow(cleanPathFlow, provinceUnionStream);
 
         // 3. 清分子系统：对拆分后的数据进行入库；
+        ClearDataFlow.flow(splitResStream);
     }
 }

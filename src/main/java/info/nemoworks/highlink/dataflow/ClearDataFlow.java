@@ -34,7 +34,7 @@ public class ClearDataFlow {
      *
      * @param splitResultDataStream
      */
-    public void flow(DataStream<SplitResult> splitResultDataStream) {
+    public static void flow(DataStream<SplitResult> splitResultDataStream) {
 
         final OutputTag<CashClearResult> cashClearResultOutputTag = new OutputTag<CashClearResult>("cashClearResultOutputTag") {};
         final OutputTag<ExpandClearResult> expandClearResultOutputTag = new OutputTag<ExpandClearResult>("expandClearResultOutputTag") {};
