@@ -22,7 +22,7 @@ public class SinkUtils {
     private static void addLogSinkToStream(DataStream<info.nemoworks.highlink.model.HighwayTransaction> dataStream, Class clazz, String name){
         dataStream.addSink(new TransactionSinks.LogSink<>());
     }
-    public static void addInsertSinkToStream(DataStream dataStream, Class clazz) {
+    public static void addInsertSinkToStream(DataStream<Object> dataStream, Class clazz) {
         dataStream.addSink(JdbcSink.sink(
                 JdbcConnectorHelper.getInsertTemplateString(clazz),
                 JdbcConnectorHelper.getStatementBuilder(),
@@ -35,6 +35,14 @@ public class SinkUtils {
                 JdbcConnectorHelper.getStatementBuilder(),
                 JdbcConnectorHelper.getJdbcExecutionOptions(),
                 JdbcConnectorHelper.getJdbcConnectionOptions())).name(name).setParallelism(1);
+    }
+
+    public static void addStream2CH(DataStream dataStream, Class clazz, String name){
+        dataStream.addSink(JdbcSink.sink(
+                JdbcConnectorHelper.getInsertTemplateString(clazz),
+                JdbcConnectorHelper.getStatementBuilder(),
+                JdbcConnectorHelper.getJdbcExecutionOptions(),
+                JdbcConnectorHelper.getClickHouseConnectionOptions())).name(name).setParallelism(1);
     }
     public static void addFileSinkToStream(DataStream dataStream, String filename, Encoder encoder){
 
