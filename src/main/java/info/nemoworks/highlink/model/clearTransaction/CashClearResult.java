@@ -9,65 +9,78 @@ package info.nemoworks.highlink.model.clearTransaction;
 
 import lombok.Data;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
-public class CashClearResult implements ClearResult{
-    @JsonProperty("CROPID")
-    public String cROPID;
-    @JsonProperty("TOLLSECTIONID")
-    public String tOLLSECTIONID;
-    @JsonProperty("TOLLINTERVALID")
-    public String tOLLINTERVALID;
-    @JsonProperty("TOLLSTATION")
-    public String tOLLSTATION;
-    @JsonProperty("VEHICLETYPE")
-    public String vEHICLETYPE;
-    @JsonProperty("PAYTYPE")
-    public String pAYTYPE;
-    @JsonProperty("PAYCARDTYPE")
-    public String pAYCARDTYPE;
-    @JsonProperty("PROVINCETYPE")
-    public String pROVINCETYPE;
-    @JsonProperty("LDATE")
-    public String lDATE;
-    @JsonProperty("NATIONCLEARDATE")
-    public String nATIONCLEARDATE;
-    @JsonProperty("NATIONSPLITDATE")
-    public String nATIONSPLITDATE;
-    @JsonProperty("CLEARDATE")
-    public String cLEARDATE;
-    @JsonProperty("MULTIPROVINCE")
-    public String mULTIPROVINCE;
-    @JsonProperty("MODIFYFLAG")
-    public String mODIFYFLAG;
-    @JsonProperty("ROADTYPE")
-    public String rOADTYPE;
-    @JsonProperty("BUSIBATCH")
-    public String bUSIBATCH;
-    @JsonProperty("UNIONPAYTYPE")
-    public String uNIONPAYTYPE;
-    @JsonProperty("CLEARTYPE")
-    public String cLEARTYPE;
-    @JsonProperty("ISSUERID")
-    public String iSSUERID;
-    @JsonProperty("TOLLPROVINCEID")
-    public String tOLLPROVINCEID;
-    @JsonProperty("SERPROVINCEID")
-    public String sERPROVINCEID;
-    @JsonProperty("TOLLCROPID")
-    public String tOLLCROPID;
-    @JsonProperty("SECTIONID")
-    public String sECTIONID;
-    @JsonProperty("AMOUNT")
-    public String aMOUNT;
-    @JsonProperty("DISCOUNTAMOUNT")
-    public String dISCOUNTAMOUNT;
-    @JsonProperty("CHARGEAMOUNT")
-    public String cHARGEAMOUNT;
-    @JsonProperty("REPORTFLAG")
-    public String rEPORTFLAG;
-    @JsonProperty("LASTTIME")
-    public String lASTTIME;
-    @JsonProperty("REPORTDATE")
-    public String rEPORTDATE;
-    @JsonProperty("EXTOLLSTATION")
-    public String eXTOLLSTATION;
+
+@Data
+public class CashClearResult implements ClearResult, Cloneable {
+    private String CROPID;
+
+    private String TOLLSECTIONID;
+
+    private String TOLLINTERVALID;
+
+    private String TOLLSTATION;
+
+    private String VEHICLETYPE;
+
+    private String PAYTYPE;
+
+    private String PAYCARDTYPE;
+
+    private String PROVINCETYPE;
+
+    private String LDATE;
+
+    private String NATIONCLEARDATE;
+
+    private String NATIONSPLITDATE;
+
+    private String CLEARDATE;
+
+    private String MULTIPROVINCE;
+
+    private String MODIFYFLAG;
+
+    private String ROADTYPE;
+
+    private String BUSIBATCH;
+
+    private String UNIONPAYTYPE;
+
+    private String CLEARTYPE;
+
+    private String ISSUERID;
+
+    private String TOLLPROVINCEID;
+
+    private String SERPROVINCEID;
+
+    private String TOLLCROPID;
+
+    private String SECTIONID;
+
+    private String AMOUNT;
+
+    private String DISCOUNTAMOUNT;
+
+    private String CHARGEAMOUNT;
+
+    private String REPORTFLAG;
+
+    private String LASTTIME;
+
+    private String REPORTDATE;
+
+    private String EXTOLLSTATION;
+
+
+    @Override
+    public Object clone() {
+        CashClearResult res = null;
+        try {
+            res = (CashClearResult) super.clone();   //浅拷贝
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
 }

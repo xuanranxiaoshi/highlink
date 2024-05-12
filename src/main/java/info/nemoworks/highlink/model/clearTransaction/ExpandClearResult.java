@@ -10,31 +10,41 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonPro
  */
 
 @Data
-public class ExpandClearResult implements ClearResult{
-    @JsonProperty("CROPID")
-    public String cROPID;
-    @JsonProperty("VEHICLETYPE")
-    public String vEHICLETYPE;
-    @JsonProperty("PAYCARDTYPE")
-    public String pAYCARDTYPE;
-    @JsonProperty("LDATE")
-    public String lDATE;
-    @JsonProperty("NATIONCLEARDATE")
-    public String nATIONCLEARDATE;
-    @JsonProperty("CLEARDATE")
-    public String cLEARDATE;
-    @JsonProperty("BUSIBATCH")
-    public String bUSIBATCH;
-    @JsonProperty("CLEARTYPE")
-    public String cLEARTYPE;
-    @JsonProperty("ISSUERID")
-    public String iSSUERID;
-    @JsonProperty("AMOUNT")
-    public String aMOUNT;
-    @JsonProperty("REPORTFLAG")
-    public String rEPORTFLAG;
-    @JsonProperty("LASTTIME")
-    public String lASTTIME;
-    @JsonProperty("MODIFYFLAG")
-    public String mODIFYFLAG;
+public class ExpandClearResult implements ClearResult, Cloneable{
+    private String CROPID;
+
+    private String VEHICLETYPE;
+
+    private String PAYCARDTYPE;
+
+    private String LDATE;
+
+    private String NATIONCLEARDATE;
+
+    private String CLEARDATE;
+
+    private String BUSIBATCH;
+
+    private String CLEARTYPE;
+
+    private String ISSUERID;
+
+    private String AMOUNT;
+
+    private String REPORTFLAG;
+
+    private String LASTTIME;
+
+    private String MODIFYFLAG;
+
+    @Override
+    public Object clone() {
+        ExpandClearResult res = null;
+        try {
+            res = (ExpandClearResult) super.clone();   //浅拷贝
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
 }
