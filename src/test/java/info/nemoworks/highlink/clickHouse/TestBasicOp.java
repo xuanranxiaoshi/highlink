@@ -108,13 +108,13 @@ public class TestBasicOp {
 //        // 将数组转换为Flink数据流
 //        DataStream<String> dataSource = env.fromElements(words);
 //
-//        SingleOutputStreamOperator<Student> map = dataSource.map(new MapFunction<String, Student>() {
+//        SingleOutputStreamOperator<ETCClearResult> map = dataSource.map(new MapFunction<String, ETCClearResult>() {
 //            static int num = 0;
 //            @Override
-//            public Student map(String value) throws Exception {
-//                Student student = new Student(value, ++num);
-//                System.out.println(student);
-//                return student;
+//            public ETCClearResult map(String value) throws Exception {
+//                ETCClearResult result = new ETCClearResult();
+//                result.setTOLLINTERVALID(value);
+//                return result;
 //            }
 //        });
 //
@@ -128,15 +128,23 @@ public class TestBasicOp {
 //
 //
 //
+//
 //        // 创建 ClickHouse 连接配置
-//        DataStreamSink<Student> sink = map.addSink(JdbcSink.sink(
-//                "INSERT INTO STUDENT ( NUM, ID, NAME, AGE, GRADE) VALUES( ?, ?, ?, ?, ?)",
-//                (statement, Student) -> {
-//                    statement.setInt(1, Student.num);
-//                    statement.setInt(2, Student.id);
-//                    statement.setString(3, Student.name);
-//                    statement.setInt(4, Student.age);
-//                    statement.setString(5, Student.grade);
+//        map.addSink(JdbcSink.sink(
+//                JdbcConnectorHelper.getInsertTemplateString(ETCClearResult.class),
+//                (ps, t) -> {
+//                    Field[] fields = t.getClass().getDeclaredFields();
+//
+//                    for (int i = 0; i < fields.length; i++) {
+//                        fields[i].setAccessible(true);
+//                        try {
+//                            ps.setObject(i + 1, fields[i].get(t));
+//                        } catch (Exception e) {
+//                            e.printStackTrace();
+//                            ps.setObject(i + 1, null);
+//                            System.out.println("index: "+ (i+1) +" setObject error");
+//                        }
+//                    }
 //                },
 //                build
 //        ));
@@ -145,32 +153,11 @@ public class TestBasicOp {
 //        env.execute("Flink Array Source Demo");
 //    }
 //
-//
 //    @Test
-//    public void testStudent(){
-//        JdbcConnectorHelper.getCreateTableString(Student .class);
-//        System.out.println(JdbcConnectorHelper.getInsertTemplateString(Student.class));
+//    public void testInsertString(){
+//        System.out.println(JdbcConnectorHelper.getInsertTemplateString(ETCClearResult.class));
 //    }
 
-}
-
-@Data
-class Student{
-    int num;
-    int id;
-    String name;
-
-    int age;
-
-    String grade;
-
-    public Student(String name, int id){
-        this.name = name;
-        this.id = id;
-        this.num = id;
-        this.age=22;
-        this.grade ="A";
-    }
 }
 
 

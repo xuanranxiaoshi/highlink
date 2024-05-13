@@ -81,7 +81,7 @@ public class PrepareFlow {
         DataStream<GantryRawTransaction> gantryStream = mainDataStream.getSideOutput(gantryTrans);
         DataStream<ExitRawTransaction> exitStream = mainDataStream.getSideOutput(exitTrans);
         DataStream<ParkTransWasteRec> extendStream = mainDataStream.getSideOutput(extendTrans);
-        DataStream<EntryRawTransaction> entryStream = mainDataStream.map(new LinkCounter<>("RawEntryTransCounter")).name("出口接收流水").setParallelism(1);
+        DataStream<EntryRawTransaction> entryStream = mainDataStream.map(new LinkCounter<>("RawEntryTransCounter")).name("入口接收流水").setParallelism(1);
 
 
         SingleOutputStreamOperator<GantryRawTransaction> rawGantryTrans = gantryStream.map(new LinkCounter<>("RawGantryTransCounter")).name("门架接收流水").setParallelism(1);

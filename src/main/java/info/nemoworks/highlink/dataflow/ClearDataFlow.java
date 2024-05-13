@@ -63,6 +63,7 @@ public class ClearDataFlow {
                             split2ClearDetials(splitownergroup, splitownerfeegroup, splitownerpayfeegroup, splitownerdisfeegroup, etcClearResultTemplate);
                     // 分流
                     for (ETCClearResult clearResult : clearResults){
+                        System.out.println("[Clear] TOLLINTERVALID: " + clearResult.getTOLLINTERVALID());
                         out.collect(clearResult);
                     }
                 }
@@ -85,6 +86,7 @@ public class ClearDataFlow {
                             split2ClearDetials(splitownergroup, splitownerfeegroup, splitownerpayfeegroup, splitownerdisfeegroup, etcClearResultTemplate);
                     // 分流
                     for (ETCClearResult clearResult : clearResults){
+                        System.out.println("[Clear] TOLLINTERVALID: " + clearResult.getTOLLINTERVALID());
                         out.collect(clearResult);
                     }
                 }
@@ -173,6 +175,7 @@ public class ClearDataFlow {
                             split2ClearDetials(splitownergroup, splitownerfeegroup, splitownerpayfeegroup, splitownerdisfeegroup, etcClearResultTemplate);
                     // 分流
                     for (ETCClearResult clearResult : clearResults){
+                        System.out.println("[Clear] TOLLINTERVALID: " + clearResult.getTOLLINTERVALID());
                         out.collect(clearResult);
                     }
                 }
