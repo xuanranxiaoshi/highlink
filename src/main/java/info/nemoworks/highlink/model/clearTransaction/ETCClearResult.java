@@ -3,6 +3,9 @@ package info.nemoworks.highlink.model.clearTransaction;
 import lombok.Data;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.sql.Timestamp;
+import java.util.Date;
+
 /**
  * @description: ETC 清分结果表
  * @author：jimi
@@ -58,15 +61,15 @@ public class ETCClearResult implements ClearResult, Cloneable{
 
     private String SECTIONID;
 
-    private String AMOUNT;
+    private Integer AMOUNT;
 
-    private String DISCOUNTAMOUNT;
+    private Integer DISCOUNTAMOUNT;
 
-    private String CHARGEAMOUNT;
+    private Integer CHARGEAMOUNT;
 
     private String REPORTFLAG;
 
-    private String LASTTIME;
+    private Timestamp LASTTIME;
 
     private String EXTOLLSTATION;
 

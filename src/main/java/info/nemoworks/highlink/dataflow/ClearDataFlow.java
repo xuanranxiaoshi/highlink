@@ -16,6 +16,7 @@ import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.LinkedList;
 
@@ -52,7 +53,7 @@ public class ClearDataFlow {
                     etcClearResultTemplate.setCLEARDATE(DateFormatUtils.format(new Date(), "yyyy-MM-dd"));
                     etcClearResultTemplate.setMULTIPROVINCE("1");
                     etcClearResultTemplate.setCLEARTYPE("3");
-                    etcClearResultTemplate.setLASTTIME(DateFormatUtils.format(new Date(), "yyyy-MM-dd HH:mm:ss"));
+                    etcClearResultTemplate.setLASTTIME(new Timestamp(System.currentTimeMillis()));
                     // 根据收费单元拆分为多条明细数据
                     String splitownergroup = etcSplitResultGantry.getSPLITOWNERGROUP();
                     String splitownerfeegroup = etcSplitResultGantry.getSPLITOWNERFEEGROUP();
@@ -75,7 +76,7 @@ public class ClearDataFlow {
                     etcClearResultTemplate.setCLEARDATE(DateFormatUtils.format(new Date(), "yyyy-MM-dd"));
                     etcClearResultTemplate.setMULTIPROVINCE("1");
                     etcClearResultTemplate.setCLEARTYPE("2");
-                    etcClearResultTemplate.setLASTTIME(DateFormatUtils.format(new Date(), "yyyy-MM-dd HH:mm:ss"));
+                    etcClearResultTemplate.setLASTTIME(new Timestamp(System.currentTimeMillis()));
                     // 根据收费单元拆分为多条明细数据
                     String splitownergroup = etcSplitResultExit.getSPLITOWNERGROUP();
                     String splitownerfeegroup = etcSplitResultExit.getSPLITOWNERFEEGROUP();
@@ -98,7 +99,7 @@ public class ClearDataFlow {
                     cashClearResultTemplate.setCLEARDATE(DateFormatUtils.format(new Date(), "yyyy-MM-dd"));
                     cashClearResultTemplate.setMULTIPROVINCE("1");
                     cashClearResultTemplate.setCLEARTYPE("5");
-                    cashClearResultTemplate.setLASTTIME(DateFormatUtils.format(new Date(), "yyyy-MM-dd HH:mm:ss"));
+                    cashClearResultTemplate.setLASTTIME(new Timestamp(System.currentTimeMillis()));
                     // 根据收费单元拆分为多条明细数据
                     String splitownergroup = otherSplitResultExit.getSPLITOWNERGROUP();
                     String splitownerfeegroup = otherSplitResultExit.getSPLITOWNERFEEGROUP();
@@ -120,7 +121,7 @@ public class ClearDataFlow {
                     cashClearResultTemplate.setCLEARDATE(DateFormatUtils.format(new Date(), "yyyy-MM-dd"));
                     cashClearResultTemplate.setMULTIPROVINCE("1");
                     cashClearResultTemplate.setCLEARTYPE("6");
-                    cashClearResultTemplate.setLASTTIME(DateFormatUtils.format(new Date(), "yyyy-MM-dd HH:mm:ss"));
+                    cashClearResultTemplate.setLASTTIME(new Timestamp(System.currentTimeMillis()));
                     // 根据收费单元拆分为多条明细数据
                     String splitownergroup = otherSplitResultGantry.getSPLITOWNERGROUP();
                     String splitownerfeegroup = otherSplitResultGantry.getSPLITOWNERFEEGROUP();
@@ -142,7 +143,7 @@ public class ClearDataFlow {
                     cashClearResultTemplate.setCLEARDATE(DateFormatUtils.format(new Date(), "yyyy-MM-dd"));
                     cashClearResultTemplate.setMULTIPROVINCE("1");
                     cashClearResultTemplate.setCLEARTYPE("6");
-                    cashClearResultTemplate.setLASTTIME(DateFormatUtils.format(new Date(), "yyyy-MM-dd HH:mm:ss"));
+                    cashClearResultTemplate.setLASTTIME(new Timestamp(System.currentTimeMillis()));
                     // 根据收费单元拆分为多条明细数据
                     String splitownergroup = exitLocalOtherTrans.getSPLITOWNERGROUP();
                     String splitownerfeegroup = exitLocalOtherTrans.getSPLITOWNERFEEGROUP();
@@ -164,7 +165,7 @@ public class ClearDataFlow {
                     etcClearResultTemplate.setCLEARDATE(DateFormatUtils.format(new Date(), "yyyy-MM-dd"));
                     etcClearResultTemplate.setMULTIPROVINCE("1");
                     etcClearResultTemplate.setCLEARTYPE("1");
-                    etcClearResultTemplate.setLASTTIME(DateFormatUtils.format(new Date(), "yyyy-MM-dd HH:mm:ss"));
+                    etcClearResultTemplate.setLASTTIME(new Timestamp(System.currentTimeMillis()));
                     // 根据收费单元拆分为多条明细数据
                     String splitownergroup = exitLocalETCTrans.getSPLITOWNERGROUP();
                     String splitownerfeegroup = exitLocalETCTrans.getSPLITOWNERFEEGROUP();
@@ -215,9 +216,9 @@ public class ClearDataFlow {
         for (int i = 0; i < disGroup.length; i++) {
             ETCClearResult result = (ETCClearResult) resultTemplate.clone();
             result.setTOLLINTERVALID(ownerGroup[i]);
-            result.setAMOUNT(feeGroup[i]);
-            result.setDISCOUNTAMOUNT(disGroup[i]);
-            result.setCHARGEAMOUNT(payFeeGroup[i]);
+            result.setAMOUNT(Integer.valueOf(feeGroup[i]));
+            result.setDISCOUNTAMOUNT(Integer.valueOf(disGroup[i]));
+            result.setCHARGEAMOUNT(Integer.valueOf(payFeeGroup[i]));
             clearResults.add(result);
         }
         return clearResults;
@@ -242,9 +243,9 @@ public class ClearDataFlow {
         for (int i = 0; i < disGroup.length; i++) {
             CashClearResult result = (CashClearResult) resultTemplate.clone();
             result.setTOLLINTERVALID(ownerGroup[i]);
-            result.setAMOUNT(feeGroup[i]);
-            result.setDISCOUNTAMOUNT(disGroup[i]);
-            result.setCHARGEAMOUNT(payFeeGroup[i]);
+            result.setAMOUNT(Integer.valueOf(feeGroup[i]));
+            result.setDISCOUNTAMOUNT(Integer.valueOf(disGroup[i]));
+            result.setCHARGEAMOUNT(Integer.valueOf(payFeeGroup[i]));
             clearResults.add(result);
         }
         return clearResults;

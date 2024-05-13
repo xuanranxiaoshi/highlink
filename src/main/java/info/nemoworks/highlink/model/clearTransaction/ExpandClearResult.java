@@ -2,6 +2,9 @@ package info.nemoworks.highlink.model.clearTransaction;
 
 import lombok.Data;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.sql.Timestamp;
+
 /**
  * @description: 对应 拓展清分结果表（tbl_ExClearResultExpand）
  * @author：jimi
@@ -29,11 +32,11 @@ public class ExpandClearResult implements ClearResult, Cloneable{
 
     private String ISSUERID;
 
-    private String AMOUNT;
+    private Integer AMOUNT;
 
     private String REPORTFLAG;
 
-    private String LASTTIME;
+    private Timestamp LASTTIME;
 
     private String MODIFYFLAG;
 
