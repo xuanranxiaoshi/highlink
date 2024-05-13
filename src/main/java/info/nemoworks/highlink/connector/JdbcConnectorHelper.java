@@ -92,6 +92,7 @@ public class JdbcConnectorHelper {
                 Field[] fields = u.getClass().getDeclaredFields();
 
                 for (int i = 0; i < fields.length; i++) {
+                    fields[i].setAccessible(true);
                     try {
                         t.setObject(i + 1, fields[i].get(u));
                     } catch (Exception e) {
