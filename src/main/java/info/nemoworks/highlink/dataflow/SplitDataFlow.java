@@ -313,7 +313,7 @@ public class SplitDataFlow {
         b1.setSPLITFLAG("1");
         b1.setSPLITTIME(sdf.format(new Date()));
         b1.setSPLITRULE("1");
-        b1.setSPLITOWNERGROUP(a.getSECTIONID());
+        b1.setSPLITOWNERGROUP(a.getTOLLINTERVALID());
         b1.setSPLITOWNERFEEGROUP(tollIntervalFee);
         b1.setSPLITOWNERPAYFEEGROUP(tollIntervalPayFee);
         b1.setSPLITOWNERDISFEEGROUP(tollIntervalDiscountFee);
@@ -367,7 +367,7 @@ public class SplitDataFlow {
         b3.setSPLITFLAG("1");
         b3.setSPLITTIME(sdf.format(new Date()));
         b3.setSPLITRULE("1");
-        b3.setSPLITOWNERGROUP(a.getSECTIONID());
+        b3.setSPLITOWNERGROUP(a.getTOLLINTERVALID());
         b3.setSPLITOWNERFEEGROUP(tollIntervalFee);
         b3.setSPLITOWNERPAYFEEGROUP(tollIntervalPayFee);
         b3.setSPLITOWNERDISFEEGROUP(tollIntervalDiscountFee);
