@@ -58,6 +58,7 @@ public class ClearDataFlow {
                     String splitownerfeegroup = etcSplitResultGantry.getSPLITOWNERFEEGROUP();
                     String splitownerpayfeegroup = etcSplitResultGantry.getSPLITOWNERPAYFEEGROUP();
                     String splitownerdisfeegroup = etcSplitResultGantry.getSPLITOWNERDISFEEGROUP();
+                    System.out.println("[Clear] ETCSplitResultGantry");
                     LinkedList<ETCClearResult> clearResults =
                             split2ClearDetials(splitownergroup, splitownerfeegroup, splitownerpayfeegroup, splitownerdisfeegroup, etcClearResultTemplate);
                     // 分流
@@ -79,6 +80,7 @@ public class ClearDataFlow {
                     String splitownerfeegroup = etcSplitResultExit.getSPLITOWNERFEEGROUP();
                     String splitownerpayfeegroup = etcSplitResultExit.getSPLITOWNERPAYFEEGROUP();
                     String splitownerdisfeegroup = etcSplitResultExit.getSPLITOWNERDISFEEGROUP();
+                    System.out.println("[Clear] ETCSplitResultExit");
                     LinkedList<ETCClearResult> clearResults =
                             split2ClearDetials(splitownergroup, splitownerfeegroup, splitownerpayfeegroup, splitownerdisfeegroup, etcClearResultTemplate);
                     // 分流
@@ -100,6 +102,7 @@ public class ClearDataFlow {
                     String splitownerfeegroup = otherSplitResultExit.getSPLITOWNERFEEGROUP();
                     String splitownerpayfeegroup = otherSplitResultExit.getSPLITOWNERPAYFEEGROUP();
                     String splitownerdisfeegroup = otherSplitResultExit.getSPLITOWNERDISFEEGROUP();
+                    System.out.println("[Clear] otherSplitResultExit");
                     LinkedList<CashClearResult> clearResults =
                             split2ClearDetials(splitownergroup, splitownerfeegroup, splitownerpayfeegroup, splitownerdisfeegroup, cashClearResultTemplate);
                     // 分流
@@ -121,6 +124,7 @@ public class ClearDataFlow {
                     String splitownerfeegroup = otherSplitResultGantry.getSPLITOWNERFEEGROUP();
                     String splitownerpayfeegroup = otherSplitResultGantry.getSPLITOWNERPAYFEEGROUP();
                     String splitownerdisfeegroup = otherSplitResultGantry.getSPLITOWNERDISFEEGROUP();
+                    System.out.println("[Clear] OtherSplitResultGantry");
                     LinkedList<CashClearResult> clearResults =
                             split2ClearDetials(splitownergroup, splitownerfeegroup, splitownerpayfeegroup, splitownerdisfeegroup, cashClearResultTemplate);
                     // 分流
@@ -142,6 +146,7 @@ public class ClearDataFlow {
                     String splitownerfeegroup = exitLocalOtherTrans.getSPLITOWNERFEEGROUP();
                     String splitownerpayfeegroup = exitLocalOtherTrans.getSPLITOWNERPAYFEEGROUP();
                     String splitownerdisfeegroup = exitLocalOtherTrans.getSPLITOWNERDISFEEGROUP();
+                    System.out.println("[Clear] ExitLocalOtherTrans");
                     LinkedList<CashClearResult> clearResults =
                             split2ClearDetials(splitownergroup, splitownerfeegroup, splitownerpayfeegroup, splitownerdisfeegroup, cashClearResultTemplate);
                     // 分流
@@ -163,6 +168,7 @@ public class ClearDataFlow {
                     String splitownerfeegroup = exitLocalETCTrans.getSPLITOWNERFEEGROUP();
                     String splitownerpayfeegroup = exitLocalETCTrans.getSPLITOWNERPAYFEEGROUP();
                     String splitownerdisfeegroup = exitLocalETCTrans.getSPLITOWNERDISFEEGROUP();
+                    System.out.println("[Clear] ExitLocalETCTrans");
                     LinkedList<ETCClearResult> clearResults =
                             split2ClearDetials(splitownergroup, splitownerfeegroup, splitownerpayfeegroup, splitownerdisfeegroup, etcClearResultTemplate);
                     // 分流
@@ -185,17 +191,24 @@ public class ClearDataFlow {
                                                        String splitownerpayfeegroup,
                                                        String splitownerdisfeegroup,
                                                        ETCClearResult resultTemplate) {
-        String[] disGroup = splitownerdisfeegroup.split("|");
-        String[] feeGroup = splitownerfeegroup.split("|");
-        String[] payFeeGroup = splitownerpayfeegroup.split("|");
-        String[] ownerGroup = splitownergroup.split("|");
+        String[] disGroup = splitownerdisfeegroup.split("\\|");
+        String[] feeGroup = splitownerfeegroup.split("\\|");
+        String[] payFeeGroup = splitownerpayfeegroup.split("\\|");
+        String[] ownerGroup = splitownergroup.split("\\|");
 
         // 检查数组长度是否相同
         if (disGroup.length != feeGroup.length || disGroup.length != payFeeGroup.length || disGroup.length != ownerGroup.length) {
-            throw new IllegalArgumentException("[Clear]All Split group must have the same length.");
+            System.out.println("[Clear] group have the different length: ");
+            System.out.println("unit["+ ownerGroup.length +"] " + splitownergroup);
+            System.out.println("disGroup["+ disGroup.length +"] " + splitownerdisfeegroup);
+            System.out.println("feeGroup["+ feeGroup.length +"] " + splitownerfeegroup);
+            System.out.println("payFeeGroup["+ payFeeGroup.length +"] " + splitownerpayfeegroup);
+
+//            throw new IllegalArgumentException("[Clear]All Split group must have the same length.");
         }
 
         LinkedList<ETCClearResult> clearResults = new LinkedList<>();
+//        for (int i = 0; i < disGroup.length; i++) {
         for (int i = 0; i < disGroup.length; i++) {
             ETCClearResult result = (ETCClearResult) resultTemplate.clone();
             result.setTOLLINTERVALID(ownerGroup[i]);
@@ -212,10 +225,10 @@ public class ClearDataFlow {
                                                           String splitownerpayfeegroup,
                                                           String splitownerdisfeegroup,
                                                           CashClearResult resultTemplate) {
-        String[] disGroup = splitownerdisfeegroup.split("|");
-        String[] feeGroup = splitownerfeegroup.split("|");
-        String[] payFeeGroup = splitownerpayfeegroup.split("|");
-        String[] ownerGroup = splitownergroup.split("|");
+        String[] disGroup = splitownerdisfeegroup.split("\\|");
+        String[] feeGroup = splitownerfeegroup.split("\\|");
+        String[] payFeeGroup = splitownerpayfeegroup.split("\\|");
+        String[] ownerGroup = splitownergroup.split("\\|");
 
         // 检查数组长度是否相同
         if (disGroup.length != feeGroup.length || disGroup.length != payFeeGroup.length || disGroup.length != ownerGroup.length) {
