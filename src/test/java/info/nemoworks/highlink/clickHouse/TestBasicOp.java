@@ -1,6 +1,10 @@
 package info.nemoworks.highlink.clickHouse;
 
 import info.nemoworks.highlink.connector.JdbcConnectorHelper;
+import info.nemoworks.highlink.model.clearTransaction.CashClearResult;
+import info.nemoworks.highlink.model.clearTransaction.ETCClearResult;
+import info.nemoworks.highlink.model.clearTransaction.ExpandClearResult;
+import info.nemoworks.highlink.model.splitTransaction.ETCSplitResultGantry;
 import info.nemoworks.highlink.utils.Config;
 import lombok.Data;
 import org.apache.flink.api.common.functions.MapFunction;
@@ -26,7 +30,7 @@ public class TestBasicOp {
 
     // JDBC 驱动和数据库 URL
     String JDBC_DRIVER = "com.clickhouse.jdbc.ClickHouseDriver";
-    String DB_URL = "jdbc:clickhouse://localhost:18123/highLinks";
+    String DB_URL = "jdbc:clickhouse://localhost:8123/highLinks";
 
     String user = "default";
 
@@ -73,6 +77,25 @@ public class TestBasicOp {
         }
 
         System.out.println("查询完毕!");
+    }
+
+    @Test
+    public void TestCreateTable(){
+        String createTableString = JdbcConnectorHelper.getCHCreateTableString(ETCClearResult.class);
+        String createTableString1 = JdbcConnectorHelper.getCHCreateTableString(CashClearResult.class);
+        String createTableString2 = JdbcConnectorHelper.getCHCreateTableString(ExpandClearResult.class);
+
+        createTableString = createTableString.split(";")[0];
+        createTableString1 = createTableString1.split(";")[0];
+        createTableString2 = createTableString2.split(";")[0];
+
+        createTableString += " PRIMARY KEY (TOLLINTERVALID)";
+        createTableString1 += " PRIMARY KEY (TOLLINTERVALID)";
+        createTableString2 += " PRIMARY KEY (CROPID)";
+
+        System.out.println(createTableString);
+        System.out.println(createTableString1);
+        System.out.println(createTableString2);
     }
 
 

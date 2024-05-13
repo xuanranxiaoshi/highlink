@@ -39,6 +39,29 @@ public class JdbcConnectorHelper {
         return query;
     }
 
+    public static <T> String getCHCreateTableString(Class<T> clazz) {
+        String query = "CREATE TABLE " + clazz.getSimpleName().toUpperCase() + "(";
+        Field[] fields = clazz.getDeclaredFields();
+
+        for (int i = 0; i < fields.length; i++) {
+            if (fields[i].getType().getSimpleName().toLowerCase().equals("long")
+                    || fields[i].getType().getSimpleName().toLowerCase().contains("int")) {
+                query += fields[i].getName().toUpperCase() + " Nullable(bigint)";
+            } else if (fields[i].getType().getSimpleName().toLowerCase().contains("double")
+                    || fields[i].getType().getSimpleName().toLowerCase().equals("float")) {
+                query += fields[i].getName().toUpperCase() + " Nullable(float)";
+            } else if (fields[i].getType().getSimpleName().toLowerCase().contains("string")) {
+                query += fields[i].getName().toUpperCase() + " Nullable(text)";
+            }
+            if (i != fields.length - 1) {
+                query += ",";
+            }
+        }
+        query += ");";
+        System.out.println(query);
+        return query;
+    }
+
     public static <T> String getInsertTemplateString(Class<T> clazz) {
 
         String query = "INSERT INTO " + clazz.getSimpleName().toUpperCase();

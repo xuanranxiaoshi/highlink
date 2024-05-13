@@ -11,7 +11,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonPro
  */
 
 @Data
-public class ETCClearResult implements ClearResult{
+public class ETCClearResult implements ClearResult, Cloneable{
     private String CROPID;
 
     private String TOLLSECTIONID;
