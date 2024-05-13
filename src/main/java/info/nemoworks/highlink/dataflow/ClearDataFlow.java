@@ -198,6 +198,7 @@ public class ClearDataFlow {
         LinkedList<ETCClearResult> clearResults = new LinkedList<>();
         for (int i = 0; i < disGroup.length; i++) {
             ETCClearResult result = (ETCClearResult) resultTemplate.clone();
+            result.setTOLLINTERVALID(ownerGroup[i]);
             result.setAMOUNT(feeGroup[i]);
             result.setDISCOUNTAMOUNT(disGroup[i]);
             result.setCHARGEAMOUNT(payFeeGroup[i]);
@@ -224,6 +225,7 @@ public class ClearDataFlow {
         LinkedList<CashClearResult> clearResults = new LinkedList<>();
         for (int i = 0; i < disGroup.length; i++) {
             CashClearResult result = (CashClearResult) resultTemplate.clone();
+            result.setTOLLINTERVALID(ownerGroup[i]);
             result.setAMOUNT(feeGroup[i]);
             result.setDISCOUNTAMOUNT(disGroup[i]);
             result.setCHARGEAMOUNT(payFeeGroup[i]);
