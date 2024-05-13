@@ -33,10 +33,10 @@ public class SingleProvincePathTrans {
     private Map<String, Integer> feeGroups = new LinkedHashMap<>();
     private Map<String, Integer> discountFeeGroups = new LinkedHashMap<>();
 
-    private String chargeUnitesStr = "";
-    private String payFeeStr = "";
-    private String feeStr = "";
-    private String discountStr = "";
+    private String chargeUnitesStr = "-1";
+    private String payFeeStr = "-1";
+    private String feeStr = "-1";
+    private String discountStr = "-1";
 
 
 
@@ -65,6 +65,8 @@ public class SingleProvincePathTrans {
      */
     public void splitCharge() {
         int exitfeetype = this.exitRawTransaction.getACTUALFEECLASS();
+
+        // todo: 只实现了计费方式为 1， 3 的单省拆分
         if(exitfeetype == 1 || exitfeetype == 3){   // 计费方式 1\3
             for (int i = 0; i < gantryRawTransactionList.size(); i++) {
                 GantryRawTransaction gantryRawTransaction = gantryRawTransactionList.get(i);
@@ -97,6 +99,7 @@ public class SingleProvincePathTrans {
             exitLocalETCTrans.setSPLITOWNERFEEGROUP(feeStr);
             exitLocalETCTrans.setSPLITOWNERPAYFEEGROUP(payFeeStr);
             exitLocalETCTrans.setSPLITOWNERDISFEEGROUP(discountStr);
+
             return exitLocalETCTrans;
 
         }else{  // 单省其他交易流水
@@ -114,6 +117,12 @@ public class SingleProvincePathTrans {
     public void map2String(){
         Iterator<String> iterator = chargeUnites.iterator();
         String delimiter = "|";
+        if(chargeUnites.size() != 0){
+            chargeUnitesStr = "";
+            feeStr = "";
+            payFeeStr = "";
+            discountStr = "";
+        }
         while (iterator.hasNext()){
             String key = iterator.next();
             chargeUnitesStr += key;

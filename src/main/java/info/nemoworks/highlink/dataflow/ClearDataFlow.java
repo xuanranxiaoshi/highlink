@@ -19,6 +19,7 @@ import org.apache.flink.util.OutputTag;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.Objects;
 
 /**
  * @description: 清分业务处理，清分对象为拆分结果
@@ -208,16 +209,35 @@ public class ClearDataFlow {
             System.out.println("feeGroup["+ feeGroup.length +"] " + splitownerfeegroup);
             System.out.println("payFeeGroup["+ payFeeGroup.length +"] " + splitownerpayfeegroup);
 
-//            throw new IllegalArgumentException("[Clear]All Split group must have the same length.");
+            throw new IllegalArgumentException("[Clear]All Split group must have the same length.");
         }
 
         LinkedList<ETCClearResult> clearResults = new LinkedList<>();
 //        for (int i = 0; i < disGroup.length; i++) {
         for (int i = 0; i < disGroup.length; i++) {
+
+            if(Objects.equals(ownerGroup[i], "")){
+                System.out.println("[Clear] ownerGroup["+ i +"] is empty, ownerGroup: " + splitownergroup);
+            }
+            if(Objects.equals(ownerGroup[i], "")){
+                System.out.println("[Clear] feeGroup["+ i +"] is empty, feeGroup: " + splitownerfeegroup);
+            }
+            if(Objects.equals(ownerGroup[i], "")){
+                System.out.println("[Clear] disGroup["+ i +"] is empty, disGroup: " + splitownerdisfeegroup);
+            }
+            if(Objects.equals(ownerGroup[i], "")){
+                System.out.println("[Clear] payFeeGroup["+ i +"] is empty, payFeeGroup: " + splitownerpayfeegroup);
+            }
+
+
             ETCClearResult result = (ETCClearResult) resultTemplate.clone();
+            System.out.println("[Clear] ownerGroup[i]: " + ownerGroup[i]);
             result.setTOLLINTERVALID(ownerGroup[i]);
+            System.out.println("[Clear] feeGroup[i]: " + feeGroup[i]);
             result.setAMOUNT(Integer.valueOf(feeGroup[i]));
+            System.out.println("[Clear] disGroup[i]: " + disGroup[i]);
             result.setDISCOUNTAMOUNT(Integer.valueOf(disGroup[i]));
+            System.out.println("[Clear] payFeeGroup[i]: " + payFeeGroup[i]);
             result.setCHARGEAMOUNT(Integer.valueOf(payFeeGroup[i]));
             clearResults.add(result);
         }
@@ -229,10 +249,10 @@ public class ClearDataFlow {
                                                           String splitownerpayfeegroup,
                                                           String splitownerdisfeegroup,
                                                           CashClearResult resultTemplate) {
-        String[] disGroup = splitownerdisfeegroup.split("\\|");
-        String[] feeGroup = splitownerfeegroup.split("\\|");
-        String[] payFeeGroup = splitownerpayfeegroup.split("\\|");
-        String[] ownerGroup = splitownergroup.split("\\|");
+        String[] disGroup = splitownerdisfeegroup.trim().split("\\|");
+        String[] feeGroup = splitownerfeegroup.trim().split("\\|");
+        String[] payFeeGroup = splitownerpayfeegroup.trim().split("\\|");
+        String[] ownerGroup = splitownergroup.trim().split("\\|");
 
         // 检查数组长度是否相同
         if (disGroup.length != feeGroup.length || disGroup.length != payFeeGroup.length || disGroup.length != ownerGroup.length) {
@@ -242,6 +262,20 @@ public class ClearDataFlow {
         LinkedList<CashClearResult> clearResults = new LinkedList<>();
         for (int i = 0; i < disGroup.length; i++) {
             CashClearResult result = (CashClearResult) resultTemplate.clone();
+
+            if(Objects.equals(ownerGroup[i], "")){
+                System.out.println("[Clear] ownerGroup["+ i +"] is empty, ownerGroup: " + splitownergroup);
+            }
+            if(Objects.equals(ownerGroup[i], "")){
+                System.out.println("[Clear] feeGroup["+ i +"] is empty, feeGroup: " + splitownerfeegroup);
+            }
+            if(Objects.equals(ownerGroup[i], "")){
+                System.out.println("[Clear] disGroup["+ i +"] is empty, disGroup: " + splitownerdisfeegroup);
+            }
+            if(Objects.equals(ownerGroup[i], "")){
+                System.out.println("[Clear] payFeeGroup["+ i +"] is empty, payFeeGroup: " + splitownerpayfeegroup);
+            }
+
             result.setTOLLINTERVALID(ownerGroup[i]);
             result.setAMOUNT(Integer.valueOf(feeGroup[i]));
             result.setDISCOUNTAMOUNT(Integer.valueOf(disGroup[i]));
