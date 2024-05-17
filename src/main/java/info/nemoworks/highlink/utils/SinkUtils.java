@@ -29,12 +29,20 @@ public class SinkUtils {
                 JdbcConnectorHelper.getJdbcExecutionOptions(),
                 JdbcConnectorHelper.getJdbcConnectionOptions()));
     }
+//    public static void addInsertSinkToStream(DataStream dataStream, Class clazz, String name) {
+//        dataStream.addSink(JdbcSink.sink(
+//                JdbcConnectorHelper.getInsertTemplateString(clazz),
+//                JdbcConnectorHelper.getStatementBuilder(),
+//                JdbcConnectorHelper.getJdbcExecutionOptions(),
+//                JdbcConnectorHelper.getJdbcConnectionOptions())).name(name).setParallelism(1);
+//    }
+    // 全部写入 clickhouse 数据库
     public static void addInsertSinkToStream(DataStream dataStream, Class clazz, String name) {
         dataStream.addSink(JdbcSink.sink(
                 JdbcConnectorHelper.getInsertTemplateString(clazz),
                 JdbcConnectorHelper.getStatementBuilder(),
                 JdbcConnectorHelper.getJdbcExecutionOptions(),
-                JdbcConnectorHelper.getJdbcConnectionOptions())).name(name).setParallelism(1);
+                JdbcConnectorHelper.getClickHouseConnectionOptions())).name(name).setParallelism(1);
     }
 
     public static void addStream2CH(DataStream dataStream, Class clazz, String name){

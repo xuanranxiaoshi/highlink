@@ -35,30 +35,59 @@ public class JdbcConnectorHelper {
             }
         }
         query += ");";
-        System.out.println(query);
+        // System.out.println(query);
         return query;
     }
 
-    public static <T> String getCHCreateTableString(Class<T> clazz) {
+    /**
+     * 生成 clickhouse 的建表语句
+     * @param clazz
+     * @param primaryKey
+     * @return
+     * @param <T>
+     */
+    public static <T> String getCHCreateTableString(Class<T> clazz, String primaryKey)  {
         String query = "CREATE TABLE " + clazz.getSimpleName().toUpperCase() + "(";
         Field[] fields = clazz.getDeclaredFields();
 
+        // 开发环境下很多字段为空，所以设置 Nullable；如果是主键不能为空
         for (int i = 0; i < fields.length; i++) {
-            if (fields[i].getType().getSimpleName().toLowerCase().equals("long")
-                    || fields[i].getType().getSimpleName().toLowerCase().contains("int")) {
-                query += fields[i].getName().toUpperCase() + " Nullable(bigint)";
-            } else if (fields[i].getType().getSimpleName().toLowerCase().contains("double")
-                    || fields[i].getType().getSimpleName().toLowerCase().equals("float")) {
-                query += fields[i].getName().toUpperCase() + " Nullable(float)";
-            } else if (fields[i].getType().getSimpleName().toLowerCase().contains("string")) {
-                query += fields[i].getName().toUpperCase() + " Nullable(text)";
+            if(fields[i].getName().toUpperCase().equals(primaryKey.toUpperCase())){
+                if (fields[i].getType().getSimpleName().toLowerCase().equals("long")
+                        || fields[i].getType().getSimpleName().toLowerCase().contains("int")) {
+                    query += fields[i].getName().toUpperCase() + " bigint";
+                } else if (fields[i].getType().getSimpleName().toLowerCase().contains("double")
+                        || fields[i].getType().getSimpleName().toLowerCase().equals("float")) {
+                    query += fields[i].getName().toUpperCase() + " float";
+                } else if (fields[i].getType().getSimpleName().toLowerCase().contains("string")) {
+                    query += fields[i].getName().toUpperCase() + " text";
+                }
+                else if(fields[i].getType().getSimpleName().toLowerCase().contains("timestamp")){
+                    query += fields[i].getName().toUpperCase() + " DateTime";
+                }
+                if (i != fields.length - 1) {
+                    query += ",";
+                }
+            }else{
+                if (fields[i].getType().getSimpleName().toLowerCase().equals("long")
+                        || fields[i].getType().getSimpleName().toLowerCase().contains("int")) {
+                    query += fields[i].getName().toUpperCase() + " Nullable(bigint)";
+                } else if (fields[i].getType().getSimpleName().toLowerCase().contains("double")
+                        || fields[i].getType().getSimpleName().toLowerCase().equals("float")) {
+                    query += fields[i].getName().toUpperCase() + " Nullable(float)";
+                } else if (fields[i].getType().getSimpleName().toLowerCase().contains("string")) {
+                    query += fields[i].getName().toUpperCase() + " Nullable(text)";
+                }
+                else if(fields[i].getType().getSimpleName().toLowerCase().contains("timestamp")){
+                    query += fields[i].getName().toUpperCase() + " Nullable(DateTime)";
+                }
+                if (i != fields.length - 1) {
+                    query += ",";
+                }
             }
-            if (i != fields.length - 1) {
-                query += ",";
-            }
+
         }
-        query += ");";
-        System.out.println(query);
+        query += ") PRIMARY KEY (" + primaryKey.toUpperCase() + ")";
         return query;
     }
 

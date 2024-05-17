@@ -24,32 +24,35 @@ public class CreateTableSQL {
 
     public static void main(String[] args) {
         System.out.println("入口交易数据建表语句:");
-        JdbcConnectorHelper.getCreateTableString(EntryRawTransaction.class);
+        System.out.println(JdbcConnectorHelper.getCreateTableString(EntryRawTransaction.class));
+
 
         System.out.println("出口交易数据的建表语句: ");
-        JdbcConnectorHelper.getCreateTableString(ExitForeignETCTrans.class);
-        JdbcConnectorHelper.getCreateTableString(ExitForeignOtherTrans.class);
-        JdbcConnectorHelper.getCreateTableString(ExitLocalETCTrans.class);
-        JdbcConnectorHelper.getCreateTableString(ExitLocalOtherTrans.class);
+        System.out.println(JdbcConnectorHelper.getCreateTableString(ExitForeignETCTrans.class));
+        System.out.println(JdbcConnectorHelper.getCreateTableString(ExitForeignOtherTrans.class));
+        System.out.println(JdbcConnectorHelper.getCreateTableString(ExitLocalETCTrans.class));
+        System.out.println(JdbcConnectorHelper.getCreateTableString(ExitLocalOtherTrans.class));
 
         System.out.println("拓展交易数据的建表语句: ");
-        JdbcConnectorHelper.getCreateTableString(ExdForeignGasTransaction.class);
-        JdbcConnectorHelper.getCreateTableString(ExdForeignMunicipalTransaction.class);
-        JdbcConnectorHelper.getCreateTableString(ExdForeignParkTransaction.class);
-        JdbcConnectorHelper.getCreateTableString(ExdLocalTransaction.class);
+        System.out.println(JdbcConnectorHelper.getCreateTableString(ExdForeignGasTransaction.class));
+        System.out.println(JdbcConnectorHelper.getCreateTableString(ExdForeignMunicipalTransaction.class));
+        System.out.println(JdbcConnectorHelper.getCreateTableString(ExdForeignParkTransaction.class));
+        System.out.println(JdbcConnectorHelper.getCreateTableString(ExdLocalTransaction.class));
 
         System.out.println("门架交易数据的建表语句: ");
-        JdbcConnectorHelper.getCreateTableString(GantryCpcTransaction.class);
-        JdbcConnectorHelper.getCreateTableString(GantryEtcTransaction.class);
+        System.out.println(JdbcConnectorHelper.getCreateTableString(GantryCpcTransaction.class));
+        System.out.println(JdbcConnectorHelper.getCreateTableString(GantryEtcTransaction.class));
 
         System.out.println("通行费变更数据的建表语句: ");
-        JdbcConnectorHelper.getCreateTableString(TollChangeTransactions.class);
+        System.out.println(JdbcConnectorHelper.getCreateTableString(TollChangeTransactions.class));
 
         System.out.println("跨省数据的建表语句: ");
-        JdbcConnectorHelper.getCreateTableString(ETCSplitResultExit.class);
-        JdbcConnectorHelper.getCreateTableString(ETCSplitResultGantry.class);
-        JdbcConnectorHelper.getCreateTableString(OtherSplitResultGantry.class);
-        JdbcConnectorHelper.getCreateTableString(OtherSplitResultExit.class);
+        System.out.println(JdbcConnectorHelper.getCreateTableString(ETCSplitResultExit.class));
+        System.out.println(JdbcConnectorHelper.getCreateTableString(ETCSplitResultGantry.class));
+        System.out.println(JdbcConnectorHelper.getCreateTableString(OtherSplitResultGantry.class));
+        System.out.println(JdbcConnectorHelper.getCreateTableString(OtherSplitResultExit.class));
+
+
 
     }
     @Test

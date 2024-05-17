@@ -15,11 +15,14 @@ import java.lang.management.MemoryUsage;
 
 public class Main {
     public static void main(String[] args) throws Exception {
+        // 打印 JVM 配置
         printJvm();
 
+        // 如果选择 H2 作为数据库，则启动 H2 服务器
         if( "h2".equals(Config.getProperty("datasource.type"))){
             DataSourceUtils.startH2Server();
         }
+        // 初始化数据库
         DataSourceUtils.initialize();
 
         // 1. 创建环境

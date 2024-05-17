@@ -59,6 +59,7 @@ public class DataSourceUtils {
 
     public static void initialize(){
         String schemaLocation = Config.getProperty(SOURCE_TYPE + ".schema");
+        // 默认 mysql
         if(schemaLocation == null){
             schemaLocation = "db/mysql/schema.sql";
         }
@@ -69,7 +70,7 @@ public class DataSourceUtils {
             throw new RuntimeException(e);
         }
     }
-    private static void executeSqlFile(Connection conn, InputStream inputStream) throws Exception {
+    public static void executeSqlFile(Connection conn, InputStream inputStream) throws Exception {
         System.out.println(SOURCE_TYPE + " DataBase Initial!");
         StringBuilder sql = new StringBuilder();
         try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
