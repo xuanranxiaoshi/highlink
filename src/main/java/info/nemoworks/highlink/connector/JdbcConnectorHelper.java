@@ -143,14 +143,14 @@ public class JdbcConnectorHelper {
                 .build();
     }
 
-    public static JdbcConnectionOptions getClickHouseConnectionOptions() {
-        return new JdbcConnectionOptions.JdbcConnectionOptionsBuilder()
-                .withUrl(Config.getProperty( "CH.url"))
-                .withDriverName(Config.getProperty("CH.driver-class-name"))
-                .withUsername(Config.getProperty("CH.username"))
-                .withPassword(Config.getProperty("CH.password"))
-                .build();
-    }
+//    public static JdbcConnectionOptions getClickHouseConnectionOptions() {
+//        return new JdbcConnectionOptions.JdbcConnectionOptionsBuilder()
+//                .withUrl(Config.getProperty( "CH.url"))
+//                .withDriverName(Config.getProperty("CH.driver-class-name"))
+//                .withUsername(Config.getProperty("CH.username"))
+//                .withPassword(Config.getProperty("CH.password"))
+//                .build();
+//    }
 
     public static JdbcExecutionOptions getJdbcExecutionOptions() {
         return JdbcExecutionOptions.builder()

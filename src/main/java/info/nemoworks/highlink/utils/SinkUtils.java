@@ -42,7 +42,7 @@ public class SinkUtils {
                 JdbcConnectorHelper.getInsertTemplateString(clazz),
                 JdbcConnectorHelper.getStatementBuilder(),
                 JdbcConnectorHelper.getJdbcExecutionOptions(),
-                JdbcConnectorHelper.getClickHouseConnectionOptions())).name(name).setParallelism(1);
+                JdbcConnectorHelper.getJdbcConnectionOptions())).name(name).setParallelism(1);
     }
 
     public static void addStream2CH(DataStream dataStream, Class clazz, String name){
@@ -50,7 +50,7 @@ public class SinkUtils {
                 JdbcConnectorHelper.getInsertTemplateString(clazz),
                 JdbcConnectorHelper.getStatementBuilder(),
                 JdbcConnectorHelper.getJdbcExecutionOptions(),
-                JdbcConnectorHelper.getClickHouseConnectionOptions())).name(name).setParallelism(1);
+                JdbcConnectorHelper.getJdbcConnectionOptions())).name(name).setParallelism(1);
     }
     public static void addFileSinkToStream(DataStream dataStream, String filename, Encoder encoder){
 
