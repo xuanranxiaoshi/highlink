@@ -61,7 +61,7 @@ localhost:8081
 
 * 修改 `src/main/resources/kafkaBasic.properties` 文件中 kafka 的连接地址
 * 在 `src/main/resources/config.properties` 配置数据库、缓存、文件夹路径等
-  * `datasource.type`:  系统使用的数据库类型，取值为 `h2` 或 `mysql` ；h2 数据库集成在程序中，因此无需配置，选择 mysql 则需修改文件中 mysql 相关的连接信息
+  * `datasource.type`:  系统使用的数据库类型，取值为 `h2` 、`mysql` 或 `CH`(clickhouse) ；h2 数据库集成在程序中，因此无需配置，选择 mysql 或 CH 则需修改文件中相关的连接信息
   * `cache.dao.impl`: 系统缓存机制的实现方式，取值为 `info.nemoworks.highlink.dao.MapdbDaoImp` 或 `info.nemoworks.highlink.dao.JedisCacheDaoImp` ; MapdbDaoImp 采用内置的 mapdb 实现，无需额外配置， JedisCacheDaoImp使用 redis 作为缓存数据库，需修改文件中 redis 相关的连接信息
   * `flink.fileDataPath`: 系统文件数据的输出路径
   * `flink.checkPointPath`:  系统检查点的保存路径
@@ -80,6 +80,7 @@ localhost:8081
       h2.webExternalNames={ip}
     ```
   以h2数据库模式运行程序后，则可浏览器访问 `http://{ip}:8084` 登录 H2 数据库 Web 界面
+
 ### 2. 提交任务至服务器运行
 
 - 将程序打包，将 jar 包（highlink-0.0.1-SNAPSHOT-jar-with-dependencies.jar）上传到 flink 安装目录下

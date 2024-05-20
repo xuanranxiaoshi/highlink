@@ -1,6 +1,10 @@
 package info.nemoworks.highlink.model.mapper;
 
 import info.nemoworks.highlink.connector.JdbcConnectorHelper;
+import info.nemoworks.highlink.model.clearTransaction.CashClearResult;
+import info.nemoworks.highlink.model.clearTransaction.ClearResult;
+import info.nemoworks.highlink.model.clearTransaction.ETCClearResult;
+import info.nemoworks.highlink.model.clearTransaction.ExpandClearResult;
 import info.nemoworks.highlink.model.entryTransaction.EntryRawTransaction;
 import info.nemoworks.highlink.model.exitTransaction.ExitForeignETCTrans;
 import info.nemoworks.highlink.model.exitTransaction.ExitForeignOtherTrans;
@@ -51,6 +55,13 @@ public class CreateTableSQL {
         System.out.println(JdbcConnectorHelper.getCreateTableString(ETCSplitResultGantry.class));
         System.out.println(JdbcConnectorHelper.getCreateTableString(OtherSplitResultGantry.class));
         System.out.println(JdbcConnectorHelper.getCreateTableString(OtherSplitResultExit.class));
+
+        System.out.println("清分数据的建表语句: ");
+        System.out.println(JdbcConnectorHelper.getCreateTableString(ETCClearResult.class));
+        System.out.println(JdbcConnectorHelper.getCreateTableString(CashClearResult.class));
+        System.out.println(JdbcConnectorHelper.getCreateTableString(ExpandClearResult.class));
+
+
 
 
 
