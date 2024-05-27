@@ -1,7 +1,7 @@
 package info.nemoworks.highlink.sink;
 
 /**
- * @description:
+ * @description: Jackson 设置：确保属性在没有明确指定访问级别时，默认只能进行写操作（序列化），不能进行读操作（反序列化）
  * @author：jimi
  * @date: 2024/3/25
  * @Copyright：

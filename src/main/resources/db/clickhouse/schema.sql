@@ -122,7 +122,7 @@ CREATE TABLE ENTRYRAWTRANSACTION
     WASTESPARE2          Nullable(text),
     WASTESPARE3          Nullable(text)
 ) ENGINE = MergeTree()
-    PRIMARY KEY (ID);
+    ORDER BY (ID);
 
 CREATE TABLE EXITFOREIGNETCTRANS
 (
@@ -291,7 +291,7 @@ CREATE TABLE EXITFOREIGNETCTRANS
     APPOINTID                 Nullable(text),
     CHARGEAPPOINTID           Nullable(text)
 ) ENGINE = MergeTree()
-    PRIMARY KEY (ID);
+    ORDER BY (ID);
 CREATE TABLE EXITFOREIGNOTHERTRANS
 (
     ID                     text,
@@ -434,7 +434,7 @@ CREATE TABLE EXITFOREIGNOTHERTRANS
     VACCINEFLAG            Nullable(bigint),
     APPOINTID              Nullable(text)
 ) ENGINE = MergeTree()
-    PRIMARY KEY (ID);
+    ORDER BY (ID);
 CREATE TABLE EXITLOCALETCTRANS
 (
     ID                     text,
@@ -578,7 +578,8 @@ CREATE TABLE EXITLOCALETCTRANS
     VACCINEFLAG            Nullable(bigint),
     APPOINTID              Nullable(text)
 ) ENGINE = MergeTree()
-    PRIMARY KEY (ID);
+    ORDER BY (ID);
+
 CREATE TABLE EXITLOCALOTHERTRANS
 (
     ID                     text,
@@ -713,7 +714,7 @@ CREATE TABLE EXITLOCALOTHERTRANS
     VACCINEFLAG            Nullable(bigint),
     APPOINTID              Nullable(text)
 ) ENGINE = MergeTree()
-    PRIMARY KEY (ID);
+    ORDER BY (ID);
 
 CREATE TABLE EXDFOREIGNGASTRANSACTION
 (
@@ -763,7 +764,7 @@ CREATE TABLE EXDFOREIGNGASTRANSACTION
     CLEARREMARK          Nullable(text),
     MANAGEID             Nullable(text)
 ) ENGINE = MergeTree()
-    PRIMARY KEY (ID);
+    ORDER BY (ID);
 CREATE TABLE EXDFOREIGNMUNICIPALTRANSACTION
 (
     ID                    text,
@@ -810,7 +811,7 @@ CREATE TABLE EXDFOREIGNMUNICIPALTRANSACTION
     MANAGEID              Nullable(text),
     VEHICLETYPE           Nullable(bigint)
 ) ENGINE = MergeTree()
-    PRIMARY KEY (ID);
+    ORDER BY (ID);
 CREATE TABLE EXDFOREIGNPARKTRANSACTION
 (
     ID                  text,
@@ -858,7 +859,7 @@ CREATE TABLE EXDFOREIGNPARKTRANSACTION
     NAME                Nullable(text),
     MANAGEID            Nullable(text)
 ) ENGINE = MergeTree()
-    PRIMARY KEY (ID);
+    ORDER BY (ID);
 CREATE TABLE EXDLOCALTRANSACTION
 (
     ID                  text,
@@ -908,7 +909,7 @@ CREATE TABLE EXDLOCALTRANSACTION
     MANAGEID            Nullable(text),
     MODIFYFLAG          Nullable(bigint)
 ) ENGINE = MergeTree()
-    PRIMARY KEY (ID);
+    ORDER BY (ID);
 
 CREATE TABLE GANTRYCPCTRANSACTION
 (
@@ -988,7 +989,7 @@ CREATE TABLE GANTRYCPCTRANSACTION
     VLP                     Nullable(text),
     VLPC                    Nullable(bigint)
 ) ENGINE = MergeTree()
-    PRIMARY KEY (ID);
+    ORDER BY (ID);
 CREATE TABLE GANTRYETCTRANSACTION
 (
     ALGORITHMIDENTIFIER     Nullable(bigint),
@@ -1067,7 +1068,7 @@ CREATE TABLE GANTRYETCTRANSACTION
     VLP                     Nullable(text),
     VLPC                    Nullable(bigint)
 ) ENGINE = MergeTree()
-    PRIMARY KEY (ID);
+    ORDER BY (ID);
 
 CREATE TABLE TOLLCHANGETRANSACTIONS
 (
@@ -1133,7 +1134,7 @@ CREATE TABLE TOLLCHANGETRANSACTIONS
     RETURNFLAG            Nullable(bigint),
     ORIGINALFLAG          Nullable(bigint)
 ) ENGINE = MergeTree()
-    PRIMARY KEY (ID);
+    ORDER BY (ID);
 
 CREATE TABLE ETCSPLITRESULTEXIT
 (
@@ -1208,7 +1209,7 @@ CREATE TABLE ETCSPLITRESULTEXIT
     SPLITBASE             Nullable(text),
     APPOINTID             Nullable(text)
 ) ENGINE = MergeTree()
-    PRIMARY KEY (ID);
+    ORDER BY (ID);
 CREATE TABLE ETCSPLITRESULTGANTRY
 (
     TOLLPROVINCEID        Nullable(text),
@@ -1271,7 +1272,7 @@ CREATE TABLE ETCSPLITRESULTGANTRY
     ENTOLLLANEID          Nullable(text),
     APPOINTID             Nullable(text)
 ) ENGINE = MergeTree()
-    PRIMARY KEY (ID);
+    ORDER BY (ID);
 CREATE TABLE OTHERSPLITRESULTGANTRY
 (
     TOLLPROVINCEID        Nullable(text),
@@ -1328,7 +1329,7 @@ CREATE TABLE OTHERSPLITRESULTGANTRY
     ENTOLLLANEID          Nullable(text),
     APPOINTID             Nullable(text)
 ) ENGINE = MergeTree()
-    PRIMARY KEY (ID);
+    ORDER BY (ID);
 CREATE TABLE OTHERSPLITRESULTEXIT
 (
     ID                     text,
@@ -1416,7 +1417,7 @@ CREATE TABLE OTHERSPLITRESULTEXIT
     REVERSEFLAG            Nullable(text),
     APPOINTID              Nullable(text)
 ) ENGINE = MergeTree()
-    PRIMARY KEY (ID);
+    ORDER BY (ID);
 
 CREATE TABLE ETCCLEARRESULT
 (
@@ -1450,7 +1451,7 @@ CREATE TABLE ETCCLEARRESULT
     LASTTIME        Nullable(DateTime),
     EXTOLLSTATION   Nullable(text)
 ) ENGINE = MergeTree()
-    PRIMARY KEY (TOLLINTERVALID);
+    ORDER BY (TOLLINTERVALID);
 CREATE TABLE CASHCLEARRESULT
 (
     CROPID          Nullable(text),
@@ -1484,7 +1485,7 @@ CREATE TABLE CASHCLEARRESULT
     REPORTDATE      Nullable(text),
     EXTOLLSTATION   Nullable(text)
 ) ENGINE = MergeTree()
-    PRIMARY KEY (TOLLINTERVALID);
+    ORDER BY (TOLLINTERVALID);
 CREATE TABLE EXPANDCLEARRESULT
 (
     CROPID          text,
@@ -1501,7 +1502,7 @@ CREATE TABLE EXPANDCLEARRESULT
     LASTTIME        Nullable(DateTime),
     MODIFYFLAG      Nullable(text)
 ) ENGINE = MergeTree()
-    PRIMARY KEY (CROPID);
+    ORDER BY (CROPID);
 
 CREATE TABLE DATEDIMENSION
 (
@@ -1514,7 +1515,6 @@ CREATE TABLE DATEDIMENSION
     CREATETIME      DATETIME
 )
     ENGINE = ReplacingMergeTree(CREATETIME)
-    PRIMARY KEY (DATEID)
     ORDER BY DATEID;
 
 
@@ -1525,5 +1525,4 @@ CREATE TABLE charge_unit_dim
     version             UInt32
 )
     ENGINE = ReplacingMergeTree(version)
-    PRIMARY KEY (charge_unit_id)
     ORDER BY charge_unit_id;

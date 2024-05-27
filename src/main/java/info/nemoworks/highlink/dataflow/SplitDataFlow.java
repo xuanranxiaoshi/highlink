@@ -138,9 +138,13 @@ public class SplitDataFlow {
         SideOutputDataStream<ExitLocalOtherTrans> exitLocalOtherTransStream = splitResultStream.getSideOutput(exitLocalOtherOutputTag);
 
 
-        // todo: 更新数据库文件
-        SinkUtils.addFileSinkToStream(exitLocalETCTransStream, "exit_local_etc", new ExitLocalETCEncoder());
-        SinkUtils.addFileSinkToStream(exitLocalOtherTransStream, "exit_local_other", new ExitLocalOthersEncoder());
+//        SinkUtils.addFileSinkToStream(exitLocalETCTransStream, "exit_local_etc", new ExitLocalETCEncoder());
+//        SinkUtils.addFileSinkToStream(exitLocalOtherTransStream, "exit_local_other", new ExitLocalOthersEncoder());
+        // todo: 产生背压
+        SinkUtils.addUpdateSinkToStream(exitLocalETCTransStream,ExitLocalETCTrans.class,"eixtLocalETC_update");
+        SinkUtils.addUpdateSinkToStream(exitLocalOtherTransStream, ExitLocalOtherTrans.class, "exitLocalOther_update");
+
+
 
         return splitResultStream;
     }
@@ -443,7 +447,7 @@ public class SplitDataFlow {
                 JsonNode jsonNode = mapper.readTree(res);
                 System.out.println("[Cache Info] Find & Del [" + key + "]");
                 // 删除读取的数据
-//                cacheDao.del(key);
+                cacheDao.del(key);
                 return (ProvinceTransaction) mapper.treeToValue(jsonNode, clazz);
             }
         } finally {

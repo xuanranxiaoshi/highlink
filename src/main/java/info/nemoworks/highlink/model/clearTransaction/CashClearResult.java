@@ -30,7 +30,7 @@ public class CashClearResult implements ClearResult, Cloneable {
 
     private String PROVINCETYPE;
 
-    private int LDATE;
+    private String LDATE;
 
     private String NATIONCLEARDATE;
 

@@ -19,23 +19,16 @@ import java.util.concurrent.TimeUnit;
  * @Copyright：
  */
 public class SinkUtils {
-    private static void addLogSinkToStream(DataStream<info.nemoworks.highlink.model.HighwayTransaction> dataStream, Class clazz, String name){
-        dataStream.addSink(new TransactionSinks.LogSink<>());
-    }
-    public static void addInsertSinkToStream(DataStream<Object> dataStream, Class clazz) {
+
+
+    public static void addUpdateSinkToStream(DataStream dataStream, Class clazz, String name){
         dataStream.addSink(JdbcSink.sink(
-                JdbcConnectorHelper.getInsertTemplateString(clazz),
-                JdbcConnectorHelper.getStatementBuilder(),
+                JdbcConnectorHelper.getUpdateTemplateString(clazz),
+                JdbcConnectorHelper.getUpdateStatementBuilder(),
                 JdbcConnectorHelper.getJdbcExecutionOptions(),
-                JdbcConnectorHelper.getJdbcConnectionOptions()));
+                JdbcConnectorHelper.getJdbcConnectionOptions())).name(name).setParallelism(6);
     }
-//    public static void addInsertSinkToStream(DataStream dataStream, Class clazz, String name) {
-//        dataStream.addSink(JdbcSink.sink(
-//                JdbcConnectorHelper.getInsertTemplateString(clazz),
-//                JdbcConnectorHelper.getStatementBuilder(),
-//                JdbcConnectorHelper.getJdbcExecutionOptions(),
-//                JdbcConnectorHelper.getJdbcConnectionOptions())).name(name).setParallelism(1);
-//    }
+
     // 全部写入 clickhouse 数据库
     public static void addInsertSinkToStream(DataStream dataStream, Class clazz, String name) {
         dataStream.addSink(JdbcSink.sink(
@@ -45,13 +38,6 @@ public class SinkUtils {
                 JdbcConnectorHelper.getJdbcConnectionOptions())).name(name).setParallelism(1);
     }
 
-    public static void addStream2CH(DataStream dataStream, Class clazz, String name){
-        dataStream.addSink(JdbcSink.sink(
-                JdbcConnectorHelper.getInsertTemplateString(clazz),
-                JdbcConnectorHelper.getStatementBuilder(),
-                JdbcConnectorHelper.getJdbcExecutionOptions(),
-                JdbcConnectorHelper.getJdbcConnectionOptions())).name(name).setParallelism(1);
-    }
     public static void addFileSinkToStream(DataStream dataStream, String filename, Encoder encoder){
 
         OutputFileConfig config = OutputFileConfig

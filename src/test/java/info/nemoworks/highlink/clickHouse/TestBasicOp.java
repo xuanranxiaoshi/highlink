@@ -31,7 +31,7 @@ public class TestBasicOp {
 
     // JDBC 驱动和数据库 URL
     String JDBC_DRIVER = "com.clickhouse.jdbc.ClickHouseDriver";
-    String DB_URL = "jdbc:clickhouse://localhost:18123/highLinks";
+    String DB_URL = Config.getProperty("CH.url");
 
     String user = "default";
 
@@ -90,63 +90,6 @@ public class TestBasicOp {
         System.out.println(createTableString1);
         System.out.println(createTableString2);
     }
-
-
-//    @Test
-//    public void TestSink() throws Exception {
-//        // 创建执行环境
-//        final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-//        // 创建输入数据源
-//        String[] words = new String[] {"csc1", "csc2", "csc3", "csc4"};
-//        // 将数组转换为Flink数据流
-//        DataStream<String> dataSource = env.fromElements(words);
-//
-//        SingleOutputStreamOperator<ETCClearResult> map = dataSource.map(new MapFunction<String, ETCClearResult>() {
-//            static int num = 0;
-//            @Override
-//            public ETCClearResult map(String value) throws Exception {
-//                ETCClearResult result = new ETCClearResult();
-//                result.setTOLLINTERVALID(value);
-//                result.setAMOUNT(1000);
-//                result.setCHARGEAMOUNT(20000);
-//                result.setLASTTIME(new Timestamp(System.currentTimeMillis()));
-//                System.out.println(result.getLASTTIME());
-//                return result;
-//            }
-//        });
-//
-//
-//        JdbcConnectionOptions build = new JdbcConnectionOptions.JdbcConnectionOptionsBuilder()
-//                .withUrl(DB_URL)
-//                .withDriverName(Config.getProperty("CH.driver-class-name"))
-//                .withUsername(Config.getProperty("CH.username"))
-//                .withPassword(Config.getProperty("CH.password"))
-//                .build();
-//
-//
-//        // 创建 ClickHouse 连接配置
-//        map.addSink(JdbcSink.sink(
-//                JdbcConnectorHelper.getInsertTemplateString(ETCClearResult.class),
-//                (ps, t) -> {
-//                    Field[] fields = t.getClass().getDeclaredFields();
-//
-//                    for (int i = 0; i < fields.length; i++) {
-//                        fields[i].setAccessible(true);
-//                        try {
-//                            ps.setObject(i + 1, fields[i].get(t));
-//                        } catch (Exception e) {
-//                            e.printStackTrace();
-//                            ps.setObject(i + 1, null);
-//                            System.out.println("index: "+ (i+1) +" setObject error");
-//                        }
-//                    }
-//                },
-//                build
-//        ));
-//
-//        // 启动流处理程序
-//        env.execute("Flink Array Source Demo");
-//    }
 
 
 }

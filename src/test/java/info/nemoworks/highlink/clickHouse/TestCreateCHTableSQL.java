@@ -64,44 +64,6 @@ public class TestCreateCHTableSQL {
         System.out.println(JdbcConnectorHelper.getCHCreateTableString(OtherSplitResultExit.class, "ID"));
     }
 
-    /**
-     * 通过 schema.sql 文件创建数据表
-     */
-    @Test
-    public void testInitDataBase() {
-        String JDBC_DRIVER = "com.clickhouse.jdbc.ClickHouseDriver";
-        String DB_URL = "jdbc:clickhouse://localhost:8123/highLinks";
-        String schemaLocation = Config.getProperty("CH" + ".schema");
-
-        Connection conn = null;
-        Statement stmt = null;
-
-        try {
-            // 注册 ClickHouse JDBC 驱动
-            Class.forName(JDBC_DRIVER);
-
-            // 打开连接
-            System.out.println("连接到 ClickHouse 数据库...");
-            conn = DriverManager.getConnection(DB_URL, "default", "");
-
-            // 创建 Statement 对象
-            stmt = conn.createStatement();
-            InputStream inputStream = DataSourceUtils.class.getClassLoader().getResourceAsStream(schemaLocation);
-
-            DataSourceUtils.executeSqlFile(conn, inputStream);
-
-
-            stmt.close();
-            conn.close();
-        } catch (SQLException se) {
-            // 处理 JDBC 错误
-            se.printStackTrace();
-        } catch (Exception e) {
-            // 处理异常
-            e.printStackTrace();
-        }
-
-    }
 
     @Test
     public void testExTimeSetting(){
@@ -117,6 +79,11 @@ public class TestCreateCHTableSQL {
     public void testInsert() throws SQLException {
         String insertTemplateString = JdbcConnectorHelper.getInsertTemplateString(ETCClearResult.class);
         System.out.println(insertTemplateString);
+    }
+
+    @Test void testUpdate(){
+        String updateTemplateString = JdbcConnectorHelper.getUpdateTemplateString(ExitLocalETCTrans.class);
+        System.out.println(updateTemplateString);
     }
 
 }

@@ -68,7 +68,8 @@ public class JdbcConnectorHelper {
                 if (i != fields.length - 1) {
                     query += ",";
                 }
-            }else{
+            }
+            else{
                 if (fields[i].getType().getSimpleName().toLowerCase().equals("long")
                         || fields[i].getType().getSimpleName().toLowerCase().contains("int")) {
                     query += fields[i].getName().toUpperCase() + " Nullable(bigint)";
@@ -87,7 +88,7 @@ public class JdbcConnectorHelper {
             }
 
         }
-        query += ") PRIMARY KEY (" + primaryKey.toUpperCase() + ")";
+        query += ") ORDER BY (" + primaryKey.toUpperCase() + ")";
         return query;
     }
 
@@ -128,10 +129,61 @@ public class JdbcConnectorHelper {
                         t.setObject(i + 1, null);
                     }
                 }
-
             }
         };
     }
+
+    // 仅用于更新 ExitLocalTrans 和 ExitOtherTrans
+    public static <T> String getUpdateTemplateString(Class<T> clazz){
+        String query = "ALTER TABLE " + clazz.getSimpleName().toUpperCase() + " UPDATE";
+        Field[] fields = clazz.getDeclaredFields();
+
+        String columes = "", qmarks = "";
+
+        for (int i = 0; i < fields.length; i++) {
+            if("ID".equals(fields[i].getName().toUpperCase())) {
+                continue;
+            }
+            columes += " " + fields[i].getName().toUpperCase() + " = ? ";
+            if (i != fields.length - 1) {
+                columes += ",";
+            }
+        }
+
+        query = query + columes + " WHERE ID = ?";
+        // System.out.println(query);
+        return query;
+    }
+
+    public static <T> JdbcStatementBuilder<T> getUpdateStatementBuilder() {
+        return new JdbcStatementBuilder<T>() {
+
+            @Override
+            public void accept(PreparedStatement t, T u) throws SQLException {
+
+                Field[] fields = u.getClass().getDeclaredFields();
+                Object id = null;
+                int i = 0;
+
+                for (Field field : fields) {
+                    try{
+                        field.setAccessible(true);
+                        if("ID".equals(field.getName().toUpperCase())){
+                            id = field.get(u);
+                            continue;
+                        }
+                        t.setObject(i + 1, field.get(u));
+                        i++;
+                    } catch (Exception e) {
+                        t.setObject(i + 1, null);
+                        e.printStackTrace();
+                    }
+                }
+                t.setObject(i + 1, id);
+            }
+        };
+    }
+
 
     public static JdbcConnectionOptions getJdbcConnectionOptions() {
         String type = Config.getProperty( "datasource.type");
@@ -143,18 +195,10 @@ public class JdbcConnectorHelper {
                 .build();
     }
 
-//    public static JdbcConnectionOptions getClickHouseConnectionOptions() {
-//        return new JdbcConnectionOptions.JdbcConnectionOptionsBuilder()
-//                .withUrl(Config.getProperty( "CH.url"))
-//                .withDriverName(Config.getProperty("CH.driver-class-name"))
-//                .withUsername(Config.getProperty("CH.username"))
-//                .withPassword(Config.getProperty("CH.password"))
-//                .build();
-//    }
 
     public static JdbcExecutionOptions getJdbcExecutionOptions() {
         return JdbcExecutionOptions.builder()
-                .withBatchSize(200)
+                .withBatchSize(2000)
                 .withBatchIntervalMs(200)
                 .withMaxRetries(3)
                 .build();

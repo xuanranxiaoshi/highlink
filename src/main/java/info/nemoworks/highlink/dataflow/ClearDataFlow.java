@@ -1,7 +1,6 @@
 package info.nemoworks.highlink.dataflow;
 
 import info.nemoworks.highlink.model.clearTransaction.CashClearResult;
-import info.nemoworks.highlink.model.clearTransaction.ClearResult;
 import info.nemoworks.highlink.model.clearTransaction.ETCClearResult;
 import info.nemoworks.highlink.model.clearTransaction.ExpandClearResult;
 import info.nemoworks.highlink.model.exitTransaction.ExitLocalETCTrans;
@@ -51,7 +50,7 @@ public class ClearDataFlow {
                     // 设置基础的主键属性
                     etcClearResultTemplate.setPAYCARDTYPE(etcSplitResultGantry.getETCCARDTYPE());
                     // 设置为出口时间
-                    etcClearResultTemplate.setLDATE(dateStr2Int(etcSplitResultGantry.getEXTIME()));
+                    etcClearResultTemplate.setLDATE(getdateStr(etcSplitResultGantry.getEXTIME()));
 
                     etcClearResultTemplate.setCLEARDATE(DateFormatUtils.format(new Date(), "yyyy-MM-dd"));
                     etcClearResultTemplate.setMULTIPROVINCE("1");
@@ -75,7 +74,7 @@ public class ClearDataFlow {
                     ETCClearResult etcClearResultTemplate = new ETCClearResult();
                     // 设置基础的主键属性
                     etcClearResultTemplate.setPAYCARDTYPE(etcSplitResultExit.getETCCARDTYPE());
-                    etcClearResultTemplate.setLDATE(dateStr2Int(etcSplitResultExit.getEXTIME()));
+                    etcClearResultTemplate.setLDATE(getdateStr(etcSplitResultExit.getEXTIME()));
                     etcClearResultTemplate.setCLEARDATE(DateFormatUtils.format(new Date(), "yyyy-MM-dd"));
                     etcClearResultTemplate.setMULTIPROVINCE("1");
                     etcClearResultTemplate.setCLEARTYPE("2");
@@ -98,7 +97,7 @@ public class ClearDataFlow {
                     CashClearResult cashClearResultTemplate = new CashClearResult();
                     // 设置基础的主键属性
                     cashClearResultTemplate.setPAYCARDTYPE(otherSplitResultExit.getETCCARDTYPE());
-                    cashClearResultTemplate.setLDATE(dateStr2Int(otherSplitResultExit.getEXTIME()));
+                    cashClearResultTemplate.setLDATE(getdateStr(otherSplitResultExit.getEXTIME()));
                     cashClearResultTemplate.setCLEARDATE(DateFormatUtils.format(new Date(), "yyyy-MM-dd"));
                     cashClearResultTemplate.setMULTIPROVINCE("1");
                     cashClearResultTemplate.setCLEARTYPE("5");
@@ -120,7 +119,7 @@ public class ClearDataFlow {
                     CashClearResult cashClearResultTemplate = new CashClearResult();
                     // 设置基础的主键属性
                     cashClearResultTemplate.setPAYCARDTYPE(otherSplitResultGantry.getETCCARDTYPE());
-                    cashClearResultTemplate.setLDATE(dateStr2Int(otherSplitResultGantry.getEXTIME()));
+                    cashClearResultTemplate.setLDATE(getdateStr(otherSplitResultGantry.getEXTIME()));
                     cashClearResultTemplate.setCLEARDATE(DateFormatUtils.format(new Date(), "yyyy-MM-dd"));
                     cashClearResultTemplate.setMULTIPROVINCE("1");
                     cashClearResultTemplate.setCLEARTYPE("6");
@@ -142,7 +141,7 @@ public class ClearDataFlow {
                     CashClearResult cashClearResultTemplate = new CashClearResult();
                     // 设置基础的主键属性
                     cashClearResultTemplate.setPAYCARDTYPE(exitLocalOtherTrans.getETCCARDTYPE());
-                    cashClearResultTemplate.setLDATE(dateStr2Int(exitLocalOtherTrans.getEXTIME()));
+                    cashClearResultTemplate.setLDATE(getdateStr(exitLocalOtherTrans.getEXTIME()));
                     cashClearResultTemplate.setCLEARDATE(DateFormatUtils.format(new Date(), "yyyy-MM-dd"));
                     cashClearResultTemplate.setMULTIPROVINCE("1");
                     cashClearResultTemplate.setCLEARTYPE("6");
@@ -164,7 +163,7 @@ public class ClearDataFlow {
                     ETCClearResult etcClearResultTemplate = new ETCClearResult();
                     // 设置基础的主键属性
                     etcClearResultTemplate.setPAYCARDTYPE(String.valueOf(exitLocalETCTrans.getETCCARDTYPE()));
-                    etcClearResultTemplate.setLDATE(dateStr2Int(exitLocalETCTrans.getEXTIME()));
+                    etcClearResultTemplate.setLDATE(getdateStr(exitLocalETCTrans.getEXTIME()));
                     etcClearResultTemplate.setCLEARDATE(DateFormatUtils.format(new Date(), "yyyy-MM-dd"));
                     etcClearResultTemplate.setMULTIPROVINCE("1");
                     etcClearResultTemplate.setCLEARTYPE("1");
@@ -184,13 +183,13 @@ public class ClearDataFlow {
                     }
                 }
             }
-        });
+        }).name("清分处理");
 
         // 2. 将清分明细数据存入 clickhouse 数据仓库
         SideOutputDataStream<CashClearResult> cashClearResultStream = etcClearResultStream.getSideOutput(cashClearResultOutputTag);
 
-        SinkUtils.addStream2CH(etcClearResultStream, ETCClearResult.class, "ETC清分结果");
-        SinkUtils.addStream2CH(cashClearResultStream, CashClearResult.class, "现金清分结果");
+        SinkUtils.addInsertSinkToStream(etcClearResultStream, ETCClearResult.class, "ETC清分结果");
+        SinkUtils.addInsertSinkToStream(cashClearResultStream, CashClearResult.class, "现金清分结果");
     }
 
     private static LinkedList<ETCClearResult> split2ClearDetials(String splitownergroup,
@@ -291,17 +290,17 @@ public class ClearDataFlow {
         return clearResults;
     }
 
-    private static int dateStr2Int(String time){
+    private static String getdateStr(String time){
         try {
             String[] times = time.trim().split(" ");
             String hour = times[1].strip().split(":")[0];
             String day = times[0].replace("-", "");
-            return Integer.parseInt(day);
+            return day;
         } catch (Exception e) {
             // 捕获任何异常并输出异常信息
             e.printStackTrace();
             // 返回默认值
-            return 2023120901;
+            return "2023120901";
         }
 
     }
