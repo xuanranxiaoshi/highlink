@@ -15,7 +15,7 @@ public class RawTransactionFactory {
         if (json.isArray()) {
             throw new Exception();
         }
-        mapper = new ObjectMapper();
+        // mapper = new ObjectMapper();
 
         if (json.get("EXTOLLSTATION") != null) {
             return mapper.treeToValue(json, ExitRawTransaction.class);
@@ -33,7 +33,7 @@ public class RawTransactionFactory {
         if (json.isArray()) {
             throw new Exception();
         }
-        mapper = new ObjectMapper();
+        // mapper = new ObjectMapper();
 
         if (json.size() == 32){
             return mapper.treeToValue(json, SplitDetailExit.class);
