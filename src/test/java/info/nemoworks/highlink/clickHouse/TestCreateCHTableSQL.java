@@ -1,6 +1,7 @@
 package info.nemoworks.highlink.clickHouse;
 
 import info.nemoworks.highlink.connector.JdbcConnectorHelper;
+import info.nemoworks.highlink.model.clearTransaction.ETCClearResult;
 import info.nemoworks.highlink.model.entryTransaction.EntryRawTransaction;
 import info.nemoworks.highlink.model.exitTransaction.ExitForeignETCTrans;
 import info.nemoworks.highlink.model.exitTransaction.ExitForeignOtherTrans;
@@ -67,9 +68,9 @@ public class TestCreateCHTableSQL {
      * 通过 schema.sql 文件创建数据表
      */
     @Test
-    public void initDataBase() {
+    public void testInitDataBase() {
         String JDBC_DRIVER = "com.clickhouse.jdbc.ClickHouseDriver";
-        String DB_URL = "jdbc:clickhouse://localhost:18123/test";
+        String DB_URL = "jdbc:clickhouse://localhost:8123/highLinks";
         String schemaLocation = Config.getProperty("CH" + ".schema");
 
         Connection conn = null;
@@ -100,6 +101,22 @@ public class TestCreateCHTableSQL {
             e.printStackTrace();
         }
 
+    }
+
+    @Test
+    public void testExTimeSetting(){
+        String time = "2024-01-01 07:05:07";
+        String[] times = time.trim().split(" ");
+        String hour = times[1].strip().split(":")[0];
+        String day = times[0].replace("-", "");
+        String res = day + hour;
+        System.out.println(Integer.parseInt(res));
+    }
+
+    @Test
+    public void testInsert() throws SQLException {
+        String insertTemplateString = JdbcConnectorHelper.getInsertTemplateString(ETCClearResult.class);
+        System.out.println(insertTemplateString);
     }
 
 }

@@ -50,7 +50,9 @@ public class ClearDataFlow {
                     ETCClearResult etcClearResultTemplate = new ETCClearResult();
                     // 设置基础的主键属性
                     etcClearResultTemplate.setPAYCARDTYPE(etcSplitResultGantry.getETCCARDTYPE());
-                    etcClearResultTemplate.setLDATE(etcSplitResultGantry.getEXTIME());
+                    // 设置为出口时间
+                    etcClearResultTemplate.setLDATE(dateStr2Int(etcSplitResultGantry.getEXTIME()));
+
                     etcClearResultTemplate.setCLEARDATE(DateFormatUtils.format(new Date(), "yyyy-MM-dd"));
                     etcClearResultTemplate.setMULTIPROVINCE("1");
                     etcClearResultTemplate.setCLEARTYPE("3");
@@ -73,7 +75,7 @@ public class ClearDataFlow {
                     ETCClearResult etcClearResultTemplate = new ETCClearResult();
                     // 设置基础的主键属性
                     etcClearResultTemplate.setPAYCARDTYPE(etcSplitResultExit.getETCCARDTYPE());
-                    etcClearResultTemplate.setLDATE(etcSplitResultExit.getEXTIME());
+                    etcClearResultTemplate.setLDATE(dateStr2Int(etcSplitResultExit.getEXTIME()));
                     etcClearResultTemplate.setCLEARDATE(DateFormatUtils.format(new Date(), "yyyy-MM-dd"));
                     etcClearResultTemplate.setMULTIPROVINCE("1");
                     etcClearResultTemplate.setCLEARTYPE("2");
@@ -96,7 +98,7 @@ public class ClearDataFlow {
                     CashClearResult cashClearResultTemplate = new CashClearResult();
                     // 设置基础的主键属性
                     cashClearResultTemplate.setPAYCARDTYPE(otherSplitResultExit.getETCCARDTYPE());
-                    cashClearResultTemplate.setLDATE(otherSplitResultExit.getEXTIME());
+                    cashClearResultTemplate.setLDATE(dateStr2Int(otherSplitResultExit.getEXTIME()));
                     cashClearResultTemplate.setCLEARDATE(DateFormatUtils.format(new Date(), "yyyy-MM-dd"));
                     cashClearResultTemplate.setMULTIPROVINCE("1");
                     cashClearResultTemplate.setCLEARTYPE("5");
@@ -118,7 +120,7 @@ public class ClearDataFlow {
                     CashClearResult cashClearResultTemplate = new CashClearResult();
                     // 设置基础的主键属性
                     cashClearResultTemplate.setPAYCARDTYPE(otherSplitResultGantry.getETCCARDTYPE());
-                    cashClearResultTemplate.setLDATE(otherSplitResultGantry.getEXTIME());
+                    cashClearResultTemplate.setLDATE(dateStr2Int(otherSplitResultGantry.getEXTIME()));
                     cashClearResultTemplate.setCLEARDATE(DateFormatUtils.format(new Date(), "yyyy-MM-dd"));
                     cashClearResultTemplate.setMULTIPROVINCE("1");
                     cashClearResultTemplate.setCLEARTYPE("6");
@@ -140,7 +142,7 @@ public class ClearDataFlow {
                     CashClearResult cashClearResultTemplate = new CashClearResult();
                     // 设置基础的主键属性
                     cashClearResultTemplate.setPAYCARDTYPE(exitLocalOtherTrans.getETCCARDTYPE());
-                    cashClearResultTemplate.setLDATE(exitLocalOtherTrans.getEXTIME());
+                    cashClearResultTemplate.setLDATE(dateStr2Int(exitLocalOtherTrans.getEXTIME()));
                     cashClearResultTemplate.setCLEARDATE(DateFormatUtils.format(new Date(), "yyyy-MM-dd"));
                     cashClearResultTemplate.setMULTIPROVINCE("1");
                     cashClearResultTemplate.setCLEARTYPE("6");
@@ -162,7 +164,7 @@ public class ClearDataFlow {
                     ETCClearResult etcClearResultTemplate = new ETCClearResult();
                     // 设置基础的主键属性
                     etcClearResultTemplate.setPAYCARDTYPE(String.valueOf(exitLocalETCTrans.getETCCARDTYPE()));
-                    etcClearResultTemplate.setLDATE(exitLocalETCTrans.getEXTIME());
+                    etcClearResultTemplate.setLDATE(dateStr2Int(exitLocalETCTrans.getEXTIME()));
                     etcClearResultTemplate.setCLEARDATE(DateFormatUtils.format(new Date(), "yyyy-MM-dd"));
                     etcClearResultTemplate.setMULTIPROVINCE("1");
                     etcClearResultTemplate.setCLEARTYPE("1");
@@ -264,15 +266,19 @@ public class ClearDataFlow {
             CashClearResult result = (CashClearResult) resultTemplate.clone();
 
             if(Objects.equals(ownerGroup[i], "")){
+                ownerGroup[i] = "empty";
                 System.out.println("[Clear] ownerGroup["+ i +"] is empty, ownerGroup: " + splitownergroup);
             }
-            if(Objects.equals(ownerGroup[i], "")){
+            if(Objects.equals(feeGroup[i], "")){
+                feeGroup[i] = "1";
                 System.out.println("[Clear] feeGroup["+ i +"] is empty, feeGroup: " + splitownerfeegroup);
             }
-            if(Objects.equals(ownerGroup[i], "")){
+            if(Objects.equals(disGroup[i], "")){
+                disGroup[i] = "1";
                 System.out.println("[Clear] disGroup["+ i +"] is empty, disGroup: " + splitownerdisfeegroup);
             }
-            if(Objects.equals(ownerGroup[i], "")){
+            if(Objects.equals(payFeeGroup[i], "")){
+                payFeeGroup[i] = "1";
                 System.out.println("[Clear] payFeeGroup["+ i +"] is empty, payFeeGroup: " + splitownerpayfeegroup);
             }
 
@@ -283,5 +289,20 @@ public class ClearDataFlow {
             clearResults.add(result);
         }
         return clearResults;
+    }
+
+    private static int dateStr2Int(String time){
+        try {
+            String[] times = time.trim().split(" ");
+            String hour = times[1].strip().split(":")[0];
+            String day = times[0].replace("-", "");
+            return Integer.parseInt(day);
+        } catch (Exception e) {
+            // 捕获任何异常并输出异常信息
+            e.printStackTrace();
+            // 返回默认值
+            return 2023120901;
+        }
+
     }
 }

@@ -31,7 +31,7 @@ public class DataFlows {
                 WatermarkStrategy.noWatermarks(),
                 "预处理接收流水",
                 TypeInformation.of(HighwayTransaction.class))
-                .setParallelism(1);
+                .setParallelism(8);
 
         // 0.2 拆分子系统输入
         DataStreamSource provinceStream = env.fromSource(KafkaConnectorHelper.getKafkaProvinceTransSource("Province"),
