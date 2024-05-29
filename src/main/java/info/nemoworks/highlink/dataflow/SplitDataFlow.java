@@ -123,11 +123,13 @@ public class SplitDataFlow {
                 HighwayTransaction exitTrans = value.getUpdateRes();
                 if (exitTrans instanceof ExitLocalETCTrans exitLocalETCTrans) {
                     // 单省 ETC
+                    exitLocalETCTrans.setVersion(2);
                     ctx.output(exitLocalETCOutputTag, exitLocalETCTrans);
                     out.collect(exitLocalETCTrans);
                 }
                 else if (exitTrans instanceof ExitLocalOtherTrans exitLocalOtherTrans) {
                     // 单省 CPC
+                    exitLocalOtherTrans.setVersion(2);
                     ctx.output(exitLocalOtherOutputTag, exitLocalOtherTrans);
                     out.collect(exitLocalOtherTrans);
                 }
@@ -141,10 +143,8 @@ public class SplitDataFlow {
 //        SinkUtils.addFileSinkToStream(exitLocalETCTransStream, "exit_local_etc", new ExitLocalETCEncoder());
 //        SinkUtils.addFileSinkToStream(exitLocalOtherTransStream, "exit_local_other", new ExitLocalOthersEncoder());
         // todo: 产生背压
-        SinkUtils.addUpdateSinkToStream(exitLocalETCTransStream,ExitLocalETCTrans.class,"eixtLocalETC_update");
-        SinkUtils.addUpdateSinkToStream(exitLocalOtherTransStream, ExitLocalOtherTrans.class, "exitLocalOther_update");
-
-
+        SinkUtils.addInsertSinkToStream(exitLocalETCTransStream,ExitLocalETCTrans.class,"eixtLocalETC_update");
+        SinkUtils.addInsertSinkToStream(exitLocalOtherTransStream, ExitLocalOtherTrans.class, "exitLocalOther_update");
 
         return splitResultStream;
     }

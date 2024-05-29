@@ -576,8 +576,9 @@ CREATE TABLE EXITLOCALETCTRANS
     SPLITBASE              Nullable(bigint),
     SPLITREMARK1           Nullable(text),
     VACCINEFLAG            Nullable(bigint),
-    APPOINTID              Nullable(text)
-) ENGINE = MergeTree()
+    APPOINTID              Nullable(text),
+    VERSION                UInt32
+) ENGINE = ReplacingMergeTree(VERSION)
     ORDER BY (ID);
 
 CREATE TABLE EXITLOCALOTHERTRANS
@@ -712,8 +713,9 @@ CREATE TABLE EXITLOCALOTHERTRANS
     SPLITBASE              Nullable(bigint),
     SPLITREMARK1           Nullable(text),
     VACCINEFLAG            Nullable(bigint),
-    APPOINTID              Nullable(text)
-) ENGINE = MergeTree()
+    APPOINTID              Nullable(text),
+        VERSION                UInt32
+) ENGINE = ReplacingMergeTree(VERSION)
     ORDER BY (ID);
 
 CREATE TABLE EXDFOREIGNGASTRANSACTION

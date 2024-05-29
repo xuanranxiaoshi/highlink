@@ -192,6 +192,7 @@ public class PrepareFlow {
                 .trigger(new PathTrigger())
                 .aggregate(new PathAggregateFunction(), new PathProcessWindowFunction())
                 .name("路径聚合")
+                .setParallelism(1)
                 ;
 
         // 4. 返回聚合路径

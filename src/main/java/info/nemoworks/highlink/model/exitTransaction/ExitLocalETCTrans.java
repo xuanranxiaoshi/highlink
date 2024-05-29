@@ -3,6 +3,7 @@ package info.nemoworks.highlink.model.exitTransaction;
 import info.nemoworks.highlink.model.HighwayTransaction;
 import info.nemoworks.highlink.model.pathTransaction.PathTransaction;
 import info.nemoworks.highlink.model.splitTransaction.SplitResult;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
@@ -290,6 +291,8 @@ public class ExitLocalETCTrans implements HighwayTransaction, PathTransaction, S
     @JsonProperty("APPOINTID")
     public String aPPOINTID;
 
+    @JsonIgnore
+    public int version = 1;
     @Override
     public String peekTime() {
         return this.getEXTIME();
