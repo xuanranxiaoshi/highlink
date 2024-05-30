@@ -61,12 +61,12 @@ public class ClearDataFlow {
                     String splitownerfeegroup = etcSplitResultGantry.getSPLITOWNERFEEGROUP();
                     String splitownerpayfeegroup = etcSplitResultGantry.getSPLITOWNERPAYFEEGROUP();
                     String splitownerdisfeegroup = etcSplitResultGantry.getSPLITOWNERDISFEEGROUP();
-                    System.out.println("[Clear] ETCSplitResultGantry");
+//                    System.out.println("[Clear] ETCSplitResultGantry");
                     LinkedList<ETCClearResult> clearResults =
                             split2ClearDetials(splitownergroup, splitownerfeegroup, splitownerpayfeegroup, splitownerdisfeegroup, etcClearResultTemplate);
                     // 分流
                     for (ETCClearResult clearResult : clearResults){
-                        System.out.println("[Clear] TOLLINTERVALID: " + clearResult.getTOLLINTERVALID());
+//                        System.out.println("[Clear] TOLLINTERVALID: " + clearResult.getTOLLINTERVALID());
                         out.collect(clearResult);
                     }
                 }
@@ -84,12 +84,12 @@ public class ClearDataFlow {
                     String splitownerfeegroup = etcSplitResultExit.getSPLITOWNERFEEGROUP();
                     String splitownerpayfeegroup = etcSplitResultExit.getSPLITOWNERPAYFEEGROUP();
                     String splitownerdisfeegroup = etcSplitResultExit.getSPLITOWNERDISFEEGROUP();
-                    System.out.println("[Clear] ETCSplitResultExit");
+//                    System.out.println("[Clear] ETCSplitResultExit");
                     LinkedList<ETCClearResult> clearResults =
                             split2ClearDetials(splitownergroup, splitownerfeegroup, splitownerpayfeegroup, splitownerdisfeegroup, etcClearResultTemplate);
                     // 分流
                     for (ETCClearResult clearResult : clearResults){
-                        System.out.println("[Clear] TOLLINTERVALID: " + clearResult.getTOLLINTERVALID());
+//                        System.out.println("[Clear] TOLLINTERVALID: " + clearResult.getTOLLINTERVALID());
                         out.collect(clearResult);
                     }
                 }
@@ -107,7 +107,7 @@ public class ClearDataFlow {
                     String splitownerfeegroup = otherSplitResultExit.getSPLITOWNERFEEGROUP();
                     String splitownerpayfeegroup = otherSplitResultExit.getSPLITOWNERPAYFEEGROUP();
                     String splitownerdisfeegroup = otherSplitResultExit.getSPLITOWNERDISFEEGROUP();
-                    System.out.println("[Clear] otherSplitResultExit");
+//                    System.out.println("[Clear] otherSplitResultExit");
                     LinkedList<CashClearResult> clearResults =
                             split2ClearDetials(splitownergroup, splitownerfeegroup, splitownerpayfeegroup, splitownerdisfeegroup, cashClearResultTemplate);
                     // 分流
@@ -129,7 +129,7 @@ public class ClearDataFlow {
                     String splitownerfeegroup = otherSplitResultGantry.getSPLITOWNERFEEGROUP();
                     String splitownerpayfeegroup = otherSplitResultGantry.getSPLITOWNERPAYFEEGROUP();
                     String splitownerdisfeegroup = otherSplitResultGantry.getSPLITOWNERDISFEEGROUP();
-                    System.out.println("[Clear] OtherSplitResultGantry");
+//                    System.out.println("[Clear] OtherSplitResultGantry");
                     LinkedList<CashClearResult> clearResults =
                             split2ClearDetials(splitownergroup, splitownerfeegroup, splitownerpayfeegroup, splitownerdisfeegroup, cashClearResultTemplate);
                     // 分流
@@ -151,7 +151,7 @@ public class ClearDataFlow {
                     String splitownerfeegroup = exitLocalOtherTrans.getSPLITOWNERFEEGROUP();
                     String splitownerpayfeegroup = exitLocalOtherTrans.getSPLITOWNERPAYFEEGROUP();
                     String splitownerdisfeegroup = exitLocalOtherTrans.getSPLITOWNERDISFEEGROUP();
-                    System.out.println("[Clear] ExitLocalOtherTrans");
+//                    System.out.println("[Clear] ExitLocalOtherTrans");
                     LinkedList<CashClearResult> clearResults =
                             split2ClearDetials(splitownergroup, splitownerfeegroup, splitownerpayfeegroup, splitownerdisfeegroup, cashClearResultTemplate);
                     // 分流
@@ -173,12 +173,12 @@ public class ClearDataFlow {
                     String splitownerfeegroup = exitLocalETCTrans.getSPLITOWNERFEEGROUP();
                     String splitownerpayfeegroup = exitLocalETCTrans.getSPLITOWNERPAYFEEGROUP();
                     String splitownerdisfeegroup = exitLocalETCTrans.getSPLITOWNERDISFEEGROUP();
-                    System.out.println("[Clear] ExitLocalETCTrans");
+//                    System.out.println("[Clear] ExitLocalETCTrans");
                     LinkedList<ETCClearResult> clearResults =
                             split2ClearDetials(splitownergroup, splitownerfeegroup, splitownerpayfeegroup, splitownerdisfeegroup, etcClearResultTemplate);
                     // 分流
                     for (ETCClearResult clearResult : clearResults){
-                        System.out.println("[Clear] TOLLINTERVALID: " + clearResult.getTOLLINTERVALID());
+//                        System.out.println("[Clear] TOLLINTERVALID: " + clearResult.getTOLLINTERVALID());
                         out.collect(clearResult);
                     }
                 }
@@ -232,13 +232,13 @@ public class ClearDataFlow {
 
 
             ETCClearResult result = (ETCClearResult) resultTemplate.clone();
-            System.out.println("[Clear] ownerGroup[i]: " + ownerGroup[i]);
+//            System.out.println("[Clear] ownerGroup[i]: " + ownerGroup[i]);
             result.setTOLLINTERVALID(ownerGroup[i]);
-            System.out.println("[Clear] feeGroup[i]: " + feeGroup[i]);
+//            System.out.println("[Clear] feeGroup[i]: " + feeGroup[i]);
             result.setAMOUNT(Integer.valueOf(feeGroup[i]));
-            System.out.println("[Clear] disGroup[i]: " + disGroup[i]);
+//            System.out.println("[Clear] disGroup[i]: " + disGroup[i]);
             result.setDISCOUNTAMOUNT(Integer.valueOf(disGroup[i]));
-            System.out.println("[Clear] payFeeGroup[i]: " + payFeeGroup[i]);
+//            System.out.println("[Clear] payFeeGroup[i]: " + payFeeGroup[i]);
             result.setCHARGEAMOUNT(Integer.valueOf(payFeeGroup[i]));
             clearResults.add(result);
         }
@@ -266,19 +266,19 @@ public class ClearDataFlow {
 
             if(Objects.equals(ownerGroup[i], "")){
                 ownerGroup[i] = "empty";
-                System.out.println("[Clear] ownerGroup["+ i +"] is empty, ownerGroup: " + splitownergroup);
+//                System.out.println("[Clear] ownerGroup["+ i +"] is empty, ownerGroup: " + splitownergroup);
             }
             if(Objects.equals(feeGroup[i], "")){
                 feeGroup[i] = "1";
-                System.out.println("[Clear] feeGroup["+ i +"] is empty, feeGroup: " + splitownerfeegroup);
+//                System.out.println("[Clear] feeGroup["+ i +"] is empty, feeGroup: " + splitownerfeegroup);
             }
             if(Objects.equals(disGroup[i], "")){
                 disGroup[i] = "1";
-                System.out.println("[Clear] disGroup["+ i +"] is empty, disGroup: " + splitownerdisfeegroup);
+//                System.out.println("[Clear] disGroup["+ i +"] is empty, disGroup: " + splitownerdisfeegroup);
             }
             if(Objects.equals(payFeeGroup[i], "")){
                 payFeeGroup[i] = "1";
-                System.out.println("[Clear] payFeeGroup["+ i +"] is empty, payFeeGroup: " + splitownerpayfeegroup);
+//                System.out.println("[Clear] payFeeGroup["+ i +"] is empty, payFeeGroup: " + splitownerpayfeegroup);
             }
 
             result.setTOLLINTERVALID(ownerGroup[i]);
