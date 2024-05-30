@@ -99,4 +99,8 @@ public class ExdForeignMunicipalTransaction implements HighwayTransaction{
     @JsonProperty("VEHICLETYPE")
     public int vEHICLETYPE;
 
+    @Override
+    public String getPASSID() {
+        return null;
+    }
 }

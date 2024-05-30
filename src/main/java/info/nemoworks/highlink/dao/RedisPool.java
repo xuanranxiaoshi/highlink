@@ -1,6 +1,7 @@
 package info.nemoworks.highlink.dao;
 
 import info.nemoworks.highlink.utils.Config;
+import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
@@ -16,6 +17,10 @@ public class RedisPool implements CachePool, Serializable{
     private volatile static JedisPool pool;
 
     public RedisPool(){
+        this.init();
+    }
+
+    private void init(){
         if (pool == null) {
             synchronized (JedisCacheDaoImp.class) {
                 if (pool == null) {
@@ -34,9 +39,24 @@ public class RedisPool implements CachePool, Serializable{
             }
         }
     }
+
     @Override
     public CacheDao getDaoImp() {
-        return new JedisCacheDaoImp(pool.getResource(), pool);
+        if(pool == null){
+            init();
+        }
+        Jedis jedis = pool.getResource();
+        return new JedisCacheDaoImp(jedis, pool);
+    }
+
+    @Override
+    public CacheDao getDaoImp(String key) {
+        if(pool == null){
+            init();
+        }
+        Jedis jedis = pool.getResource();
+        jedis.select(key.hashCode() % 16);
+        return new JedisCacheDaoImp(jedis, pool);
     }
 
     @Override

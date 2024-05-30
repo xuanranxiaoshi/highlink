@@ -41,7 +41,7 @@ public class KafkaConnectorHelper {
                 .build();
     }
 
-    public static KafkaSource getKafkaHighWayTransSource(String topic){
+    public static KafkaSource<HighwayTransaction> getKafkaHighWayTransSource(String topic){
         return KafkaSource.<HighwayTransaction>builder()
                 .setProperties(KafkaConnectorHelper.getKafkaProperties())
                 .setGroupId("flink")
@@ -51,7 +51,7 @@ public class KafkaConnectorHelper {
                 .build();
     }
 
-    public static KafkaSource getKafkaProvinceTransSource(String topic){
+    public static KafkaSource<ProvinceTransaction> getKafkaProvinceTransSource(String topic){
         return KafkaSource.<ProvinceTransaction>builder()
                 .setProperties(KafkaConnectorHelper.getKafkaProperties())
                 .setGroupId("flink")

@@ -2,6 +2,7 @@ package info.nemoworks.highlink.dataflow;
 
 import info.nemoworks.highlink.dao.CacheDao;
 import info.nemoworks.highlink.dao.CachePool;
+import info.nemoworks.highlink.dao.JedisCacheDaoImp;
 import info.nemoworks.highlink.dataflow.encoder.PathEncoder;
 import info.nemoworks.highlink.sink.PathListCacheSink;
 import info.nemoworks.highlink.utils.SinkUtils;
@@ -10,15 +11,19 @@ import info.nemoworks.highlink.model.exitTransaction.ExitRawTransaction;
 import info.nemoworks.highlink.model.gantryTransaction.GantryRawTransaction;
 import info.nemoworks.highlink.utils.SimpleContainer;
 import info.nemoworks.highlink.model.pathTransaction.PathTransaction;
+import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.KeyedStream;
 import org.apache.flink.streaming.api.datastream.SideOutputDataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
+import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
+import redis.clients.jedis.Transaction;
 
 import java.util.LinkedList;
 
@@ -50,10 +55,18 @@ public class ExceptionFlow {
         final OutputTag<LinkedList<PathTransaction>> unOrderedPath = new OutputTag<>("unOrderedPath"){};
         final OutputTag<LinkedList<PathTransaction>> overTimePath = new OutputTag<LinkedList<PathTransaction>>("outTimePath"){};
         final OutputTag<LinkedList<PathTransaction>> latePath = new OutputTag<>("latePath"){};
-        SingleOutputStreamOperator<LinkedList<PathTransaction>> cleanPathFlow = aggregatePathStream.process(new ProcessFunction<LinkedList<PathTransaction>, LinkedList<PathTransaction>>() {
+
+        KeyedStream<LinkedList<PathTransaction>, String> keyedStream = aggregatePathStream.keyBy(new KeySelector<LinkedList<PathTransaction>, String>() {
+            @Override
+            public String getKey(LinkedList<PathTransaction> value) throws Exception {
+                return value.get(0).getPASSID();
+            }
+        });
+
+        SingleOutputStreamOperator<LinkedList<PathTransaction>> cleanPathFlow = keyedStream.process(new KeyedProcessFunction<String, LinkedList<PathTransaction>, LinkedList<PathTransaction>>() {
             @Override
             public void processElement(LinkedList<PathTransaction> pathTransactionLinkedList,
-                                       ProcessFunction<LinkedList<PathTransaction>, LinkedList<PathTransaction>>.Context ctx,
+                                       KeyedProcessFunction<String, LinkedList<PathTransaction>, LinkedList<PathTransaction>>.Context ctx,
                                        Collector<LinkedList<PathTransaction>> out) throws Exception {
                 if (pathTransactionLinkedList.size() == 0) {
                     System.out.println("[Error] ExceptionFlow：聚合路径长度为 0 ");
@@ -64,20 +77,23 @@ public class ExceptionFlow {
                         isExitData(pathTransactionLinkedList.get(pathTransactionLinkedList.size() - 1))) { // 正常数据
                     System.out.println("[Info] 正常数据： " + pathTransactionLinkedList.get(0).getPASSID());
                     out.collect(pathTransactionLinkedList);
-                } else if(!isExitData(pathTransactionLinkedList.get(pathTransactionLinkedList.size()-1))){    //  1. path 不以出口(eixt、省界出口门架)结尾：超时数据
+                }
+                else if (!isExitData(pathTransactionLinkedList.get(pathTransactionLinkedList.size() - 1))) {    //  1. path 不以出口(eixt、省界出口门架)结尾：超时数据
                     LinkedList<PathTransaction> mergeList = mergeFromRedis(pathTransactionLinkedList);
                     System.out.println("[Info] 超时数据：" + pathTransactionLinkedList.get(0).getPASSID());
                     ctx.output(overTimePath, mergeList);
-                } else if(isExitData(pathTransactionLinkedList.get(pathTransactionLinkedList.size()-1))) {    //  2. path 以出口结尾：迟到数据, 直接触发计算
+                }
+                else if (isExitData(pathTransactionLinkedList.get(pathTransactionLinkedList.size() - 1))) {    //  2. path 以出口结尾：迟到数据, 直接触发计算
                     LinkedList<PathTransaction> mergeList = mergeFromRedis(pathTransactionLinkedList);
-                    if(removePath(mergeList.get(0).getPASSID())) {  // 删除缓存中的超时数据
-                        System.out.println("[Info] 迟到数据(deleted): " + pathTransactionLinkedList.get(pathTransactionLinkedList.size()-1).getPASSID());
+                    if (removePath(mergeList.get(0).getPASSID())) {  // 删除缓存中的超时数据
+                        System.out.println("[Info] 迟到数据(deleted): " + pathTransactionLinkedList.get(pathTransactionLinkedList.size() - 1).getPASSID());
                         ctx.output(latePath, mergeList);
-                    }else{
-                        // fixme : 不完整的迟到数据怎么办？
-                        System.out.println("[Info] 迟到数据: " + pathTransactionLinkedList.get(pathTransactionLinkedList.size()-1).getPASSID());
                     }
-                }else{
+                    else {
+                        // fixme : 不完整的迟到数据怎么办？
+                        System.out.println("[Info] 迟到数据(无超时数据): " + pathTransactionLinkedList.get(pathTransactionLinkedList.size() - 1).getPASSID());
+                    }
+                } else {
                     System.out.println("[Info] 乱序数据：" + pathTransactionLinkedList.get(0).getPASSID());
                     ctx.output(unOrderedPath, pathTransactionLinkedList);
                 }
@@ -121,6 +137,7 @@ public class ExceptionFlow {
         try {
             cacheDao = cachePool.getDaoImp();
             long del = cacheDao.del(passID);
+            System.out.println("[Cache] del: " + passID + ", result: " + del);
             return del != 0;
         }finally {
             if(cacheDao != null){
@@ -132,6 +149,8 @@ public class ExceptionFlow {
     private static LinkedList<PathTransaction> mergeFromRedis(LinkedList<PathTransaction> pathTransactionLinkedList) throws JsonProcessingException {
         PathTransaction pathTransaction = pathTransactionLinkedList.get(0);
         String passID = pathTransaction.getPASSID();
+
+        // todo: 实现 try with resource
         CacheDao cacheDao = null;
         try {
             cacheDao = cachePool.getDaoImp();
@@ -169,4 +188,5 @@ public class ExceptionFlow {
         }
 
     }
+
 }

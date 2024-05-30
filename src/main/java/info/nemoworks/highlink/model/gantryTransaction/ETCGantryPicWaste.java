@@ -101,4 +101,8 @@ public class ETCGantryPicWaste implements HighwayTransaction {
     @JsonProperty("REMARK")
     private String remark;
 
+    @Override
+    public String getPASSID() {
+        return null;
+    }
 }

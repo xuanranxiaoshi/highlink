@@ -104,4 +104,8 @@ public class ExdForeignGasTransaction implements HighwayTransaction {
     @JsonProperty("MANAGEID")
     public String mANAGEID;
 
+    @Override
+    public String getPASSID() {
+        return null;
+    }
 }

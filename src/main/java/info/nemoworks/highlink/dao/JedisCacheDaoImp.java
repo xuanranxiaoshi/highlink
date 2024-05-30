@@ -3,6 +3,7 @@ package info.nemoworks.highlink.dao;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.Transaction;
 import redis.clients.jedis.params.ScanParams;
 import redis.clients.jedis.resps.ScanResult;
 
@@ -53,5 +54,4 @@ public class JedisCacheDaoImp implements CacheDao {
 
         return jedis.scan(cursor, scanParams);
     }
-
 }

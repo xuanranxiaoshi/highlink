@@ -2,6 +2,7 @@ package info.nemoworks.highlink.dataflow;
 
 import info.nemoworks.highlink.connector.KafkaConnectorHelper;
 import info.nemoworks.highlink.dataflow.encoder.PathEncoder;
+import info.nemoworks.highlink.functions.HashPartitioner;
 import info.nemoworks.highlink.model.HighwayTransaction;
 import info.nemoworks.highlink.model.splitTransaction.ProvinceTransaction;
 import info.nemoworks.highlink.model.pathTransaction.PathTransaction;
@@ -10,6 +11,7 @@ import info.nemoworks.highlink.utils.Config;
 import info.nemoworks.highlink.utils.SinkUtils;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
@@ -27,21 +29,23 @@ public class DataFlows {
     public static void start(StreamExecutionEnvironment env) throws Exception {
 
         // 0.1 预处理系统输入
-        DataStreamSource unionStream = env.fromSource(KafkaConnectorHelper.getKafkaHighWayTransSource("HighLink"),
-                WatermarkStrategy.noWatermarks(),
-                "预处理接收流水",
-                TypeInformation.of(HighwayTransaction.class))
-                .setParallelism(8);
+        DataStream<HighwayTransaction> unionStream = env.fromSource(KafkaConnectorHelper.getKafkaHighWayTransSource("HighLink"),
+                        WatermarkStrategy.noWatermarks(),
+                        "预处理接收流水",
+                        TypeInformation.of(HighwayTransaction.class))
+                .setParallelism(8)
+                .keyBy(HighwayTransaction::getPASSID);
 
         // 0.2 拆分子系统输入
-        DataStreamSource provinceStream = env.fromSource(KafkaConnectorHelper.getKafkaProvinceTransSource("Province"),
+        DataStream<ProvinceTransaction> provinceStream = env.fromSource(KafkaConnectorHelper.getKafkaProvinceTransSource("Province"),
                 WatermarkStrategy.noWatermarks(),
                 "部中心接收流水",
                 TypeInformation.of(ProvinceTransaction.class))
                 .setParallelism(1);
 
-        DataStream provinceUnionStream = provinceStream;
-        // fixme: 目前只实现从 redis 中读入缓存数据作为数据源输入
+        DataStream<ProvinceTransaction> provinceUnionStream = provinceStream;
+
+        // 定时从 redis 中读取 指定 key 格式的数据
         if("redis".equals(Config.getProperty("cache.dao.impl"))){
             // 0.3 缓存数据输入
             String pattern = "B*:" + SplitDataFlow.F2_PREFIX + "*";
@@ -63,7 +67,7 @@ public class DataFlows {
         SinkUtils.addFileSinkToStream(cleanPathCopyFlow, "aggregatedPath", new PathEncoder());
 
         // 2. 拆分子系统：对车辆路径进行收费金额拆分
-        DataStream splitResStream = SplitDataFlow.flow(cleanPathFlow, provinceUnionStream);
+        DataStream<info.nemoworks.highlink.model.splitTransaction.SplitResult> splitResStream = SplitDataFlow.flow(cleanPathFlow, provinceUnionStream);
 
         // 3. 清分子系统：对拆分后的数据进行入库；
         ClearDataFlow.flow(splitResStream);

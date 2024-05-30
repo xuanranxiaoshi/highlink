@@ -24,6 +24,7 @@ public class PathProcessWindowFunction extends ProcessWindowFunction<LinkedList<
                         ProcessWindowFunction<LinkedList<PathTransaction>, LinkedList<PathTransaction>, String, TimeWindow>.Context context,
                         Iterable<LinkedList<PathTransaction>> iterable,
                         Collector<LinkedList<PathTransaction>> collector) throws Exception {
+
         long startTs = context.window().getStart();
         long endTs = context.window().getEnd();
         String windowStart = DateFormatUtils.format(startTs, "yyyy-MM-dd HH:mm:ss.SSS");
@@ -33,12 +34,14 @@ public class PathProcessWindowFunction extends ProcessWindowFunction<LinkedList<
         LinkedList<PathTransaction> transList = iterator.next();
 
         String pathData = getData(transList);
-        String pathOut = "[" + windowStart + "|" + windowEnd + "] " + s + " 包含" + transList.size() + "条数据 " + pathData;
+        String pathOut = "cur: " +  DateFormatUtils.format(context.currentWatermark(), "yyyy-MM-dd HH:mm:ss.SSS") +
+                "[" + windowStart + "|" + windowEnd + "] " + s + " 包含" + transList.size() + "条数据 " + pathData;
 
         System.out.println(pathOut);
 
         collector.collect(transList);
     }
+
 
 
     public static String getData(LinkedList<PathTransaction> transList){

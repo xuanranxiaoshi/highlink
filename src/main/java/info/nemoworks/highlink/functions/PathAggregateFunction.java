@@ -22,14 +22,16 @@ public class PathAggregateFunction implements AggregateFunction<PathTransaction,
 
     @Override
     public LinkedList<PathTransaction> add(PathTransaction pathTransaction, LinkedList<PathTransaction> pathTransactions) {
+
         pathTransactions.add(pathTransaction);
 
+
         if(pathTransaction instanceof EntryRawTransaction){
-            System.out.println("Entry { passId: " + pathTransaction.getPASSID() + ", time: " + pathTransaction.peekTime() +", size: " + pathTransactions.size()  + "}");
+            System.out.println(Thread.currentThread().getName()+ " Entry { passId: " + pathTransaction.getPASSID() + ", time: " + pathTransaction.peekTime() +", size: " + pathTransactions.size()  + "}");
         }else if(pathTransaction instanceof GantryRawTransaction){
-            System.out.println("Gantry { passId: " + pathTransaction.getPASSID() + ", time: " + pathTransaction.peekTime() +", size: " + pathTransactions.size()  + "}");
+            System.out.println(Thread.currentThread().getName()+ " Gantry { passId: " + pathTransaction.getPASSID() + ", time: " + pathTransaction.peekTime() +", size: " + pathTransactions.size()  + "}");
         }else if(pathTransaction instanceof ExitRawTransaction){
-            System.out.println("Exit { passId: " + pathTransaction.getPASSID() + ", time: " + pathTransaction.peekTime() +", size: " + pathTransactions.size()  + "}");
+            System.out.println(Thread.currentThread().getName()+ " Exit { passId: " + pathTransaction.getPASSID() + ", time: " + pathTransaction.peekTime() +", size: " + pathTransactions.size()  + "}");
         }
 
 
@@ -44,6 +46,7 @@ public class PathAggregateFunction implements AggregateFunction<PathTransaction,
 
     @Override
     public LinkedList<PathTransaction> merge(LinkedList<PathTransaction> pathTransactions, LinkedList<PathTransaction> acc1) {
+        System.out.println(Thread.currentThread().getName() + " merge[" + acc1.get(0).getPASSID()+"]:" + acc1.size() + " +" + pathTransactions.size() );
         LinkedList<PathTransaction> linkedList = new LinkedList<>();
         linkedList.addAll(pathTransactions);
         linkedList.addAll(acc1);

@@ -9,5 +9,7 @@ package info.nemoworks.highlink.dao;
 public interface CachePool {
     public CacheDao getDaoImp();
 
+    public CacheDao getDaoImp(String key);
+
     public void close(CacheDao cacheDao);
 }

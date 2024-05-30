@@ -105,4 +105,8 @@ public class ExdLocalTransaction implements HighwayTransaction{
     @JsonProperty("MODIFYFLAG")
     public int mODIFYFLAG;
 
+    @Override
+    public String getPASSID() {
+        return null;
+    }
 }

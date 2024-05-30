@@ -108,4 +108,8 @@ public class ParkTransWasteRec implements HighwayTransaction {
         return this.getSERVICETYPE() == 3;
     }
 
+    @Override
+    public String getPASSID() {
+        return null;
+    }
 }

@@ -19,9 +19,8 @@ import info.nemoworks.highlink.model.mapper.ExtensionMapper;
 import info.nemoworks.highlink.model.mapper.GantryMapper;
 import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
-import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.datastream.DataStreamSource;
-import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
+import org.apache.flink.streaming.api.datastream.*;
+import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.streaming.api.functions.co.CoMapFunction;
 import org.apache.flink.streaming.api.windowing.assigners.EventTimeSessionWindows;
@@ -43,46 +42,94 @@ import java.util.LinkedList;
  */
 public class PrepareFlow {
 
-    public static SingleOutputStreamOperator<LinkedList<PathTransaction>> flow(DataStreamSource unionStream) throws Exception {
+    public static SingleOutputStreamOperator<LinkedList<PathTransaction>> flow(DataStream<HighwayTransaction> unionStream) throws Exception {
 
         // 1. 切分为不同的数据流
-        final OutputTag<ExitRawTransaction> exitTrans = new OutputTag<ExitRawTransaction>("exitTrans") {
-        };
-        final OutputTag<ParkTransWasteRec> extendTrans = new OutputTag<ParkTransWasteRec>("extendTrans") {
-        };
-        final OutputTag<GantryRawTransaction> gantryTrans = new OutputTag<GantryRawTransaction>("gantryTrans") {
-        };
+        final OutputTag<ExitRawTransaction> exitTrans = new OutputTag<ExitRawTransaction>("exitTrans") {};
+        final OutputTag<ParkTransWasteRec> extendTrans = new OutputTag<ParkTransWasteRec>("extendTrans") {};
+        final OutputTag<GantryRawTransaction> gantryTrans = new OutputTag<GantryRawTransaction>("gantryTrans") {};
+        final OutputTag<PathTransaction> pathTrans = new OutputTag<PathTransaction>("pathTrans") {};
 
-        SingleOutputStreamOperator<EntryRawTransaction> mainDataStream = unionStream
-                .process(new ProcessFunction<HighwayTransaction, EntryRawTransaction>() {
+        // 2. 定义 Watermark 策略: 采用事件语义，提取 enTime 作为逻辑时间
+        WatermarkStrategy<HighwayTransaction> watermarkStrategy = WatermarkStrategy
+                // 乱序流水位线
+                .<HighwayTransaction>forBoundedOutOfOrderness(Duration.ofMinutes(1))
+                .withTimestampAssigner(new SerializableTimestampAssigner<HighwayTransaction>() {
+                    @Override
+                    public long extractTimestamp(HighwayTransaction element, long recordTimestamp) {
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                        Date date = null;
+                        try {
+                            date = dateFormat.parse(element.peekTime());
+                        } catch (ParseException e) {
+                            throw new RuntimeException(e);
+                        }
+                        // 返回的时间戳，毫秒
+                        // System.out.println("数据= { id: " + rawTransaction.getPASSID() + ", enTime: " + rawTransaction.getENTIME() + " }");
+                        return date.getTime();
+                    }
+                })
+//                .<HighwayTransaction>forMonotonousTimestamps()
+//                .withTimestampAssigner(new SerializableTimestampAssigner<HighwayTransaction>() {
+//                    @Override
+//                    public long extractTimestamp(HighwayTransaction rawTransaction, long l) {
+//                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//                        Date date = null;
+//                        try {
+//                            date = dateFormat.parse(rawTransaction.peekTime());
+//                        } catch (ParseException e) {
+//                            throw new RuntimeException(e);
+//                        }
+//                        long timestamp = date.getTime();
+//                        // 返回的时间戳，毫秒
+//                        // System.out.println("数据= { id: " + rawTransaction.getPASSID() + ", enTime: " + rawTransaction.getENTIME() + " }");
+//                        return timestamp;
+//                    }
+//                })
+                // 解决多并行度某并行分支没有更新时的推进问题
+                .withIdleness(Duration.ofSeconds(5));
+
+        SingleOutputStreamOperator<HighwayTransaction> unionStreamWithTime = unionStream.assignTimestampsAndWatermarks(watermarkStrategy);
+
+
+        final SingleOutputStreamOperator<EntryRawTransaction> mainDataStream = unionStreamWithTime.keyBy(HighwayTransaction::getPASSID)
+                .process(new KeyedProcessFunction<String, HighwayTransaction, EntryRawTransaction>() {
                     @Override
                     public void processElement(HighwayTransaction value,
-                                               ProcessFunction<HighwayTransaction, EntryRawTransaction>.Context ctx,
+                                               KeyedProcessFunction<String, HighwayTransaction, EntryRawTransaction>.Context ctx,
                                                Collector<EntryRawTransaction> out) throws Exception {
-                        if (value instanceof ExitRawTransaction) {
-                            ctx.output(exitTrans, (ExitRawTransaction) value);
-                        } else {
-                            if (value instanceof GantryRawTransaction) {
-                                ctx.output(gantryTrans, (GantryRawTransaction) value);
-                            } else {
-                                if (value instanceof ParkTransWasteRec) {
-                                    ctx.output(extendTrans,
-                                            (ParkTransWasteRec) value);
-                                } else {
-                                    out.collect((EntryRawTransaction) value);
-                                }
-                            }
+//                        System.out.println(Thread.currentThread().getName() + ": " + value.getClass().getSimpleName()
+//                    + ":{passId: " + value.getPASSID() + ", time: " +value.peekTime() + "}");
+                        if (value instanceof ExitRawTransaction exitRawTransaction) {
+                            ctx.output(exitTrans, exitRawTransaction);
+                            ctx.output(pathTrans, exitRawTransaction);
+                        }
+                        else if (value instanceof GantryRawTransaction gantryRawTransaction) {
+                            ctx.output(gantryTrans, gantryRawTransaction);
+                            ctx.output(pathTrans, gantryRawTransaction);
+                        }
+                        else if (value instanceof ParkTransWasteRec parkTransWasteRec) {
+                            ctx.output(extendTrans, parkTransWasteRec);
+                        }
+                        else if (value instanceof EntryRawTransaction entryRawTransaction) {
+                            out.collect(entryRawTransaction);
+                            ctx.output(pathTrans, entryRawTransaction);
                         }
                     }
                 })
-                .name("分拣").setParallelism(4);
+                .name("分拣")
+                .setParallelism(4);
+
+
 
         // 2. 将数据流按规则进行拆分
-        DataStream<GantryRawTransaction> gantryStream = mainDataStream.getSideOutput(gantryTrans);
-        DataStream<ExitRawTransaction> exitStream = mainDataStream.getSideOutput(exitTrans);
-        DataStream<ParkTransWasteRec> extendStream = mainDataStream.getSideOutput(extendTrans);
-        DataStream<EntryRawTransaction> entryStream = mainDataStream.map(new LinkCounter<>("RawEntryTransCounter")).name("入口接收流水").setParallelism(1);
+        final DataStream<GantryRawTransaction> gantryStream = mainDataStream.getSideOutput(gantryTrans);
+        final DataStream<ExitRawTransaction> exitStream = mainDataStream.getSideOutput(exitTrans);
+        final DataStream<ParkTransWasteRec> extendStream = mainDataStream.getSideOutput(extendTrans);
+        final DataStream<PathTransaction> pathStream = mainDataStream.getSideOutput(pathTrans);
 
+
+        DataStream<EntryRawTransaction> entryStream = mainDataStream.map(new LinkCounter<>("RawEntryTransCounter")).name("入口接收流水").setParallelism(1);
 
         SingleOutputStreamOperator<GantryRawTransaction> rawGantryTrans = gantryStream.map(new LinkCounter<>("RawGantryTransCounter")).name("门架接收流水").setParallelism(1);
 
@@ -97,7 +144,6 @@ public class PrepareFlow {
         // 3.2 出口数据预处理
         processExitTrans(rawExitTrans);
 
-
         // 3.3 入口流水
         DataStream<EntryRawTransaction> entryCopyStream = entryStream.broadcast();
         SinkUtils.addInsertSinkToStream(entryStream, EntryRawTransaction.class, "entryRawStream");
@@ -107,13 +153,37 @@ public class PrepareFlow {
         processGantryTrans(rawGantryTrans);
 
         // (2) 门架路径聚合
-        DataStream<GantryRawTransaction> gantryCopyStream = gantryStream.broadcast();
-        DataStream<ExitRawTransaction> exitCopyStream = exitStream.broadcast();
+//        DataStream<GantryRawTransaction> gantryCopyStream = gantryStream.broadcast();
+//        DataStream<ExitRawTransaction> exitCopyStream = exitStream.broadcast();
 
-        SingleOutputStreamOperator<LinkedList<PathTransaction>> aggregatePathStream =
-                processPath(gantryCopyStream, entryCopyStream, exitCopyStream);
+//        SingleOutputStreamOperator<LinkedList<PathTransaction>> aggregatePathStream =
+//                processPath(gantryCopyStream, entryCopyStream, exitCopyStream);
 
-        return aggregatePathStream;
+//        SingleOutputStreamOperator<PathTransaction> process = pathStream.process(new ProcessFunction<PathTransaction, PathTransaction>() {
+//            @Override
+//            public void processElement(PathTransaction value, ProcessFunction<PathTransaction, PathTransaction>.Context ctx, Collector<PathTransaction> out) throws Exception {
+//                System.out.println(Thread.currentThread().getName() + ": " + value.getClass().getSimpleName()
+//                        + ":{passId: " + value.getPASSID() + ", time: " + value.peekTime() + "}");
+//                out.collect(value);
+//            }
+//        }).setParallelism(1);
+
+        return processPath(pathStream);
+    }
+
+    private static SingleOutputStreamOperator<LinkedList<PathTransaction>> processPath(DataStream<PathTransaction> pathStream) {
+
+        // 会话超时时间
+        Time sessionGap = Time.minutes(20);
+        // 3. 根据 passId 对数据流开窗
+        // 4. 返回聚合路径
+        return pathStream
+                .keyBy(PathTransaction::getPASSID)
+                .window(EventTimeSessionWindows.withGap(sessionGap))
+                .trigger(new PathTrigger())
+                .aggregate(new PathAggregateFunction(), new PathProcessWindowFunction())
+                .name("路径聚合")
+                .setParallelism(8);
     }
 
 
@@ -133,26 +203,24 @@ public class PrepareFlow {
 
         // 1. 合并 entry, gantry, exit 数据流
         DataStream<GantryRawTransaction> gantryCopyStream = gantryStream.broadcast();
-        SingleOutputStreamOperator<PathTransaction> connetStream = gantryCopyStream.connect(entryCopyStream).map(new CoMapFunction<GantryRawTransaction, EntryRawTransaction, PathTransaction>() {
+        SingleOutputStreamOperator<PathTransaction> connetStream = gantryCopyStream.connect(exitCopyStream).map(new CoMapFunction<GantryRawTransaction, ExitRawTransaction, PathTransaction>() {
             @Override
-            public PathTransaction map2(EntryRawTransaction entryRawTransaction) throws Exception {
-                return (PathTransaction) entryRawTransaction;
+            public PathTransaction map2(ExitRawTransaction exitRawTransaction) throws Exception {
+                return exitRawTransaction;
             }
-
             @Override
             public PathTransaction map1(GantryRawTransaction rawTransaction) throws Exception {
-                return (PathTransaction) rawTransaction;
+                return rawTransaction;
             }
         }).setParallelism(1).name("聚合");
-        SingleOutputStreamOperator<PathTransaction> pathTransStream = connetStream.connect(exitCopyStream).map(new CoMapFunction<PathTransaction, ExitRawTransaction, PathTransaction>() {
+        SingleOutputStreamOperator<PathTransaction> pathTransStream = connetStream.connect(entryCopyStream).map(new CoMapFunction<PathTransaction, EntryRawTransaction, PathTransaction>() {
             @Override
             public PathTransaction map1(PathTransaction pathTransaction) throws Exception {
                 return pathTransaction;
             }
-
             @Override
-            public PathTransaction map2(ExitRawTransaction exitRawTransaction) throws Exception {
-                return (PathTransaction) exitRawTransaction;
+            public PathTransaction map2(EntryRawTransaction entryRawTransaction) throws Exception {
+                return entryRawTransaction;
             }
         }).setParallelism(1).name("聚合");
 
@@ -186,17 +254,14 @@ public class PrepareFlow {
 
 
         // 3. 根据 passId 对数据流开窗
-        SingleOutputStreamOperator<LinkedList<PathTransaction>> aggregatePathStream = pathTransWithWatermark
+        // 4. 返回聚合路径
+        return pathTransWithWatermark
                 .keyBy(PathTransaction::getPASSID)
                 .window(EventTimeSessionWindows.withGap(sessionGap))
                 .trigger(new PathTrigger())
                 .aggregate(new PathAggregateFunction(), new PathProcessWindowFunction())
                 .name("路径聚合")
-                .setParallelism(1)
-                ;
-
-        // 4. 返回聚合路径
-        return aggregatePathStream;
+                .setParallelism(1);
     }
 
     private static void processGantryTrans(DataStream<GantryRawTransaction> gantryStream) {

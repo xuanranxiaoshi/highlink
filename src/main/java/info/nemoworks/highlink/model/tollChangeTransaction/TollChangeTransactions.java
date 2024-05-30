@@ -135,4 +135,8 @@ public class TollChangeTransactions implements HighwayTransaction {
     public int rETURNFLAG;
     @JsonProperty("ORIGINALFLAG")
     public int oRIGINALFLAG;
+
+    public String getPASSID(){
+        return null;
+    }
 }

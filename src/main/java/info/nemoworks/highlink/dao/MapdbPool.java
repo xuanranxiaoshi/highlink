@@ -30,6 +30,11 @@ public class MapdbPool implements CachePool{
     }
 
     @Override
+    public CacheDao getDaoImp(String key) {
+        return  new MapdbDaoImp(map);
+    }
+
+    @Override
     public void close(CacheDao cacheDao) {
         cacheDao.close();
     }
