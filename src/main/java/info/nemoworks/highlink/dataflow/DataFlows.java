@@ -18,6 +18,7 @@ import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @description:
@@ -56,14 +57,14 @@ public class DataFlows {
 
 
         // 1. 预处理子系统: 对输入数据流进行拆分预处理、返回聚合的路径数据
-        SingleOutputStreamOperator<LinkedList<PathTransaction>> aggregatePathStream =
+        SingleOutputStreamOperator<List<PathTransaction>> aggregatePathStream =
                 PrepareFlow.flow(unionStream);
 
         // 1.5 异常数据存储：对异常路径进行清洗
-        DataStream<LinkedList<PathTransaction>> cleanPathFlow = ExceptionFlow.flow(aggregatePathStream);
+        DataStream<List<PathTransaction>> cleanPathFlow = ExceptionFlowDev.flow(aggregatePathStream);
 
         // 输出清洗后的数据流； 备份一份，输出到文件，方便查看聚合结果
-        DataStream<LinkedList<PathTransaction>> cleanPathCopyFlow = cleanPathFlow.broadcast();
+        DataStream<List<PathTransaction>> cleanPathCopyFlow = cleanPathFlow.broadcast();
         SinkUtils.addFileSinkToStream(cleanPathCopyFlow, "aggregatedPath", new PathEncoder());
 
         // 2. 拆分子系统：对车辆路径进行收费金额拆分
