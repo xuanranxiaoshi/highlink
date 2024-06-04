@@ -11,6 +11,7 @@ import org.apache.flink.util.Collector;
 
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @description:
@@ -18,20 +19,20 @@ import java.util.LinkedList;
  * @date: 2024/1/17
  * @Copyright：
  */
-public class PathProcessWindowFunction extends ProcessWindowFunction<LinkedList<PathTransaction>, LinkedList<PathTransaction>, String, TimeWindow> {
+public class PathProcessWindowFunction extends ProcessWindowFunction<List<PathTransaction>, List<PathTransaction>, String, TimeWindow> {
     @Override
     public void process(String s,
-                        ProcessWindowFunction<LinkedList<PathTransaction>, LinkedList<PathTransaction>, String, TimeWindow>.Context context,
-                        Iterable<LinkedList<PathTransaction>> iterable,
-                        Collector<LinkedList<PathTransaction>> collector) throws Exception {
+                        ProcessWindowFunction<List<PathTransaction>, List<PathTransaction>, String, TimeWindow>.Context context,
+                        Iterable<List<PathTransaction>> iterable,
+                        Collector<List<PathTransaction>> collector) throws Exception {
 
         long startTs = context.window().getStart();
         long endTs = context.window().getEnd();
         String windowStart = DateFormatUtils.format(startTs, "yyyy-MM-dd HH:mm:ss.SSS");
         String windowEnd = DateFormatUtils.format(endTs, "yyyy-MM-dd HH:mm:ss.SSS");
 
-        Iterator<LinkedList<PathTransaction>> iterator = iterable.iterator();
-        LinkedList<PathTransaction> transList = iterator.next();
+        Iterator<List<PathTransaction>> iterator = iterable.iterator();
+        List<PathTransaction> transList = iterator.next();
 
         String pathData = getData(transList);
         String pathOut = "cur: " +  DateFormatUtils.format(context.currentWatermark(), "yyyy-MM-dd HH:mm:ss.SSS") +
@@ -44,7 +45,7 @@ public class PathProcessWindowFunction extends ProcessWindowFunction<LinkedList<
 
 
 
-    public static String getData(LinkedList<PathTransaction> transList){
+    public static String getData(List<PathTransaction> transList){
         StringBuilder stringBuilder = new StringBuilder();
 
         stringBuilder.append("[");

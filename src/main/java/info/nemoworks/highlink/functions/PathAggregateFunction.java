@@ -7,6 +7,7 @@ import info.nemoworks.highlink.model.gantryTransaction.GantryRawTransaction;
 import org.apache.flink.api.common.functions.AggregateFunction;
 
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @description:
@@ -14,14 +15,14 @@ import java.util.LinkedList;
  * @date: 2024/1/17
  * @Copyright：
  */
-public class PathAggregateFunction implements AggregateFunction<PathTransaction, LinkedList<PathTransaction>, LinkedList<PathTransaction>> {
+public class PathAggregateFunction implements AggregateFunction<PathTransaction, List<PathTransaction>, List<PathTransaction>> {
     @Override
     public LinkedList<PathTransaction> createAccumulator() {
         return new LinkedList<>();
     }
 
     @Override
-    public LinkedList<PathTransaction> add(PathTransaction pathTransaction, LinkedList<PathTransaction> pathTransactions) {
+    public List<PathTransaction> add(PathTransaction pathTransaction, List<PathTransaction> pathTransactions) {
 
         pathTransactions.add(pathTransaction);
 
@@ -39,15 +40,15 @@ public class PathAggregateFunction implements AggregateFunction<PathTransaction,
     }
 
     @Override
-    public LinkedList<PathTransaction> getResult(LinkedList<PathTransaction> pathTransactions) {
+    public List<PathTransaction> getResult(List<PathTransaction> pathTransactions) {
         // System.out.println("================= Path [" +pathTransactions.get(0).getPASSID() + "] end =====================！");
         return pathTransactions;
     }
 
     @Override
-    public LinkedList<PathTransaction> merge(LinkedList<PathTransaction> pathTransactions, LinkedList<PathTransaction> acc1) {
+    public List<PathTransaction> merge(List<PathTransaction> pathTransactions, List<PathTransaction> acc1) {
         System.out.println(Thread.currentThread().getName() + " merge[" + acc1.get(0).getPASSID()+"]:" + acc1.size() + " +" + pathTransactions.size() );
-        LinkedList<PathTransaction> linkedList = new LinkedList<>();
+        List<PathTransaction> linkedList = new LinkedList<>();
         linkedList.addAll(pathTransactions);
         linkedList.addAll(acc1);
         return linkedList;

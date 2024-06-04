@@ -9,6 +9,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMap
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @description:
@@ -16,7 +17,7 @@ import java.util.LinkedList;
  * @date: 2024/4/2
  * @Copyright：
  */
-public class MultiProvincePathCacheSink extends RichSinkFunction<LinkedList<PathTransaction>> {
+public class MultiProvincePathCacheSink extends RichSinkFunction<List<PathTransaction>> {
     private transient CacheDao cacheDao;
     private transient ObjectMapper objectMapper;
 
@@ -27,7 +28,7 @@ public class MultiProvincePathCacheSink extends RichSinkFunction<LinkedList<Path
     }
 
     @Override
-    public void invoke(LinkedList<PathTransaction> pathTransactionLinkedList, Context context) throws Exception {
+    public void invoke(List<PathTransaction> pathTransactionLinkedList, Context context) throws Exception {
         PathTransaction pathTransaction = pathTransactionLinkedList.get(0);
         String passid = pathTransaction.getPASSID();
         String key = SplitDataFlow.F2_PREFIX + passid;

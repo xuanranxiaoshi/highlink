@@ -29,6 +29,7 @@ import org.apache.flink.util.OutputTag;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author：jimi 拆分业务处理
@@ -61,16 +62,16 @@ public class SplitDataFlow {
 
 
 
-    public static DataStream<SplitResult> flow(DataStream<LinkedList<PathTransaction>> aggregatePathStream, DataStream<ProvinceTransaction> provinceStream){
+    public static DataStream<SplitResult> flow(DataStream<List<PathTransaction>> aggregatePathStream, DataStream<ProvinceTransaction> provinceStream){
 
-        final OutputTag<LinkedList<PathTransaction>> multiProvinceOutputTag = new OutputTag<>("multiProvince") {};
+        final OutputTag<List<PathTransaction>> multiProvinceOutputTag = new OutputTag<>("multiProvince") {};
 
         // 1. 不同拆分业务分流
         SingleOutputStreamOperator<SingleProvincePathTrans> singleProvinceSplitStream = aggregatePathStream.process(
-                new ProcessFunction<LinkedList<PathTransaction>, SingleProvincePathTrans>() {
+                new ProcessFunction<List<PathTransaction>, SingleProvincePathTrans>() {
                     @Override
-                    public void processElement(LinkedList<PathTransaction> pathList,
-                                               ProcessFunction<LinkedList<PathTransaction>, SingleProvincePathTrans>.Context ctx,
+                    public void processElement(List<PathTransaction> pathList,
+                                               ProcessFunction<List<PathTransaction>, SingleProvincePathTrans>.Context ctx,
                                                Collector<SingleProvincePathTrans> out) throws Exception {
                         PathTransaction exitTrans = pathList.getLast();
                         PathTransaction entryTrans = pathList.get(0);
@@ -86,7 +87,7 @@ public class SplitDataFlow {
                 }
         ).setParallelism(1).name("单/多省通行记录划分");
 
-        SideOutputDataStream<LinkedList<PathTransaction>> multiProvinceStream = singleProvinceSplitStream.getSideOutput(multiProvinceOutputTag);
+        SideOutputDataStream<List<PathTransaction>> multiProvinceStream = singleProvinceSplitStream.getSideOutput(multiProvinceOutputTag);
 
         // 跨省拆分由部中心的消息触发，先将跨省聚合路径写入缓存
         multiProvinceStream.addSink(new MultiProvincePathCacheSink()).name("多省通行记录暂存").setParallelism(1);

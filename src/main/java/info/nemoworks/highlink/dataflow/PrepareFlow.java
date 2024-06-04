@@ -33,6 +33,7 @@ import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @description: 预处理子系统业务逻辑实现
@@ -42,7 +43,7 @@ import java.util.LinkedList;
  */
 public class PrepareFlow {
 
-    public static SingleOutputStreamOperator<LinkedList<PathTransaction>> flow(DataStream<HighwayTransaction> unionStream) throws Exception {
+    public static SingleOutputStreamOperator<List<PathTransaction>> flow(DataStream<HighwayTransaction> unionStream) throws Exception {
 
         // 1. 切分为不同的数据流
         final OutputTag<ExitRawTransaction> exitTrans = new OutputTag<ExitRawTransaction>("exitTrans") {};
@@ -171,7 +172,7 @@ public class PrepareFlow {
         return processPath(pathStream);
     }
 
-    private static SingleOutputStreamOperator<LinkedList<PathTransaction>> processPath(DataStream<PathTransaction> pathStream) {
+    private static SingleOutputStreamOperator<List<PathTransaction>> processPath(DataStream<PathTransaction> pathStream) {
 
         // 会话超时时间
         Time sessionGap = Time.minutes(20);
@@ -191,7 +192,7 @@ public class PrepareFlow {
         return value;
     }
 
-    private static SingleOutputStreamOperator<LinkedList<PathTransaction>> processPath(DataStream<GantryRawTransaction> gantryStream,
+    private static SingleOutputStreamOperator<List<PathTransaction>> processPath(DataStream<GantryRawTransaction> gantryStream,
                                                                                        DataStream<EntryRawTransaction> entryCopyStream,
                                                                                        DataStream<ExitRawTransaction> exitCopyStream) {
 
