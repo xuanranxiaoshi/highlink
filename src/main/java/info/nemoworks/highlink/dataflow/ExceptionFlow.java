@@ -75,26 +75,26 @@ public class ExceptionFlow {
                 if (pathTransactionLinkedList.size() > 1 &&
                         isEntryData(pathTransactionLinkedList.get(0)) &&
                         isExitData(pathTransactionLinkedList.get(pathTransactionLinkedList.size() - 1))) { // 正常数据
-                    System.out.println("[Info] 正常数据： " + pathTransactionLinkedList.get(0).getPASSID());
+                    System.out.println(Thread.currentThread().getName() + " [Info] 正常数据： " + pathTransactionLinkedList.get(0).getPASSID());
                     out.collect(pathTransactionLinkedList);
                 }
                 else if (!isExitData(pathTransactionLinkedList.get(pathTransactionLinkedList.size() - 1))) {    //  1. path 不以出口(eixt、省界出口门架)结尾：超时数据
                     LinkedList<PathTransaction> mergeList = mergeFromRedis(pathTransactionLinkedList);
-                    System.out.println("[Info] 超时数据：" + pathTransactionLinkedList.get(0).getPASSID());
+                    System.out.println(Thread.currentThread().getName() + "[Info] 超时数据：" + pathTransactionLinkedList.get(0).getPASSID());
                     ctx.output(overTimePath, mergeList);
                 }
                 else if (isExitData(pathTransactionLinkedList.get(pathTransactionLinkedList.size() - 1))) {    //  2. path 以出口结尾：迟到数据, 直接触发计算
                     LinkedList<PathTransaction> mergeList = mergeFromRedis(pathTransactionLinkedList);
                     if (removePath(mergeList.get(0).getPASSID())) {  // 删除缓存中的超时数据
-                        System.out.println("[Info] 迟到数据(deleted): " + pathTransactionLinkedList.get(pathTransactionLinkedList.size() - 1).getPASSID());
+                        System.out.println(Thread.currentThread().getName() + "[Info] 迟到数据(deleted): " + pathTransactionLinkedList.get(pathTransactionLinkedList.size() - 1).getPASSID());
                         ctx.output(latePath, mergeList);
                     }
                     else {
                         // fixme : 不完整的迟到数据怎么办？
-                        System.out.println("[Info] 迟到数据(无超时数据): " + pathTransactionLinkedList.get(pathTransactionLinkedList.size() - 1).getPASSID());
+                        System.out.println(Thread.currentThread().getName() + "[Info] 迟到数据(无超时数据): " + pathTransactionLinkedList.get(pathTransactionLinkedList.size() - 1).getPASSID());
                     }
                 } else {
-                    System.out.println("[Info] 乱序数据：" + pathTransactionLinkedList.get(0).getPASSID());
+                    System.out.println(Thread.currentThread().getName() + "[Info] 乱序数据：" + pathTransactionLinkedList.get(0).getPASSID());
                     ctx.output(unOrderedPath, pathTransactionLinkedList);
                 }
             }
@@ -157,7 +157,7 @@ public class ExceptionFlow {
             String s = cacheDao.get(passID);
             // 1. redis 不存在记录直接返回
             if(s == null){
-                System.out.println("[Info] First write: " + passID);
+                System.out.println(Thread.currentThread().getName() +  "[Info] First write: " + passID);
                 return pathTransactionLinkedList;
             }
             // 1. redis 中已有数据，则取出进行合并
@@ -178,7 +178,7 @@ public class ExceptionFlow {
                     preList.add(curPathTrans);
                 }
                 preList.addAll(pathTransactionLinkedList);
-                System.out.println("[Info] Merge : " + passID);
+                System.out.println(Thread.currentThread().getName() +  "[Info] Merge : " + passID);
                 return preList;
             }
         }finally {
