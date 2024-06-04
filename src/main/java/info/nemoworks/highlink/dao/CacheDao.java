@@ -6,7 +6,7 @@ package info.nemoworks.highlink.dao;
  * @date: 2024/4/1
  * @Copyright：
  */
-public interface CacheDao {
+public interface CacheDao extends AutoCloseable{
     String get(String key);
 
     String set(String key, String value);
