@@ -17,6 +17,7 @@ import info.nemoworks.highlink.model.gantryTransaction.GantryRawTransaction;
 import info.nemoworks.highlink.model.mapper.ExitMapper;
 import info.nemoworks.highlink.model.mapper.ExtensionMapper;
 import info.nemoworks.highlink.model.mapper.GantryMapper;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.streaming.api.datastream.*;
@@ -28,6 +29,7 @@ import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
@@ -53,36 +55,14 @@ public class PrepareFlow {
         final OutputTag<GantryRawTransaction> gantryTrans = new OutputTag<GantryRawTransaction>("gantryTrans") {};
         final OutputTag<PathTransaction> pathTrans = new OutputTag<PathTransaction>("pathTrans") {};
 
-        // 2. 定义 Watermark 策略: 采用事件语义，提取 enTime 作为逻辑时间
-        WatermarkStrategy<HighwayTransaction> watermarkStrategy = WatermarkStrategy
-                // 乱序流水位线
-                .<HighwayTransaction>forBoundedOutOfOrderness(Duration.ofMinutes(1))
-                .withTimestampAssigner(new SerializableTimestampAssigner<HighwayTransaction>() {
-                    @Override
-                    public long extractTimestamp(HighwayTransaction element, long recordTimestamp) {
-                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                        Date date = null;
-                        try {
-                            date = dateFormat.parse(element.peekTime());
-                        } catch (ParseException e) {
-                            throw new RuntimeException(e);
-                        }
-                        // 返回的时间戳，毫秒
-                        return date.getTime();
-                    }
-                })
-
-                .withIdleness(Duration.ofSeconds(5));
-
-        SingleOutputStreamOperator<HighwayTransaction> unionStreamWithTime = unionStream.assignTimestampsAndWatermarks(watermarkStrategy);
-
-
-        final SingleOutputStreamOperator<EntryRawTransaction> mainDataStream = unionStreamWithTime.keyBy(HighwayTransaction::getPASSID)
+        final SingleOutputStreamOperator<EntryRawTransaction> mainDataStream = unionStream.keyBy(HighwayTransaction::getPASSID)
                 .process(new KeyedProcessFunction<String, HighwayTransaction, EntryRawTransaction>() {
                     @Override
                     public void processElement(HighwayTransaction value,
                                                KeyedProcessFunction<String, HighwayTransaction, EntryRawTransaction>.Context ctx,
                                                Collector<EntryRawTransaction> out) throws Exception {
+                        // Debug: 输出所有接收数据，排查缺失的出口数据
+                        System.out.println(Thread.currentThread().getName() + "=>" + value.getClass().getSimpleName() + "{ passId: " + value.getPASSID() + " time: " + value.peekTime() + " }");
                         if (value instanceof ExitRawTransaction exitRawTransaction) {
                             ctx.output(exitTrans, exitRawTransaction);
                             ctx.output(pathTrans, exitRawTransaction);
@@ -132,10 +112,9 @@ public class PrepareFlow {
         SinkUtils.addInsertSinkToStream(entryStream, EntryRawTransaction.class, "entryRawStream");
 
         // 3.4 门架数据预处理:
-        // (1) 原始数据预处理
         processGantryTrans(rawGantryTrans);
 
-        // (2) 门架路径聚合
+        // 路径聚合
         return processPath(pathStream);
     }
 

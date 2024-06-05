@@ -9,6 +9,7 @@ import info.nemoworks.highlink.model.pathTransaction.PathTransaction;
 import info.nemoworks.highlink.source.ProvinceRedisSource;
 import info.nemoworks.highlink.utils.Config;
 import info.nemoworks.highlink.utils.SinkUtils;
+import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.functions.KeySelector;
@@ -17,6 +18,10 @@ import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -29,9 +34,28 @@ import java.util.List;
 public class DataFlows {
     public static void start(StreamExecutionEnvironment env) throws Exception {
 
+        WatermarkStrategy<HighwayTransaction> watermarkStrategy = WatermarkStrategy
+                // 乱序流水位线
+                .<HighwayTransaction>forBoundedOutOfOrderness(Duration.ofMinutes(1))
+                .withTimestampAssigner(new SerializableTimestampAssigner<HighwayTransaction>() {
+                    @Override
+                    public long extractTimestamp(HighwayTransaction element, long recordTimestamp) {
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                        Date date = null;
+                        try {
+                            date = dateFormat.parse(element.peekTime());
+                        } catch (ParseException e) {
+                            throw new RuntimeException(e);
+                        }
+                        // 返回的时间戳，毫秒
+                        return date.getTime();
+                    }
+                })
+                .withIdleness(Duration.ofMinutes(1));
+
         // 0.1 预处理系统输入
         DataStream<HighwayTransaction> unionStream = env.fromSource(KafkaConnectorHelper.getKafkaHighWayTransSource("HighLink"),
-                        WatermarkStrategy.noWatermarks(),
+                        watermarkStrategy,
                         "预处理接收流水",
                         TypeInformation.of(HighwayTransaction.class))
                 .setParallelism(8)
