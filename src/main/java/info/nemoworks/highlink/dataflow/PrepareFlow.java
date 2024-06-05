@@ -42,9 +42,6 @@ import java.util.List;
  * @Copyright：
  */
 public class PrepareFlow {
-
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
     // 会话超时时间
     private static final Time sessionGap = Time.minutes(20);
 
@@ -63,6 +60,7 @@ public class PrepareFlow {
                 .withTimestampAssigner(new SerializableTimestampAssigner<HighwayTransaction>() {
                     @Override
                     public long extractTimestamp(HighwayTransaction element, long recordTimestamp) {
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                         Date date = null;
                         try {
                             date = dateFormat.parse(element.peekTime());
