@@ -43,9 +43,8 @@ import java.util.*;
  */
 public class ExceptionFlowDev {
 
-    private static ObjectMapper objectMapper;
-    private static CachePool cachePool;
-    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static final ObjectMapper objectMapper;
+    private static final CachePool cachePool;
 
     static  {
         objectMapper = SimpleContainer.getObjectMapper();
@@ -155,12 +154,13 @@ public class ExceptionFlowDev {
                 pathTransactionLinkedList.sort(new Comparator<PathTransaction>() {
                     @Override
                     public int compare(PathTransaction o1, PathTransaction o2) {
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                         try {
                             Date date1 = sdf.parse(o1.peekTime());
                             Date date2 = sdf.parse(o2.peekTime());
                             return (int) (date1.getTime() - date2.getTime());
                         } catch (ParseException e) {
-                            e.printStackTrace();
+                            System.out.println("[Cache] "+ o1.getPASSID() +" parse error: " + o1.peekTime() + ", " + o2.peekTime() + ", " + e.getMessage());
                             return -1;
                         }
                     }
@@ -183,6 +183,10 @@ public class ExceptionFlowDev {
             throw new RuntimeException(e);
         }
     }
+
+    /**
+     * json 字符串反序列化
+     */
     private static List<PathTransaction> string2PathList(String pathStr) throws JsonProcessingException {
         JsonNode jsonNode = objectMapper.readTree(pathStr);
         LinkedList<PathTransaction> preList = new LinkedList<>();
