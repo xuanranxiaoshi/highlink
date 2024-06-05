@@ -35,7 +35,7 @@ public class PathProcessWindowFunction extends ProcessWindowFunction<List<PathTr
         List<PathTransaction> transList = iterator.next();
 
         String pathData = getData(transList);
-        String pathOut = "cur: " +  DateFormatUtils.format(context.currentWatermark(), "yyyy-MM-dd HH:mm:ss.SSS") +
+        String pathOut = Thread.currentThread().getName() + "[cur:" +  DateFormatUtils.format(context.currentWatermark(), "yyyy-MM-dd HH:mm:ss.SSS") + "]" +
                 "[" + windowStart + "|" + windowEnd + "] " + s + " 包含" + transList.size() + "条数据 " + pathData;
 
         System.out.println(pathOut);
