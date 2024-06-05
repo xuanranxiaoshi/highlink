@@ -149,6 +149,7 @@ public class ExceptionFlowDev {
             // 合并缓存数据
             if (cachePathListStr != null) {
                 List<PathTransaction> cachePathList = string2PathList(cachePathListStr);
+                System.out.println("[Cache] merge from cache: " + passID +",size: " + cachePathList.size());
                 pathTransactionLinkedList.addAll(cachePathList);
                 // 按照时间顺序对数据进行排序
                 pathTransactionLinkedList.sort(new Comparator<PathTransaction>() {
@@ -160,14 +161,13 @@ public class ExceptionFlowDev {
                             Date date2 = sdf.parse(o2.peekTime());
                             return (int) (date1.getTime() - date2.getTime());
                         } catch (ParseException e) {
-                            System.out.println("[Cache] "+ o1.getPASSID() +" parse error: " + o1.peekTime() + ", " + o2.peekTime() + ", " + e.getMessage());
                             return -1;
                         }
                     }
                 });
-                System.out.println("[Cache] merge from redis: " + passID);
+                System.out.println("[Cache] merged from redis: " + passID +",size: " + pathTransactionLinkedList.size());
             }else{
-                System.out.println("[Cache] first write redis: " + passID);
+                System.out.println("[Cache] first write redis: " + passID +",size: " + pathTransactionLinkedList.size());
             }
             return pathTransactionLinkedList;
         }
