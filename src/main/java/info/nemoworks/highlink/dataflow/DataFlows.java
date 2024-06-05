@@ -2,7 +2,6 @@ package info.nemoworks.highlink.dataflow;
 
 import info.nemoworks.highlink.connector.KafkaConnectorHelper;
 import info.nemoworks.highlink.dataflow.encoder.PathEncoder;
-import info.nemoworks.highlink.functions.HashPartitioner;
 import info.nemoworks.highlink.model.HighwayTransaction;
 import info.nemoworks.highlink.model.splitTransaction.ProvinceTransaction;
 import info.nemoworks.highlink.model.pathTransaction.PathTransaction;
@@ -12,9 +11,7 @@ import info.nemoworks.highlink.utils.SinkUtils;
 import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
@@ -22,7 +19,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -85,7 +81,7 @@ public class DataFlows {
                 PrepareFlow.flow(unionStream);
 
         // 1.5 异常数据存储：对异常路径进行清洗
-        DataStream<List<PathTransaction>> cleanPathFlow = ExceptionFlowDev.flow(aggregatePathStream);
+        DataStream<List<PathTransaction>> cleanPathFlow = ExceptionFlow.flow(aggregatePathStream);
 
         // 输出清洗后的数据流； 备份一份，输出到文件，方便查看聚合结果
         DataStream<List<PathTransaction>> cleanPathCopyFlow = cleanPathFlow.broadcast();
